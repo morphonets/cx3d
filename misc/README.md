@@ -1,0 +1,1 @@
+This directory contains original files downloaded from the official cx3d website at [www.ini.uzh.ch/~amw/seco/cx3d/](https://www.ini.uzh.ch/~amw/seco/cx3d/#download) on Oct 2015.
