@@ -6,15 +6,15 @@ Cx3D (Cortex simulation in 3D) is a tool for simulating the growth of cortex in 
 
 For more information refer to the official [Cx3D website](https://www.ini.uzh.ch/~amw/seco/cx3d/).
 
-# Streamlined Setup
+
+## Streamlined Setup
 This repository provides a really quick project setup to run Cx3D.
 
- 1. To compile (assuming you have installed git and maven):
+1. To compile (assuming you have installed git and maven):
 
   ```
   git clone https://github.com/tferr/cx3d-mvn
   mvn compile
-
   ```
 
 2. To run from Eclipse:
@@ -28,15 +28,15 @@ This repository provides a really quick project setup to run Cx3D.
       Run *File* → *Import* → *Existing Maven Projects*, choosing the path to the cloned directory
 
 
-# Version
-
- * Cx3D public release 0.03
+## Version
+Cx3D public release 0.03
 
 
 # Development
 Refer to the Cx3D public [Subversion repository](https://svn.ini.uzh.ch/pub/cx3dp-core/.) (read-only)
 
 
-# Resources
-Always refer to the official [Cx3D website](https://www.ini.uzh.ch/~amw/seco/cx3d/).
-For convenience, some of the Cx3D tutorials are also in the [misc directory](./misc).
+## Resources
+ * [Official Cx3D website](https://www.ini.uzh.ch/~amw/seco/cx3d/) (for convenience, some of the Cx3D tutorials are also mirrored in the [misc directory](./misc))
+ * [Parallelized version of Cx3D](https://github.com/tferr/cx3dp-mvn)
+ * [C++ port of Cx3D](https://github.com/breitwieser/cx3d-cpp)
