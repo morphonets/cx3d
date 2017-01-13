@@ -14,6 +14,7 @@ This repository provides a really quick project setup to run Cx3D.
 
   ```
   git clone https://github.com/tferr/cx3d-mvn
+  cd cx3d-mvn
   mvn compile
   ```
 
@@ -26,7 +27,34 @@ This repository provides a really quick project setup to run Cx3D.
  2. Without m2e-egit, clone the repository, then:
 
       Run *File* → *Import* → *Existing Maven Projects*, choosing the path to the cloned directory
+ 
+3. To run without Eclipse:
 
+  After compiling in step 1:
+  
+  ```
+  mvn package
+  cd target
+  ```
+  
+  Then:
+  
+    1. To run an example from [the Tutorial](misc/Cx3DTutorial.pdf):
+  
+      ```  
+      jar ufe cx3d-mvn-0.0.3.jar ini.cx3d.simulations.tutorial.DividingCell
+      java -jar cx3d-mvn-0.0.3.jar 
+      ```
+  
+    2. Or, to reproduce a figure from [the Frontiers paper](http://journal.frontiersin.org/article/10.3389/neuro.10.025.2009/full):
+   
+      ```  
+      jar ufe cx3d-mvn-0.0.3.jar ini.cx3d.simulations.frontiers.Figure_3_G
+      java -jar cx3d-mvn-0.0.3.jar
+      ```
+    3. Once the the simulation window opens, uncheck "Pause" to begin simulation.
+  
+  Note: For other examples/figures, replace "DividingCell/Figure_3_G" above with others from the [tutorial](src/main/java/ini/cx3d/simulations/tutorial) or [frontiers](src/main/java/ini/cx3d/simulations/frontiers) folders.
 
 ## Version
 Cx3D public release 0.03
