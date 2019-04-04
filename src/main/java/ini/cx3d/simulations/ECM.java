@@ -21,27 +21,20 @@ along with CX3D.  If not, see <http://www.gnu.org/licenses/>.
 
 package ini.cx3d.simulations;
 
-import static ini.cx3d.utilities.Matrix.add;
-import static ini.cx3d.utilities.Matrix.randomNoise;
 import ini.cx3d.cells.Cell;
 import ini.cx3d.graphics.ECM_GUI_Creator;
 import ini.cx3d.graphics.View;
 import ini.cx3d.localBiology.NeuriteElement;
 import ini.cx3d.localBiology.SomaElement;
-import ini.cx3d.physics.ECMChemicalReaction;
-import ini.cx3d.physics.IntracellularSubstance;
-import ini.cx3d.physics.PhysicalCylinder;
-import ini.cx3d.physics.PhysicalNode;
-import ini.cx3d.physics.PhysicalNodeMovementListener;
-import ini.cx3d.physics.PhysicalSphere;
-import ini.cx3d.physics.Substance;
+import ini.cx3d.physics.*;
 import ini.cx3d.spatialOrganization.PositionNotAllowedException;
 import ini.cx3d.spatialOrganization.SpaceNode;
 import ini.cx3d.spatialOrganization.SpatialOrganizationNode;
 import ini.cx3d.utilities.Matrix;
 
-import java.awt.Color;
-import java.awt.Graphics;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Hashtable;
@@ -49,9 +42,8 @@ import java.util.Random;
 import java.util.Vector;
 import java.util.concurrent.Semaphore;
 
-import javax.imageio.ImageIO;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
+import static ini.cx3d.utilities.Matrix.add;
+import static ini.cx3d.utilities.Matrix.randomNoise;
 
 /**
  * Contains some lists with all the elements of the simulation, and methods to add 
@@ -77,7 +69,7 @@ public class ECM {
 	/** List of all the Cell instances. */
 	public Vector<Cell> cellList  = new Vector<Cell>();
 	/** List of all the Chemical reactions instances. */
-	public Vector<ECMChemicalReaction> ecmChemicalReactionList = new Vector<ECMChemicalReaction>(); 
+	public Vector<ECMChemicalReaction> ecmChemicalReactionList = new Vector<ECMChemicalReaction>();
 	
 	
 	/** needed for run and pause.*/ 
@@ -91,7 +83,7 @@ public class ECM {
 
 	/* In here we keep a template for each (extra-cellular) Substance in the simulation that have
 	 * non-standard value for diffusion and degradation constant.*/
-	private Hashtable<String, Substance> substancesLibrary = new Hashtable<String, Substance>();
+		private Hashtable<String, Substance> substancesLibrary = new Hashtable<String, Substance>();
 	
 	/* In here we keep a template for each (intra-cellular) Substance in the simulation that have
 	 * non-standard value for diffusion and degradation constant.*/
@@ -103,7 +95,7 @@ public class ECM {
 	// GUI ..................................................................................
 
 	public View view;
-	public ECM_GUI_Creator  myGuiCreator;
+	public ECM_GUI_Creator myGuiCreator;
 	volatile private boolean simulationOnPause = true;
 	public boolean continuouslyRotating = false;
 	// saving snapshots
@@ -154,11 +146,18 @@ public class ECM {
 	 * max value, TOP (x-coord of the max value), DOWN (x-coord of the 0 value). */  
 	public Hashtable<Substance,double[]> linearArtificialConcentrationX = new Hashtable<Substance,double[]>();
 
+	/* List of all the chemicals with a gaussian distribution along the Y-axis
+	 * max value, mean (y-coord of the max value), sigma2 (thickness). */
+	public Hashtable<Substance,double[]> gaussianArtificialConcentrationY = new Hashtable<Substance,double[]>();
+
+	/* List of all the chemicals with a linear distribution along the Y-axis
+	 * max value, TOP (y-coord of the max value), DOWN (y-coord of the 0 value). */
+	public Hashtable<Substance,double[]> linearArtificialConcentrationY = new Hashtable<Substance,double[]>();
+
+
 	/* to link the one instance of Substance we have used in the definition of the gradient, with the name of
 	 * the chemical that can be given as argument in the methods to know the concentration/grad.. */
 	public Hashtable<String, Substance> allArtificialSubstances = new Hashtable<String, Substance>();
-
-
 
 	// **************************************************************************
 	// Singleton pattern
@@ -244,7 +243,7 @@ public class ECM {
 	}
 	/** If set to true, the PhysicalSpheres tend to stay inside a box, 
 	 * who's boundaries are set with setBoundaries().
-	 * @param artificialWalls
+	 * @param artificialWallsForSpheres
 	 */
 	public void setArtificialWallsForSpheres(boolean artificialWallsForSpheres){
 		this.artificialWallsForSpheres = artificialWallsForSpheres;
@@ -252,14 +251,14 @@ public class ECM {
 
 	/** If true, the PhysicalSpheres tend to stay inside a box, who's boundaries are set with
 	 * setBoundaries().
-	 * @param artificialWalls
 	 */
 	public boolean getArtificialWallForSpheres(){
 		return artificialWallsForSpheres;
 	}
+
 	/** If set to true, the PhysicalCyliners tend to stay inside a box, 
 	 * who's boundaries are set with setBoundaries().
-	 * @param artificialWalls
+	 * @param artificialWallsForCylinders
 	 */
 	public void setArtificialWallsForCylinders(boolean artificialWallsForCylinders){
 		this.artificialWallsForCylinders = artificialWallsForCylinders;
@@ -267,7 +266,6 @@ public class ECM {
 
 	/** If true, the PhysicalCyliners tend to stay inside a box, who's boundaries are set with
 	 * setBoundaries().
-	 * @param artificialWalls
 	 */
 	public boolean getArtificialWallForCylinders(){
 		return artificialWallsForCylinders;
@@ -348,7 +346,7 @@ public class ECM {
 	 * @return
 	 */
 	public SpatialOrganizationNode<PhysicalNode> getSpatialOrganizationNodeInstance(
-			SpatialOrganizationNode<PhysicalNode> n, double[] position, PhysicalNode userObject){
+            SpatialOrganizationNode<PhysicalNode> n, double[] position, PhysicalNode userObject){
 		if(initialNode == null){
 			SpaceNode<PhysicalNode> sn1 = new SpaceNode<PhysicalNode>(position,userObject);
 			PhysicalNodeMovementListener listener = new PhysicalNodeMovementListener();
@@ -401,7 +399,7 @@ public class ECM {
 					// create the node
 					PhysicalNode pn = new PhysicalNode();
 					// request a delaunay vertex
-					SpatialOrganizationNode<PhysicalNode> newSon; 
+					SpatialOrganizationNode<PhysicalNode> newSon;
 					if(oldSon!=null){
 						newSon = getSpatialOrganizationNodeInstance(oldSon, coord, pn);
 					}else{
@@ -644,7 +642,7 @@ public class ECM {
 		if(registeredSubstance!=null){
 			return registeredSubstance;
 		}else{
-			registeredSubstance = new Substance(substanceId,Color.blue);;
+			registeredSubstance = new Substance(substanceId, Color.blue);;
 			allArtificialSubstances.put(substanceId, registeredSubstance);
 			anyArtificialGradientDefined = true;
 			if(myGuiCreator!=null) myGuiCreator.addNewChemical(registeredSubstance);
@@ -692,7 +690,7 @@ public class ECM {
 	 * 
 	 * It is a continuous value, and not instances of the class Substance!
 	 * 
-	 * @param Substance
+	 * @param substance
 	 * @param maxConcentration the value of the concentration at its peak
 	 * @param zCoordMax the location of the peak 
 	 * @param zCoordMin the location where the concentration reaches the value 0
@@ -711,7 +709,7 @@ public class ECM {
 	 * 
 	 * It is a continuous value, and not instances of the class Substance!
 	 * 
-	 * @param nameOfTheChemical
+	 * @param substanceName
 	 * @param maxConcentration the value of the concentration at its peak
 	 * @param zCoordMax the location of the peak 
 	 * @param zCoordMin the location where the concentration reaches the value 0
@@ -722,12 +720,12 @@ public class ECM {
 		double[] value = new double[] {maxConcentration, zCoordMax, zCoordMin}; 
 		linearArtificialConcentrationZ.put(substance, value);
 	}
-	
+
 	/**
-	 * Defines a bell-shaped artificial concentration in ECM, along the X axis (ie uniform along Y,Z axis). 
+	 * Defines a bell-shaped artificial concentration in ECM, along the X axis (ie uniform along Y,Z axis).
 	 * It is a continuous value, and not instances of the class Substance!.
-	 *   
-	 * @param nameOfTheChemical 
+	 *
+	 * @param substance
 	 * @param maxConcentration the value of the concentration at its peak
 	 * @param xCoord the location of the peak
 	 * @param sigma the thickness of the layer (= the variance)
@@ -736,15 +734,15 @@ public class ECM {
 		// look if we already have a substance with the same id
 		substance = getRegisteredArtificialSubstance(substance);
 		// define distribution values for the chemical, and store them together
-		double[] value = new double[] {maxConcentration, xCoord, sigma}; 
+		double[] value = new double[] {maxConcentration, xCoord, sigma};
 		gaussianArtificialConcentrationX.put(substance, value);
 	}
-	
+
 	/**
-	 * Defines a bell-shaped artificial concentration in ECM, along the X axis (ie uniform along Y,Z axis). 
+	 * Defines a bell-shaped artificial concentration in ECM, along the X axis (ie uniform along Y,Z axis).
 	 * It is a continuous value, and not instances of the class Substance!.
-	 *   
-	 * @param nameOfTheChemical 
+	 *
+	 * @param substanceName
 	 * @param maxConcentration the value of the concentration at its peak
 	 * @param xCoord the location of the peak
 	 * @param sigma the thickness of the layer (= the variance)
@@ -753,48 +751,122 @@ public class ECM {
 		// look if we already have a substance with the same id
 		Substance substance = getRegisteredArtificialSubstance(substanceName);
 		// define distribution values for the chemical, and store them together
-		double[] value = new double[] {maxConcentration, xCoord, sigma}; 
+		double[] value = new double[] {maxConcentration, xCoord, sigma};
 		gaussianArtificialConcentrationX.put(substance, value);
 	}
 
 	/**
 	 * Defines a linear artificial concentration in ECM, between two points along the X axis. Outside this interval
-	 * the value will be 0. Between the interval the value is the linear interpolation between 
+	 * the value will be 0. Between the interval the value is the linear interpolation between
 	 * the maximum value and 0.
-	 * 
+	 *
 	 * It is a continuous value, and not instances of the class Substance!
-	 * 
-	 * @param nameOfTheChemical
+	 *
+	 * @param substance
 	 * @param maxConcentration the value of the concentration at its peak
-	 * @param xCoordMax the location of the peak 
+	 * @param xCoordMax the location of the peak
 	 * @param xCoordMin the location where the concentration reaches the value 0
 	 */
 	public void addArtificialLinearConcentrationX(Substance substance, double maxConcentration, double xCoordMax, double xCoordMin){
 		// look if we already have a substance with the same id
 		substance = getRegisteredArtificialSubstance(substance);
 		// define distribution values for the chemical, and store them together
-		double[] value = new double[] {maxConcentration, xCoordMax, xCoordMin}; 
+		double[] value = new double[] {maxConcentration, xCoordMax, xCoordMin};
 		linearArtificialConcentrationX.put(substance, value);
 	}
-	
+
 	/**
 	 * Defines a linear artificial concentration in ECM, between two points along the X axis. Outside this interval
-	 * the value will be 0. Between the interval the value is the linear interpolation between 
+	 * the value will be 0. Between the interval the value is the linear interpolation between
 	 * the maximum value and 0.
-	 * 
+	 *
 	 * It is a continuous value, and not instances of the class Substance!
-	 * 
-	 * @param nameOfTheChemical
+	 *
+	 * @param substanceId
 	 * @param maxConcentration the value of the concentration at its peak
-	 * @param xCoordMax the location of the peak 
+	 * @param xCoordMax the location of the peak
 	 * @param xCoordMin the location where the concentration reaches the value 0
 	 */
 	public void addArtificialLinearConcentrationX(String substanceId, double maxConcentration, double xCoordMax, double xCoordMin){
 		// look if we already have a substance with the same id
 		Substance substance = getRegisteredArtificialSubstance(substanceId);
 		// define distribution values for the chemical, and store them together
-		double[] value = new double[] {maxConcentration, xCoordMax, xCoordMin}; 
+		double[] value = new double[] {maxConcentration, xCoordMax, xCoordMin};
 		linearArtificialConcentrationX.put(substance, value);
+	}
+
+	/**
+	 * Defines a bell-shaped artificial concentration in ECM, along the Y axis (ie uniform along X,Z axis).
+	 * It is a continuous value, and not instances of the class Substance!.
+	 *
+	 * @param substance
+	 * @param maxConcentration the value of the concentration at its peak
+	 * @param yCoord the location of the peak
+	 * @param sigma the thickness of the layer (= the variance)
+	 */
+	public void addArtificialGaussianConcentrationY(Substance substance, double maxConcentration, double yCoord, double sigma){
+		// look if we already have a substance with the same id
+		substance = getRegisteredArtificialSubstance(substance);
+		// define distribution values for the chemical, and store them together
+		double[] value = new double[] {maxConcentration, yCoord, sigma};
+		gaussianArtificialConcentrationY.put(substance, value);
+	}
+
+	/**
+	 * Defines a bell-shaped artificial concentration in ECM, along the Y axis (ie uniform along X,Z axis).
+	 * It is a continuous value, and not instances of the class Substance!.
+	 *
+	 * @param substanceName
+	 * @param maxConcentration the value of the concentration at its peak
+	 * @param yCoord the location of the peak
+	 * @param sigma the thickness of the layer (= the variance)
+	 */
+	public void addArtificialGaussianConcentrationY(String substanceName, double maxConcentration, double yCoord, double sigma){
+		// look if we already have a substance with the same id
+		Substance substance = getRegisteredArtificialSubstance(substanceName);
+		// define distribution values for the chemical, and store them together
+		double[] value = new double[] {maxConcentration, yCoord, sigma};
+		gaussianArtificialConcentrationY.put(substance, value);
+	}
+
+	/**
+	 * Defines a linear artificial concentration in ECM, between two points along the Y axis. Outside this interval
+	 * the value will be 0. Between the interval the value is the linear interpolation between
+	 * the maximum value and 0.
+	 *
+	 * It is a continuous value, and not instances of the class Substance!
+	 *
+	 * @param substance
+	 * @param maxConcentration the value of the concentration at its peak
+	 * @param yCoordMax the location of the peak
+	 * @param yCoordMin the location where the concentration reaches the value 0
+	 */
+	public void addArtificialLinearConcentrationY(Substance substance, double maxConcentration, double yCoordMax, double yCoordMin){
+		// look if we already have a substance with the same id
+		substance = getRegisteredArtificialSubstance(substance);
+		// define distribution values for the chemical, and store them together
+		double[] value = new double[] {maxConcentration, yCoordMax, yCoordMin};
+		linearArtificialConcentrationY.put(substance, value);
+	}
+
+	/**
+	 * Defines a linear artificial concentration in ECM, between two points along the Y axis. Outside this interval
+	 * the value will be 0. Between the interval the value is the linear interpolation between
+	 * the maximum value and 0.
+	 *
+	 * It is a continuous value, and not instances of the class Substance!
+	 *
+	 * @param substanceId
+	 * @param maxConcentration the value of the concentration at its peak
+	 * @param yCoordMax the location of the peak
+	 * @param yCoordMin the location where the concentration reaches the value 0
+	 */
+	public void addArtificialLinearConcentrationY(String substanceId, double maxConcentration, double yCoordMax, double yCoordMin){
+		// look if we already have a substance with the same id
+		Substance substance = getRegisteredArtificialSubstance(substanceId);
+		// define distribution values for the chemical, and store them together
+		double[] value = new double[] {maxConcentration, yCoordMax, yCoordMin};
+		linearArtificialConcentrationY.put(substance, value);
 	}
 
 	/**
@@ -804,6 +876,9 @@ public class ECM {
 	 * @return
 	 */
 	public double getValueArtificialConcentration(String nameOfTheChemical, double[] position){
+
+		// TODO: change this to use Img: imgSubstances
+
 		double x = position[0];
 		double z = position[2];
 		// does the substance exist at all ?
@@ -821,14 +896,14 @@ public class ECM {
 			double[] val = gaussianArtificialConcentrationX.get(sub);
 			double exposant = (x-val[1])/val[2];
 			exposant = exposant*exposant*0.5;
-			concentration += val[0]*Math.exp(-exposant);
+			concentration += val[0]* Math.exp(-exposant);
 		}
 		// Z Gaussian
 		if(gaussianArtificialConcentrationZ.containsKey(sub)){
 			double[] val = gaussianArtificialConcentrationZ.get(sub);
 			double exposant = (z-val[1])/val[2];
 			exposant = exposant*exposant*0.5;
-			concentration += val[0]*Math.exp(-exposant);
+			concentration += val[0]* Math.exp(-exposant);
 		}
 		// X linear
 		if(linearArtificialConcentrationX.containsKey(sub)){
@@ -856,7 +931,7 @@ public class ECM {
 
 	/**
 	 * Gets the value of a chemical, at a specific position in space
-	 * @param nameOfTheChemical
+	 * @param substance
 	 * @param position the location [x,y,z]
 	 * @return
 	 */
@@ -887,7 +962,7 @@ public class ECM {
 			double[] val = gaussianArtificialConcentrationX.get(sub);
 			double exposant = (x-val[1])/val[2];
 			exposant = exposant*exposant*0.5;
-			double xValOfGradient = -((x-val[1])/(val[2]*val[2])) *val[0]*Math.exp(-exposant);
+			double xValOfGradient = -((x-val[1])/(val[2]*val[2])) *val[0]* Math.exp(-exposant);
 			gradient[0] += xValOfGradient;
 		}
 		// Gaussian Z
@@ -895,7 +970,7 @@ public class ECM {
 			double[] val = gaussianArtificialConcentrationZ.get(sub);
 			double exposant = (z-val[1])/val[2];
 			exposant = exposant*exposant*0.5;
-			double zValOfGradient = -((z-val[1])/(val[2]*val[2])) *val[0]*Math.exp(-exposant);
+			double zValOfGradient = -((z-val[1])/(val[2]*val[2])) *val[0]* Math.exp(-exposant);
 			gradient[2] += zValOfGradient;
 		}
 		// Linear X
@@ -936,7 +1011,7 @@ public class ECM {
 	// **************************************************************************
 	// Simulation Time
 	// **************************************************************************
-	public  String nicelyWrittenECMtime(){
+	public String nicelyWrittenECMtime(){
 		double hours = Math.floor(ECMtime);
 		double minutes = ECMtime-hours;
 
@@ -950,7 +1025,7 @@ public class ECM {
 			return ""+hours+" h "+minutes+" min.";
 		}
 		double hdivided = hours/24.0; 
-		double days = Math.floor(hdivided); 
+		double days = Math.floor(hdivided);
 		hours = hours-days*24;
 		return ""+days+" days "+hours+" hours "+minutes+" min.";
 	}
@@ -1016,7 +1091,7 @@ public class ECM {
 	public void dumpImage(String name) {
 		int dimX = view.smallWindowRectangle.width+view.smallWindowRectangle.x;
 		int dimY = view.smallWindowRectangle.height+view.smallWindowRectangle.y;
-		BufferedImage im = new BufferedImage(dimX, dimY,BufferedImage.TYPE_INT_RGB);
+		BufferedImage im = new BufferedImage(dimX, dimY, BufferedImage.TYPE_INT_RGB);
 		System.out.println("roi"+view.smallWindowRectangle.toString());
 		Graphics g = im.getGraphics();
 		view.paint(g);
@@ -1200,8 +1275,5 @@ public class ECM {
 	public String getPicturesName() {
 		return picturesName;
 	}
-
-
-
 
 }
