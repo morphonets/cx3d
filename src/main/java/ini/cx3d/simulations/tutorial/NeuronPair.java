@@ -54,7 +54,7 @@ public class NeuronPair {
 			ecm.getPhysicalNodeInstance(coord);
 		}
 
-		int numGRNInputs = 2;
+		int numGRNInputs = 4;
 		int numGRNOutputs = 2;
 		int maxGRNNodes = 50;
 		Random rng = new Random();
@@ -78,14 +78,14 @@ public class NeuronPair {
 
 		for (int i = 0; i < 2; i++) {
 			Cell c;
-			if(i<2){
+			if(i<1){
 				c= CellFactory.getCellInstance(new double[] {-20+40*ECM.getRandomDouble(),-20+40*ECM.getRandomDouble(),0.0});
 				c.setNeuroMLType(Cell.ExcitatoryCell);
 				c.setColorForAllPhysicalObjects(Param.VIOLET);
 			}else{
 				c= CellFactory.getCellInstance(new double[] {-20+40*ECM.getRandomDouble(),-20+40*ECM.getRandomDouble(),200.0});
 				c.setNeuroMLType(Cell.InhibitoryCell);
-				c.setColorForAllPhysicalObjects(Param.VIOLET.darker());	
+				c.setColorForAllPhysicalObjects(Param.CYAN);
 			}
 			NeuriteElement axon = c.getSomaElement().extendNewNeurite();
 			axon.setIsAnAxon(true);
