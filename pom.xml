@@ -10,9 +10,19 @@
     <name>cx3d-mvn</name>
     <url>https://www.ini.uzh.ch/~amw/seco/cx3d/</url>
 
+    <repositories>
+        <repository>
+            <id>brevis</id>
+            <url>https://dl.bintray.com/kephale/brevis</url>
+        </repository>
+    </repositories>
 
     <dependencies>
-
+        <dependency>
+            <groupId>us.brevis</groupId>
+            <artifactId>GRNEAT</artifactId>
+            <version>0.0.3</version>
+        </dependency>
     </dependencies>
 
     <build>
