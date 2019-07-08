@@ -21,6 +21,7 @@ along with CX3D.  If not, see <http://www.gnu.org/licenses/>.
 
 package ini.cx3d.simulations.tutorial;
 
+import graphics.scenery.SceneryBase;
 import ini.cx3d.Param;
 import ini.cx3d.cells.Cell;
 import ini.cx3d.cells.CellFactory;
@@ -175,6 +176,8 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 	}
 
 	public static void main(String[] args) {
+		SceneryBase.xinitThreads();
+
 		ECM ecm = ECM.getInstance();
 		ECM.setRandomSeed(0L);
 		Substance slitRobo = new Substance("slitRobo",Color.magenta);

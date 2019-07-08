@@ -212,6 +212,9 @@ public class Scheduler {
 			}
 			// updating the picture on the GUI
 			view.repaint();
+			// update sciview
+			ecm.updateSciView();
+
 			// ticking ECM's time
 			cycle_counter += 1;
 			ecm.increaseECMtime(Param.SIMULATION_TIME_STEP);

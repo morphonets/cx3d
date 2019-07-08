@@ -21,6 +21,8 @@ along with CX3D.  If not, see <http://www.gnu.org/licenses/>.
 
 package ini.cx3d.simulations;
 
+import graphics.scenery.SceneryBase;
+import ini.cx3d.SciViewCX3D;
 import ini.cx3d.cells.Cell;
 import ini.cx3d.graphics.ECM_GUI_Creator;
 import ini.cx3d.graphics.View;
@@ -31,6 +33,14 @@ import ini.cx3d.spatialOrganization.PositionNotAllowedException;
 import ini.cx3d.spatialOrganization.SpaceNode;
 import ini.cx3d.spatialOrganization.SpatialOrganizationNode;
 import ini.cx3d.utilities.Matrix;
+import io.scif.SCIFIOService;
+import net.imagej.ImageJService;
+import org.scijava.Context;
+import org.scijava.service.SciJavaService;
+import org.scijava.thread.ThreadService;
+import org.scijava.ui.UIService;
+import sc.iview.SciView;
+import sc.iview.SciViewService;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -165,7 +175,32 @@ public class ECM {
 
 	private static ECM instance = null;
 
+	// *** SciView fields ***
+	private SciViewCX3D sciViewCX3D = null;
+
 	private ECM() {
+		configureSciview();
+	}
+
+	/**
+	 * Initialize sciview
+	 */
+	private void configureSciview() {
+
+        System.setProperty( "scijava.log.level:sc.iview", "debug" );
+        Context context = new Context( ImageJService.class, SciJavaService.class, SCIFIOService.class, ThreadService.class);
+
+        UIService ui = context.service( UIService.class );
+        if( !ui.isVisible() ) ui.showUI();
+
+        SciViewService sciViewService = context.service( SciViewService.class );
+        SciView sciView = sciViewService.getOrCreateActiveSciView();
+
+        sciViewCX3D = new SciViewCX3D(context, ui, sciView, this);
+	}
+
+	public void updateSciView() {
+		sciViewCX3D.syncCX3D();
 	}
 
 	/** 
@@ -633,6 +668,7 @@ public class ECM {
 			allArtificialSubstances.put(substance.getId(), registeredSubstance);
 			anyArtificialGradientDefined = true;
 			if(myGuiCreator!=null) myGuiCreator.addNewChemical(substance);
+			if(sciViewCX3D!=null) sciViewCX3D.addNewChemical(substance);
 			return registeredSubstance;
 		}
 	}
@@ -646,6 +682,7 @@ public class ECM {
 			allArtificialSubstances.put(substanceId, registeredSubstance);
 			anyArtificialGradientDefined = true;
 			if(myGuiCreator!=null) myGuiCreator.addNewChemical(registeredSubstance);
+			if(sciViewCX3D!=null) sciViewCX3D.addNewChemical(registeredSubstance);
 			return registeredSubstance;
 		}
 	}

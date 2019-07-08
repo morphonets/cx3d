@@ -653,8 +653,7 @@ public class PhysicalCylinder extends PhysicalObject{
 	 * daughter left and daughter right
 	 * @param length the length of the new branches 
 	 * @param direction_1 of the first branch (if 
-	 * @param newBranchL
-	 * @param newBranchR
+	 * @param direction_2
 	 */
 
 	public PhysicalCylinder[] bifurcateCylinder(double length, double[] direction_1, double[] direction_2) {
@@ -1578,7 +1577,7 @@ public class PhysicalCylinder extends PhysicalObject{
 	/**
 	 * Returns the position in cylindrical coordinates (h,theta,r)
 	 * of a point expressed in the local coordinate system (xAxis, yXis, zAxis).
-	 * @param positionInLocalCoord
+	 * @param positionInLocalCoordinates
 	 * @return
 	 */
 	public double[] transformCoordinatesLocalToPolar(double[] positionInLocalCoordinates){
@@ -1599,7 +1598,7 @@ public class PhysicalCylinder extends PhysicalObject{
 	/**
 	 * Returns the position in the local coordinate system (xAxis, yXis, zAxis) 
 	 * of a point expressed in cylindrical coordinates (h,theta,r).
-	 * @param positionInLocalCoord
+	 * @param positionInPolarCoordinates
 	 * @return
 	 */
 	public double[] transformCoordinatesPolarToLocal(double[] positionInPolarCoordinates){
@@ -1970,12 +1969,29 @@ public class PhysicalCylinder extends PhysicalObject{
 		finally
 		{
 			getRwLock().readLock().unlock();
-		}	
+		}
+	}
+
+	/**
+	 * retuns the position of the proximal end, ie the massLocation minus the spring axis.
+	 * Is mainly used for paint
+	 * @return
+	 */
+	public float[] proximalEndF(){
+		try{
+			getRwLock().readLock().lock();
+			double[] s = subtract(massLocation, springAxis);
+			return new float[]{(float) s[0], (float) s[1], (float) s[2]};
+		}
+		finally
+		{
+			getRwLock().readLock().unlock();
+		}
 	}
 
 
 	/**
-	 * retuns the position of the distal end, ie the massLocation coordinates (but not the 
+	 * retuns the position of the distal end, ie the massLocation coordinates (but not the
 	 * actual massLocation array).
 	 * Is mainly used for paint
 	 * @return
@@ -1988,7 +2004,24 @@ public class PhysicalCylinder extends PhysicalObject{
 		finally
 		{
 			getRwLock().readLock().unlock();
-		}	
+		}
+	}
+
+	/**
+	 * retuns the position of the distal end, ie the massLocation coordinates (but not the
+	 * actual massLocation array).
+	 * Is mainly used for paint
+	 * @return
+	 */
+	public float[] distalEndF(){
+		try{
+			getRwLock().readLock().lock();
+			return new float[] {(float) massLocation[0], (float) massLocation[1], (float) massLocation[2]};
+		}
+		finally
+		{
+			getRwLock().readLock().unlock();
+		}
 	}
 
 	/**
