@@ -1,10 +1,10 @@
 package ini.cx3d.localBiology;
 
-import evaluators.GRNGenomeEvaluator;
-import evolver.GRNGene;
-import evolver.GRNGenome;
-import grn.GRNModel;
-import grn.GRNProtein;
+import fun.grn.grneat.evaluators.GRNGenomeEvaluator;
+import fun.grn.grneat.evolver.GRNGene;
+import fun.grn.grneat.evolver.GRNGenome;
+import fun.grn.grneat.grn.GRNModel;
+import fun.grn.grneat.grn.GRNProtein;
 
 import java.util.Random;
 

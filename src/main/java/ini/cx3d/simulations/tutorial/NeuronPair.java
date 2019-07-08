@@ -21,9 +21,9 @@ along with CX3D.  If not, see <http://www.gnu.org/licenses/>.
 
 package ini.cx3d.simulations.tutorial;
 
-import evolver.GRNGene;
-import evolver.GRNGenome;
-import grn.GRNProtein;
+import fun.grn.grneat.evolver.GRNGene;
+import fun.grn.grneat.evolver.GRNGenome;
+import fun.grn.grneat.grn.GRNProtein;
 import ini.cx3d.Param;
 import ini.cx3d.cells.Cell;
 import ini.cx3d.cells.CellFactory;
