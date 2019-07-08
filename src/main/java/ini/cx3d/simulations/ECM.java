@@ -208,6 +208,7 @@ public class ECM {
 	 * @return the ECM
 	 */
 	public static ECM getInstance() {
+	    SceneryBase.xinitThreads();
 		if (instance == null) {
 			instance = new ECM();
 		}

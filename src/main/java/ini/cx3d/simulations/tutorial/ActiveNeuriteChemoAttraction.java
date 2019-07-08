@@ -176,7 +176,7 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 	}
 
 	public static void main(String[] args) {
-		SceneryBase.xinitThreads();
+		//SceneryBase.xinitThreads();
 
 		ECM ecm = ECM.getInstance();
 		ECM.setRandomSeed(0L);
