@@ -371,7 +371,7 @@ public abstract class PhysicalObject extends PhysicalNode {
 	/**
 	 * Returns a unit vector, pointing out of the PhysicalObject if origin at location
 	 * specified in argument.
-	 * @param positionInLocalCoordinates the origin of the normal vector (local cartesian coord)
+	 * @param positionInPolarCoordinates the origin of the normal vector (local cartesian coord)
 	 * @return a vector pointing "out", of unitary norm (absolute cartesian coord) 
 	 */
 	abstract public double[] getUnitNormalVector(double[] positionInPolarCoordinates);
@@ -742,6 +742,20 @@ public abstract class PhysicalObject extends PhysicalNode {
 		{
 			getRwLock().readLock().lock();
 			return  new double[] {massLocation[0],massLocation[1],massLocation[2]};
+		}
+		finally
+		{
+			getRwLock().readLock().unlock();
+		}
+
+	}
+
+	/** Returns a copy of the masslocation.*/
+	public float[] getMassLocationF() {
+		try
+		{
+			getRwLock().readLock().lock();
+			return new float[] {(float) massLocation[0], (float) massLocation[1], (float) massLocation[2]};
 		}
 		finally
 		{
