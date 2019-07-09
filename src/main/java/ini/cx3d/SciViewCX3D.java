@@ -2,8 +2,11 @@ package ini.cx3d;
 
 import cleargl.GLVector;
 import graphics.scenery.*;
+import graphics.scenery.volumes.Volume;
 import ini.cx3d.physics.*;
 import ini.cx3d.simulations.ECM;
+import net.imglib2.img.Img;
+import net.imglib2.type.numeric.real.FloatType;
 import org.scijava.Context;
 import org.scijava.ui.UIService;
 import sc.iview.SciView;
@@ -11,8 +14,17 @@ import sc.iview.SciView;
 import javax.print.attribute.AttributeSetUtilities;
 import java.awt.*;
 import java.util.HashMap;
+import java.util.Hashtable;
 
 public class SciViewCX3D {
+    public Context getContext() {
+        return context;
+    }
+
+    public SciView getSciView() {
+        return sciView;
+    }
+
     private Context context;
     private UIService ui;
     private SciView sciView;
@@ -22,6 +34,7 @@ public class SciViewCX3D {
 
     private HashMap<Substance, Node> chemicals;
     private HashMap<Integer, Node> scNodes;
+    private HashMap<Substance, Node> volumes;
 
     public SciViewCX3D(Context context, UIService ui, SciView sciView, ECM ecm) {
         this.context = context;
@@ -31,6 +44,7 @@ public class SciViewCX3D {
 
         chemicals = new HashMap<>();
         scNodes = new HashMap<>();
+        volumes = new HashMap<>();
     }
 
     public void addNewChemical(Substance substance) {
@@ -49,8 +63,22 @@ public class SciViewCX3D {
 		paintPhysicalCylinders();
 
 		// Loop through all PhysicalNodes
-		//paintPhysicalNodes(g2D);
+		paintPhysicalNodes();
     }
+
+    private void paintPhysicalNodes() {
+        Hashtable<Substance, Img<FloatType>> imgSubs = ecm.getImgArtificialConcentration();
+        for( Substance sub : imgSubs.keySet() ) {
+            if( volumes.containsKey(sub) ) {
+                // Then the volume is there
+            } else {
+                Volume node = (Volume) sciView.addVolume(imgSubs.get(sub), sub.getId());
+                node.setPixelToWorldRatio(scaleFactor);
+                node.setNeedsUpdate(true);
+                volumes.put(sub,node);
+            }
+        }
+	}
 
     private void paintPhysicalCylinders() {
         Cylinder svCylinder;

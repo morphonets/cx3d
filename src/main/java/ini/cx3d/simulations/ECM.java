@@ -35,6 +35,9 @@ import ini.cx3d.spatialOrganization.SpatialOrganizationNode;
 import ini.cx3d.utilities.Matrix;
 import io.scif.SCIFIOService;
 import net.imagej.ImageJService;
+import net.imglib2.RandomAccess;
+import net.imglib2.img.Img;
+import net.imglib2.type.numeric.real.FloatType;
 import org.scijava.Context;
 import org.scijava.service.SciJavaService;
 import org.scijava.thread.ThreadService;
@@ -142,27 +145,31 @@ public class ECM {
 	// (in the next: all hash tables are public for View.paint)
 	/* List of all the chemicals with a gaussian distribution along the Z-axis
 	 * max value, mean (z-coord of the max value), sigma2 (thickness). */
-	public Hashtable<Substance,double[]> gaussianArtificialConcentrationZ = new Hashtable<Substance,double[]>();
+	public Hashtable<Substance,double[]> gaussianArtificialConcentrationZ = new Hashtable<>();
 
 	/* List of all the chemicals with a linear distribution along the Z-axis
 	 * max value, TOP (z-coord of the max value), DOWN (z-coord of the 0 value). */ 
-	public Hashtable<Substance,double[]> linearArtificialConcentrationZ = new Hashtable<Substance,double[]>();
+	public Hashtable<Substance,double[]> linearArtificialConcentrationZ = new Hashtable<>();
 
 	/* List of all the chemicals with a gaussian distribution along the X-axis
 	 * max value, mean (x-coord of the max value), sigma2 (thickness). */ 
-	public Hashtable<Substance,double[]> gaussianArtificialConcentrationX = new Hashtable<Substance,double[]>();
+	public Hashtable<Substance,double[]> gaussianArtificialConcentrationX = new Hashtable<>();
 
 	/* List of all the chemicals with a linear distribution along the X-axis
 	 * max value, TOP (x-coord of the max value), DOWN (x-coord of the 0 value). */  
-	public Hashtable<Substance,double[]> linearArtificialConcentrationX = new Hashtable<Substance,double[]>();
+	public Hashtable<Substance,double[]> linearArtificialConcentrationX = new Hashtable<>();
 
 	/* List of all the chemicals with a gaussian distribution along the Y-axis
 	 * max value, mean (y-coord of the max value), sigma2 (thickness). */
-	public Hashtable<Substance,double[]> gaussianArtificialConcentrationY = new Hashtable<Substance,double[]>();
+	public Hashtable<Substance,double[]> gaussianArtificialConcentrationY = new Hashtable<>();
 
 	/* List of all the chemicals with a linear distribution along the Y-axis
 	 * max value, TOP (y-coord of the max value), DOWN (y-coord of the 0 value). */
-	public Hashtable<Substance,double[]> linearArtificialConcentrationY = new Hashtable<Substance,double[]>();
+	public Hashtable<Substance,double[]> linearArtificialConcentrationY = new Hashtable<>();
+
+	/* List of all the chemicals with a linear distribution along the Y-axis
+	 * max value, TOP (y-coord of the max value), DOWN (y-coord of the 0 value). */
+	public Hashtable<Substance, Img<FloatType>> imgArtificialConcentration = new Hashtable<>();
 
 
 	/* to link the one instance of Substance we have used in the definition of the gradient, with the name of
@@ -174,6 +181,10 @@ public class ECM {
 	// **************************************************************************
 
 	private static ECM instance = null;
+
+	public SciViewCX3D getSciViewCX3D() {
+		return sciViewCX3D;
+	}
 
 	// *** SciView fields ***
 	private SciViewCX3D sciViewCX3D = null;
@@ -195,6 +206,7 @@ public class ECM {
 
         SciViewService sciViewService = context.service( SciViewService.class );
         SciView sciView = sciViewService.getOrCreateActiveSciView();
+		sciView.getFloor().setVisible(false);
 
         sciViewCX3D = new SciViewCX3D(context, ui, sciView, this);
 	}
@@ -907,6 +919,45 @@ public class ECM {
 		linearArtificialConcentrationY.put(substance, value);
 	}
 
+	public Hashtable<Substance, Img<FloatType>> getImgArtificialConcentration() {
+		return imgArtificialConcentration;
+	}
+
+	/**
+	 * Defines a linear artificial concentration in ECM, between two points along the Y axis. Outside this interval
+	 * the value will be 0. Between the interval the value is the linear interpolation between
+	 * the maximum value and 0.
+	 *
+	 * It is a continuous value, and not instances of the class Substance!
+	 *
+	 * @param substanceId
+	 * @param img a FloatType Img that contains the concentrations at each location in the img
+	 */
+	public void addArtificialImgConcentration(String substanceId, Img<FloatType> img){
+		// look if we already have a substance with the same id
+		Substance substance = getRegisteredArtificialSubstance(substanceId);
+		// define distribution values for the chemical, and store them together
+		imgArtificialConcentration.put(substance, img);
+	}
+
+	/**
+	 * Defines a linear artificial concentration in ECM, between two points along the Y axis. Outside this interval
+	 * the value will be 0. Between the interval the value is the linear interpolation between
+	 * the maximum value and 0.
+	 *
+	 * It is a continuous value, and not instances of the class Substance!
+	 *
+	 * @param substance
+	 * @param img a FloatType Img that contains the concentrations at each location in the img
+	 */
+	public void addArtificialImgConcentration(Substance substance, Img<FloatType> img){
+		// look if we already have a substance with the same id
+		// define distribution values for the chemical, and store them together
+		imgArtificialConcentration.put(substance, img);
+	}
+
+	//imgArtificialConcentration
+
 	/**
 	 * Gets the value of a chemical, at a specific position in space
 	 * @param nameOfTheChemical
@@ -962,6 +1013,13 @@ public class ECM {
 				double result = (z-val[2])*slope;
 				concentration += result;
 			}
+		}
+		// Img
+		if(imgArtificialConcentration.containsKey(sub)){
+			Img<FloatType> img = imgArtificialConcentration.get(sub);
+			RandomAccess<FloatType> ra = img.randomAccess();
+			ra.setPosition(new long[]{(long) position[0], (long) position[1], (long) position[2]});// TODO: check for rounding errors
+			concentration += ra.get().get();
 		}
 		return concentration;
 	}
