@@ -38,6 +38,7 @@ import net.imagej.ImageJService;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.view.Views;
 import org.scijava.Context;
 import org.scijava.service.SciJavaService;
 import org.scijava.thread.ThreadService;
@@ -1017,7 +1018,7 @@ public class ECM {
 		// Img
 		if(imgArtificialConcentration.containsKey(sub)){
 			Img<FloatType> img = imgArtificialConcentration.get(sub);
-			RandomAccess<FloatType> ra = img.randomAccess();
+			RandomAccess<FloatType> ra = Views.extendZero(img).randomAccess();
 			ra.setPosition(new long[]{(long) position[0], (long) position[1], (long) position[2]});// TODO: check for rounding errors
 			concentration += ra.get().get();
 		}

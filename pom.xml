@@ -10,17 +10,17 @@
 	</parent>
 
 
-    <groupId>us.brevis</groupId>
-    <artifactId>grn-neurodevo</artifactId>
+    <groupId>sc.iview</groupId>
+    <artifactId>neurodevo</artifactId>
     <version>0.0.4-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>cx3d-mvn</name>
+    <name>neurodevo</name>
     <url>https://www.ini.uzh.ch/~amw/seco/cx3d/</url>
 
 	<properties>
 		<main-class>sc.iview.Main</main-class>
-		<package-name>grn-neurodev</package-name>
+		<package-name>neurodev</package-name>
 
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>SciView developers.</license.copyrightOwners>
