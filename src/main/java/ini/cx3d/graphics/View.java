@@ -92,7 +92,7 @@ public class View extends JComponent {
 	public boolean drawPointMass = false;
 	public boolean drawScaleBar = true;
 	public boolean drawPhysicalBonds = false;
-	public boolean drawSpines = false;
+	public boolean drawSpines = true;
 	public boolean drawPaleCells = true;
 	public boolean drawForces = false;
 	// should be modified by GUI :

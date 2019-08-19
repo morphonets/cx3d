@@ -87,7 +87,8 @@ public class ECM {
 	
 	
 	/** needed for run and pause.*/ 
-	public Semaphore canRun = new Semaphore(0);
+	//public Semaphore canRun = new Semaphore(0);
+	public Semaphore canRun = new Semaphore(1);
 
 	/* Reference time throughout the simulation (in hours) */
 	private double ECMtime = 0; 
@@ -110,7 +111,7 @@ public class ECM {
 
 	public View view;
 	public ECM_GUI_Creator myGuiCreator;
-	volatile private boolean simulationOnPause = true;
+	volatile private boolean simulationOnPause = false;
 	public boolean continuouslyRotating = false;
 	// saving snapshots
 	private int pictureNumber = 0;
@@ -191,16 +192,20 @@ public class ECM {
 	private SciViewCX3D sciViewCX3D = null;
 
 	private ECM() {
-		configureSciview();
+		Context context = new Context( ImageJService.class, SciJavaService.class, SCIFIOService.class, ThreadService.class);
+		configureSciview(context);
+	}
+
+	private ECM(Context context) {
+		configureSciview(context);
 	}
 
 	/**
 	 * Initialize sciview
 	 */
-	private void configureSciview() {
+	private void configureSciview(Context context) {
 
         System.setProperty( "scijava.log.level:sc.iview", "debug" );
-        Context context = new Context( ImageJService.class, SciJavaService.class, SCIFIOService.class, ThreadService.class);
 
         UIService ui = context.service( UIService.class );
         if( !ui.isVisible() ) ui.showUI();
@@ -216,7 +221,7 @@ public class ECM {
 		sciViewCX3D.syncCX3D();
 	}
 
-	/** 
+	/**
 	 * Gets a reference to the (unique) ECM
 	 * @return the ECM
 	 */
@@ -227,6 +232,19 @@ public class ECM {
 		}
 		return instance;
 	}
+
+	/**
+	 * Gets a reference to the (unique) ECM
+	 * @return the ECM
+	 */
+	public static ECM getInstance(Context context) {
+	    SceneryBase.xinitThreads();
+		if (instance == null) {
+			instance = new ECM(context);
+		}
+		return instance;
+	}
+
 
 	/**Classic singleton precaution: a singleton cannot be cloned */
 	public Object clone() throws CloneNotSupportedException {
@@ -1130,36 +1148,6 @@ public class ECM {
 	// **************************************************************************
 	// GUI & pause
 	// **************************************************************************
-	public View createGUI(){
-		myGuiCreator= new ECM_GUI_Creator();
-		view = myGuiCreator.createPrincipalGUIWindow();
-		for (Substance s : allArtificialSubstances.values()) {
-			myGuiCreator.addNewChemical(s);
-		}
-		for (Substance s : this.intracellularSubstancesLibrary.values()) {
-			myGuiCreator.addNewChemical(s);
-		}
-		for (Substance s : this.substancesLibrary.values()) {
-			myGuiCreator.addNewChemical(s);
-		}
-		return view;
-	}
-
-	public View createGUI(int x, int y, int width, int height){
-		myGuiCreator= new ECM_GUI_Creator();
-		view = myGuiCreator.createPrincipalGUIWindow(x,y,width,height);
-		for (Substance s : allArtificialSubstances.values()) {
-			myGuiCreator.addNewChemical(s);
-		}
-		for (Substance s : this.intracellularSubstancesLibrary.values()) {
-			myGuiCreator.addNewChemical(s);
-		}
-		for (Substance s : this.substancesLibrary.values()) {
-			myGuiCreator.addNewChemical(s);
-		}
-		return view;
-	}
-
 	public static void pause(int time){
 		try{
 			Thread.sleep(time);

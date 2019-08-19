@@ -44,7 +44,7 @@ public class Scheduler {
 	/* Reference to the ECM.*/
 	protected static ECM ecm = ECM.getInstance();
 	/* Reference to the ECM display window */
-	protected static View view = ecm.createGUI();
+	//protected static View view = ecm.createGUI();
 	/* static counter, needed in case where we want to make regular snapshots.*/
 	protected static int cycle_counter = 0; 	
 	protected static int inter_snapshot_time_steps = 30; 	
@@ -55,7 +55,7 @@ public class Scheduler {
 	public static boolean runDiffusion = true;
 	
 	protected static boolean printCurrentECMTime = true;
-	protected static boolean printCurrentStep = false;
+	protected static boolean printCurrentStep = true;
 
 	/** Runs all the CX3D elements for one time step, and pauses for a few ms.
 	 * @param pauseTime the pause time in milliseconds.
@@ -96,10 +96,7 @@ public class Scheduler {
 
 //			} 
 
-			// GUI rotation
-			if (ecm.isContinuouslyRotating()) {
-				ecm.view.rotateAroundZ(ecm.getView().getRotationSpeed());
-			}
+
 			long phystemptime = System.currentTimeMillis(); 
 			if(runPhyics){
 				// PhysicalNode (diffusion & degradation of Substances)
@@ -211,7 +208,6 @@ public class Scheduler {
 				ecm.dumpImage();
 			}
 			// updating the picture on the GUI
-			view.repaint();
 			// update sciview
 			ecm.updateSciView();
 
@@ -225,6 +221,7 @@ public class Scheduler {
 			
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
+			System.out.println("Cannot acquire run lock");
 			e1.printStackTrace();
 		}
 		total_time += System.currentTimeMillis()-start_time;
@@ -235,8 +232,10 @@ public class Scheduler {
 
 	/** Runs the simulation, i.e. runs each active CX3D runnable objects endlessly.*/
 	public static void simulate(){
-		while(true)
+		while(true) {
 			simulateOneStep();
+			System.out.println("stepping");
+		}
 	}
 
 	/** Runs the simulation for a given number of time steps, i.e. runs each active CX3D 

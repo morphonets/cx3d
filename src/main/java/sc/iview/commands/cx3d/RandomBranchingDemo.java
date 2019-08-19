@@ -71,9 +71,12 @@ public class RandomBranchingDemo implements Command {
     @Parameter
     private SciView sciView;
 
+    @Parameter
+    private Context context;
+
     @Override
     public void run() {
-        ECM ecm = ECM.getInstance();
+        ECM ecm = ECM.getInstance(context);
 		for (int i = 0; i < 18; i++) {
 			ecm.getPhysicalNodeInstance(randomNoise(1000,3));
 		}
@@ -94,14 +97,14 @@ public class RandomBranchingDemo implements Command {
         System.setProperty( "scijava.log.level:sc.iview", "debug" );
         Context context = new Context( ImageJService.class, SciJavaService.class, SCIFIOService.class, ThreadService.class);
 
-        UIService ui = context.service( UIService.class );
-        if( !ui.isVisible() ) ui.showUI();
+        //UIService ui = context.service( UIService.class );
+        //if( !ui.isVisible() ) ui.showUI();
 
-        SciViewService sciViewService = context.service( SciViewService.class );
-        SciView sciView = sciViewService.getOrCreateActiveSciView();
+        // Currently Cx3D demos need to make their own SciView instance
+//        SciViewService sciViewService = context.service( SciViewService.class );
+//        SciView sciView = sciViewService.getOrCreateActiveSciView();
 
         CommandService commandService = context.service(CommandService.class);
-
         commandService.run(RandomBranchingDemo.class,true,new Object[]{});
     }
 }

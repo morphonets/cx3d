@@ -280,5 +280,10 @@ public class Cell {
 		return allTheNeuriteElements;
 	}
 
+//    public void loadFromSWC(String s) {
+//
+//		NeuriteElement neurite = c.getSomaElement().extendNewNeurite();
+//		neurite.getPhysicalCylinder().setDiameter(2.0);
+//    }
 }
 
