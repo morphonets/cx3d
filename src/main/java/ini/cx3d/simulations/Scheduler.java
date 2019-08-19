@@ -76,144 +76,145 @@ public class Scheduler {
 		try {
 			
 			ECM.getInstance().canRun.acquire();
-			
 
-			Thread.sleep(1);
+			if( !ECM.getInstance().isSimulationOnPause() ) {
 
-
-		
-
-			if(printCurrentECMTime){
-				System.out.println("time = "+doubleToString(ecm.getECMtime(), 2));
-			}
-
-			if(printCurrentStep){
-				System.out.println("step = "+cycle_counter);	
-			}
-
-			// if we make a pause at each time step
-//			while (ecm.isSimulationOnPause()) {
-
-//			} 
+				Thread.sleep(1);
 
 
-			long phystemptime = System.currentTimeMillis(); 
-			if(runPhyics){
-				// PhysicalNode (diffusion & degradation of Substances)
-				int totalNbOfPhysicalNode =  ecm.physicalNodeList.size();
-				int runPhyisicalNodes = 0;
-				if(runDiffusion){
-					for (int i = 0; i < ecm.physicalNodeList.size(); i++) {
-						PhysicalNode pn = ecm.physicalNodeList.get(i);
-						if(pn.isOnTheSchedulerListForPhysicalNodes()){
-							pn.runExtracellularDiffusion(); 
-							runPhyisicalNodes +=1;
+				if (printCurrentECMTime) {
+					System.out.println("time = " + doubleToString(ecm.getECMtime(), 2));
+				}
+
+				if (printCurrentStep) {
+					System.out.println("step = " + cycle_counter);
+				}
+
+				// if we make a pause at each time step
+				//			while (ecm.isSimulationOnPause()) {
+
+				//			}
+
+
+				long phystemptime = System.currentTimeMillis();
+				if (runPhyics) {
+					// PhysicalNode (diffusion & degradation of Substances)
+					int totalNbOfPhysicalNode = ecm.physicalNodeList.size();
+					int runPhyisicalNodes = 0;
+					if (runDiffusion) {
+						for (int i = 0; i < ecm.physicalNodeList.size(); i++) {
+							PhysicalNode pn = ecm.physicalNodeList.get(i);
+							if (pn.isOnTheSchedulerListForPhysicalNodes()) {
+								pn.runExtracellularDiffusion();
+								runPhyisicalNodes += 1;
+							}
 						}
 					}
-				}
-				
-				if(!ecm.ecmChemicalReactionList.isEmpty()){
-					for (int i = 0; i < ecm.physicalNodeList.size(); i++) {
-						PhysicalNode pn = ecm.physicalNodeList.get(i);
-						for (ECMChemicalReaction chemicalReaction : ecm.ecmChemicalReactionList) {
-							chemicalReaction.run(pn);
+
+					if (!ecm.ecmChemicalReactionList.isEmpty()) {
+						for (int i = 0; i < ecm.physicalNodeList.size(); i++) {
+							PhysicalNode pn = ecm.physicalNodeList.get(i);
+							for (ECMChemicalReaction chemicalReaction : ecm.ecmChemicalReactionList) {
+								chemicalReaction.run(pn);
+							}
 						}
 					}
-				}
-				
-				
-				//		System.out.println("PhysicalNodes : \ttotal = "+totalNbOfPhysicalNode+" ; \tRun = "+runPhyisicalNodes);
 
-				// Physical objects : PhysicalCylinders
-				int totalNbOfPhysicalCylinders =  ecm.physicalCylinderList.size();
-				int runPhysicalCylinder = 0;
-				for (int i = 0; i < ecm.physicalCylinderList.size(); i++) {
-					PhysicalCylinder pc = ecm.physicalCylinderList.get(i);
-					if(pc.isOnTheSchedulerListForPhysicalObjects()){
-						pc.runPhysics();
-						runPhysicalCylinder++;
-						//				pc.setColor(Param.VIOLET);
-					}else{
-						//				pc.setColor(Param.BLUE);
+
+					//		System.out.println("PhysicalNodes : \ttotal = "+totalNbOfPhysicalNode+" ; \tRun = "+runPhyisicalNodes);
+
+					// Physical objects : PhysicalCylinders
+					int totalNbOfPhysicalCylinders = ecm.physicalCylinderList.size();
+					int runPhysicalCylinder = 0;
+					for (int i = 0; i < ecm.physicalCylinderList.size(); i++) {
+						PhysicalCylinder pc = ecm.physicalCylinderList.get(i);
+						if (pc.isOnTheSchedulerListForPhysicalObjects()) {
+							pc.runPhysics();
+							runPhysicalCylinder++;
+							//				pc.setColor(Param.VIOLET);
+						} else {
+							//				pc.setColor(Param.BLUE);
+						}
+						pc.runIntracellularDiffusion();
+
 					}
-					pc.runIntracellularDiffusion();
+					//		System.out.println("PhysicalCylinders : \ttotal = "+totalNbOfPhysicalCylinders+" ; \tRun = "+runPhysicalCylinder);
 
-				}
-				//		System.out.println("PhysicalCylinders : \ttotal = "+totalNbOfPhysicalCylinders+" ; \tRun = "+runPhysicalCylinder);
-
-				// Physical objects : PhysicalSpheres
-				int totalNbOfPhysicalSpheres =  ecm.physicalSphereList.size();
-				int runPhyisicalSpheres = 0;
-				for (int i = 0; i < ecm.physicalSphereList.size(); i++) {
-					PhysicalSphere ps = ecm.physicalSphereList.get(i);
-					if(ps.isOnTheSchedulerListForPhysicalObjects()){
-						ps.runPhysics();
-						runPhyisicalSpheres ++;
-						//				ps.setColor(Param.VIOLET);
-					}else{
-						//				ps.setColor(Param.BLUE);
+					// Physical objects : PhysicalSpheres
+					int totalNbOfPhysicalSpheres = ecm.physicalSphereList.size();
+					int runPhyisicalSpheres = 0;
+					for (int i = 0; i < ecm.physicalSphereList.size(); i++) {
+						PhysicalSphere ps = ecm.physicalSphereList.get(i);
+						if (ps.isOnTheSchedulerListForPhysicalObjects()) {
+							ps.runPhysics();
+							runPhyisicalSpheres++;
+							//				ps.setColor(Param.VIOLET);
+						} else {
+							//				ps.setColor(Param.BLUE);
+						}
+						ps.runIntracellularDiffusion();
 					}
-					ps.runIntracellularDiffusion();
 				}
-			}
-			physics_time +=System.currentTimeMillis()-phystemptime;
-			
-			//		System.out.println("PhysicalSpheres : \ttotal = "+totalNbOfPhysicalSpheres+" ; \tRun = "+runPhyisicalSpheres);
-			// cellList
-			
-			// Modified by Sabina: the new cells should not be run in the same time step as they are created!!!
-			int size = ecm.cellList.size();
-			for (int i = 0; i < size; i++) {
-				ecm.cellList.get(i).run();
-			}
-			
-//			for (int i = 0; i < ecm.cellList.size(); i++) {
-//				ecm.cellList.get(i).run();
-//			}
-			
-			// somata
-			
-			long moduletime = System.currentTimeMillis(); 
-			for (int i = 0; i < ecm.somaElementList.size(); i++) {
-				ecm.somaElementList.get(i).run();
-			}
-			// neurites
-			for (int i = 0; i < ecm.neuriteElementList.size(); i++) {
-				ecm.neuriteElementList.get(i).run();
-			}
-			module_time += System.currentTimeMillis()-moduletime;
-			
-			// update values in substances
-//			for (int i = 0; i < ecm.physicalNodeList.size(); i++) {
-//				PhysicalNode pn = ecm.physicalNodeList.get(i);
-//			//	if(pn.isOnTheSchedulerListForPhysicalNodes())
-//			//	{
-//					for(Substance s: pn.getExtracellularSubstances().values()){
-//						s.updateNewValues();
-//					}
-//					if(pn instanceof PhysicalObject)
-//					{
-//						for(Substance s: ((PhysicalObject)pn).getIntracellularSubstances().values())
-//						{
-//							s.updateNewValues();
-//						}
-//					}
-//			//	}
-//			}
-			
-			// possibility to make a movie
-			if (ecm.isTakingSnapshotAtEachTimeStep() == true) {
-				ecm.dumpImage();
-			} else if (cycle_counter % inter_snapshot_time_steps == 0  && ecm.isTakingSnapshotEach100TimeSteps() == true) {
-				ecm.dumpImage();
-			}
-			// updating the picture on the GUI
-			// update sciview
-			ecm.updateSciView();
+				physics_time += System.currentTimeMillis() - phystemptime;
 
-			// ticking ECM's time
-			cycle_counter += 1;
-			ecm.increaseECMtime(Param.SIMULATION_TIME_STEP);
+				//		System.out.println("PhysicalSpheres : \ttotal = "+totalNbOfPhysicalSpheres+" ; \tRun = "+runPhyisicalSpheres);
+				// cellList
+
+				// Modified by Sabina: the new cells should not be run in the same time step as they are created!!!
+				int size = ecm.cellList.size();
+				for (int i = 0; i < size; i++) {
+					ecm.cellList.get(i).run();
+				}
+
+				//			for (int i = 0; i < ecm.cellList.size(); i++) {
+				//				ecm.cellList.get(i).run();
+				//			}
+
+				// somata
+
+				long moduletime = System.currentTimeMillis();
+				for (int i = 0; i < ecm.somaElementList.size(); i++) {
+					ecm.somaElementList.get(i).run();
+				}
+				// neurites
+				for (int i = 0; i < ecm.neuriteElementList.size(); i++) {
+					ecm.neuriteElementList.get(i).run();
+				}
+				module_time += System.currentTimeMillis() - moduletime;
+
+				// update values in substances
+				//			for (int i = 0; i < ecm.physicalNodeList.size(); i++) {
+				//				PhysicalNode pn = ecm.physicalNodeList.get(i);
+				//			//	if(pn.isOnTheSchedulerListForPhysicalNodes())
+				//			//	{
+				//					for(Substance s: pn.getExtracellularSubstances().values()){
+				//						s.updateNewValues();
+				//					}
+				//					if(pn instanceof PhysicalObject)
+				//					{
+				//						for(Substance s: ((PhysicalObject)pn).getIntracellularSubstances().values())
+				//						{
+				//							s.updateNewValues();
+				//						}
+				//					}
+				//			//	}
+				//			}
+
+				// possibility to make a movie
+				if (ecm.isTakingSnapshotAtEachTimeStep() == true) {
+					ecm.dumpImage();
+				} else if (cycle_counter % inter_snapshot_time_steps == 0 && ecm.isTakingSnapshotEach100TimeSteps() == true) {
+					ecm.dumpImage();
+				}
+				// updating the picture on the GUI
+				// update sciview
+				ecm.updateSciView();
+
+				// ticking ECM's time
+				cycle_counter += 1;
+				ecm.increaseECMtime(Param.SIMULATION_TIME_STEP);
+
+			}
 			//System.out.println("Machine executed"+Machine.elementsexecuted);
 			ecm.getInstance().canRun.release();
 			
