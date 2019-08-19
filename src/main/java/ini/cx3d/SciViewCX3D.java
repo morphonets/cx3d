@@ -89,8 +89,8 @@ public class SciViewCX3D {
 
 			if( scNodes.containsKey(aCylinder.getID()) ) {
                 svCylinder = (Cylinder) scNodes.get(aCylinder.getID());
-
                 svCylinder.orientBetweenPoints(myNeuriteDistalEnd, myNeuriteProximalEnd, true, true);
+                svCylinder.setVisible(true);
             } else {
 			    svCylinder = Cylinder.betweenPoints(myNeuriteDistalEnd, myNeuriteProximalEnd, (float)aCylinder.getDiameter() * scaleFactor, 1f, 12);
 			    Material mat = new Material();
@@ -100,7 +100,8 @@ public class SciViewCX3D {
                 mat.setMetallic(0.01f);
                 mat.setRoughness(0.5f);
                 svCylinder.setMaterial(mat);
-			    sciView.addNode(svCylinder);
+                svCylinder.setVisible(false);
+			    sciView.addNode(svCylinder, false);
 			    scNodes.put(aCylinder.getID(),svCylinder);
             }
 
@@ -146,6 +147,7 @@ public class SciViewCX3D {
 			if( scNodes.containsKey(aSphere.getID()) ) {
                 svSphere = (Icosphere) scNodes.get(aSphere.getID());
                 svSphere.setPosition(mySomaMassLocation);
+                svSphere.setVisible(true);
             } else {
 			    svSphere = new Icosphere(sphereRadius, 2);
 			    Material mat = new Material();
@@ -155,7 +157,8 @@ public class SciViewCX3D {
                 mat.setMetallic(0.01f);
                 mat.setRoughness(0.5f);
                 svSphere.setMaterial(mat);
-			    sciView.addNode(svSphere);
+                svSphere.setVisible(false);
+			    sciView.addNode(svSphere, false);
 			    scNodes.put(aSphere.getID(),svSphere);
             }
 
