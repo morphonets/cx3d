@@ -238,6 +238,12 @@ public class Scheduler {
 		}
 	}
 
+	public static void simulate(double maxTime){
+		while(ECM.getInstance().getECMtime() < maxTime) {
+			simulateOneStep();
+		}
+	}
+
 	/** Runs the simulation for a given number of time steps, i.e. runs each active CX3D 
 	 * runnable objects.
 	 * @param steps nb of steps that the simulation is run.

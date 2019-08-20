@@ -41,6 +41,7 @@ import net.imagej.ImageJService;
 import org.scijava.Context;
 import org.scijava.command.Command;
 import org.scijava.command.CommandService;
+import org.scijava.command.InteractiveCommand;
 import org.scijava.plugin.Menu;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
@@ -48,6 +49,7 @@ import org.scijava.service.SciJavaService;
 import org.scijava.thread.ThreadService;
 import org.scijava.ui.UIService;
 import org.scijava.util.Colors;
+import org.scijava.widget.Button;
 import sc.iview.SciView;
 import sc.iview.SciViewService;
 import sc.iview.vector.ClearGLVector3;
@@ -58,10 +60,9 @@ import static sc.iview.commands.MenuWeights.DEMO;
 import static sc.iview.commands.MenuWeights.DEMO_LINES;
 
 /**
- * A demo of lines.
+ * Random branching demo from Cx3D
  *
  * @author Kyle Harrington
- * @author Curtis Rueden
  */
 @Plugin(type = Command.class, label = "Random Branching", menuRoot = "SciView", //
         menu = { @Menu(label = "Cx3D", weight = DEMO), //
@@ -74,8 +75,29 @@ public class RandomBranchingDemo implements Command {
     @Parameter
     private Context context;
 
+    @Parameter(label = "Simulation end time")
+    private float maxTime = 2;
+
+    public static void main( String... args ) {
+        SceneryBase.xinitThreads();
+
+        System.setProperty( "scijava.log.level:sc.iview", "debug" );
+        Context context = new Context( ImageJService.class, SciJavaService.class, SCIFIOService.class, ThreadService.class);
+
+        //UIService ui = context.service( UIService.class );
+        //if( !ui.isVisible() ) ui.showUI();
+
+        // Currently Cx3D demos need to make their own SciView instance
+        SciViewService sciViewService = context.service( SciViewService.class );
+        SciView sciView = sciViewService.getOrCreateActiveSciView();
+
+//        CommandService commandService = context.service(CommandService.class);
+//        commandService.run(RandomBranchingDemo.class,true,new Object[]{});
+    }
+
     @Override
     public void run() {
+        //ECM ecm = ECM.getInstance(getContext());
         ECM ecm = ECM.getInstance(context);
 		for (int i = 0; i < 18; i++) {
 			ecm.getPhysicalNodeInstance(randomNoise(1000,3));
@@ -88,23 +110,6 @@ public class RandomBranchingDemo implements Command {
 			neurite.getPhysicalCylinder().setDiameter(2);
 			neurite.addLocalBiologyModule(new RandomBranchingModule());
 		}
-		Scheduler.simulate();
-    }
-
-    public static void main( String... args ) {
-        SceneryBase.xinitThreads();
-
-        System.setProperty( "scijava.log.level:sc.iview", "debug" );
-        Context context = new Context( ImageJService.class, SciJavaService.class, SCIFIOService.class, ThreadService.class);
-
-        //UIService ui = context.service( UIService.class );
-        //if( !ui.isVisible() ) ui.showUI();
-
-        // Currently Cx3D demos need to make their own SciView instance
-//        SciViewService sciViewService = context.service( SciViewService.class );
-//        SciView sciView = sciViewService.getOrCreateActiveSciView();
-
-        CommandService commandService = context.service(CommandService.class);
-        commandService.run(RandomBranchingDemo.class,true,new Object[]{});
+		Scheduler.simulate(maxTime);
     }
 }
