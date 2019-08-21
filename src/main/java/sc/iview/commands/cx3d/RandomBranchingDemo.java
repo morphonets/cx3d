@@ -60,6 +60,7 @@ import sc.fiji.snt.Tree;
 import sc.fiji.snt.analysis.graph.GraphUtils;
 import sc.fiji.snt.util.PointInImage;
 import sc.fiji.snt.util.SWCPoint;
+import sc.fiji.snt.viewer.Viewer3D;
 import sc.iview.SciView;
 import sc.iview.SciViewService;
 import sc.iview.vector.ClearGLVector3;
@@ -142,14 +143,14 @@ public class RandomBranchingDemo implements Command {
         // Make a hash map of NeuriteElements of point to ID
         // To lookup (e.g., parent), ask tree for closest index to a given position
 
-        HashMap<Long, SWCPoint> coordinateToIndex = new HashMap<>();
-        coordinateToIndex.put(0l,soma);
+        HashMap<Long, SWCPoint> indexToCoordinate = new HashMap<>();
+        indexToCoordinate.put(0l,soma);
         Vector<NeuriteElement> neurites = c.getNeuriteElements();
         for( long k = 0; k < neurites.size(); k++ ) {
             NeuriteElement ne = neurites.get((int) k);
             pos = ne.getLocation();
             SWCPoint swc = new SWCPoint((int)k+1, 0, pos[0], pos[1], pos[2], 1, 0);// TODO casting
-            coordinateToIndex.put(k, swc);
+            indexToCoordinate.put(k, swc);
         }
 
         // TODO: now create a graph
@@ -174,21 +175,46 @@ public class RandomBranchingDemo implements Command {
             }
             SWCPoint swc = new SWCPoint((int) k + 1, 0, pos[0], pos[1], pos[2], 1, parentIdx);
             graph.addVertex(swc);
-            coordinateToIndex.put(k,swc);
+            indexToCoordinate.put(k,swc);
         }
 
         // Have to make edges after all vertices are added
         for( long k = 0; k < neurites.size(); k++ ) {
             NeuriteElement ne = neurites.get((int) k);
-            SWCPoint swc = coordinateToIndex.get(k);
+            SWCPoint swc = indexToCoordinate.get(k);
             long parentIdx = swc.parent;
-            System.out.println(parentIdx);
+            System.out.println(k + " " + swc);
+
             final DefaultWeightedEdge edge = new DefaultWeightedEdge();
-            graph.addEdge(coordinateToIndex.get(k),coordinateToIndex.get(parentIdx),edge);
+            graph.addEdge(indexToCoordinate.get(k),indexToCoordinate.get(parentIdx),edge);
         }
 
+        // This should work for Cx3D trees
         Tree tree = GraphUtils.createTree(graph);
+        tree.setColor(Colors.RED);
         sntService.initialize(true);
         sntService.loadTree(tree);
+
+        Viewer3D recViewer = new Viewer3D(context);
+        recViewer.add(tree);
+        recViewer.show();
+
+
+        // Checking with SNT test
+//        SNTService sntService = context.getService(SNTService.class);
+//        Tree initialTree = sntService.demoTree();
+//        DefaultDirectedGraph<SWCPoint, DefaultWeightedEdge> g = initialTree.getGraph();
+//        Viewer3D recViewer = new Viewer3D(context);
+//        Tree convertedTree = GraphUtils.createTree(g);
+//        initialTree.setColor(Colors.RED);
+//        recViewer.add(initialTree);
+//        convertedTree.setColor(Colors.CYAN);
+//        recViewer.add(convertedTree);
+//        recViewer.show();
+//        //GraphUtils.show(g);
+//        sntService.initialize(true);
+//        sntService.loadTree(convertedTree);
+        //GraphUtils.show(graph);
+
     }
 }
