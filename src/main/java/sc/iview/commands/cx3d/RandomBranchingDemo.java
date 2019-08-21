@@ -38,7 +38,11 @@ import ini.cx3d.simulations.Scheduler;
 import ini.cx3d.simulations.tutorial.RandomBranchingModule;
 import io.scif.SCIFIOService;
 import net.imagej.ImageJService;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultDirectedWeightedGraph;
+import org.jgrapht.graph.DefaultWeightedEdge;
 import org.scijava.Context;
+import org.scijava.ItemIO;
 import org.scijava.command.Command;
 import org.scijava.command.CommandService;
 import org.scijava.command.InteractiveCommand;
@@ -50,10 +54,20 @@ import org.scijava.thread.ThreadService;
 import org.scijava.ui.UIService;
 import org.scijava.util.Colors;
 import org.scijava.widget.Button;
+import sc.fiji.snt.Path;
+import sc.fiji.snt.SNTService;
+import sc.fiji.snt.Tree;
+import sc.fiji.snt.analysis.graph.GraphUtils;
+import sc.fiji.snt.util.PointInImage;
+import sc.fiji.snt.util.SWCPoint;
 import sc.iview.SciView;
 import sc.iview.SciViewService;
 import sc.iview.vector.ClearGLVector3;
 import sc.iview.vector.Vector3;
+
+import java.awt.*;
+import java.util.HashMap;
+import java.util.Vector;
 
 import static ini.cx3d.utilities.Matrix.randomNoise;
 import static sc.iview.commands.MenuWeights.DEMO;
@@ -74,6 +88,12 @@ public class RandomBranchingDemo implements Command {
 
     @Parameter
     private Context context;
+
+    @Parameter
+    private SNTService sntService;
+
+    @Parameter(type = ItemIO.OUTPUT)
+    private Tree tree;
 
     @Parameter(label = "Simulation end time")
     private float maxTime = 2;
@@ -103,13 +123,72 @@ public class RandomBranchingDemo implements Command {
 			ecm.getPhysicalNodeInstance(randomNoise(1000,3));
 		}
 		ECM.setRandomSeed(7L);
-		for(int i = 0; i<1; i++){
-			Cell c = CellFactory.getCellInstance(randomNoise(40, 3));
-			c.setColorForAllPhysicalObjects(Param.GRAY);
-			NeuriteElement neurite = c.getSomaElement().extendNewNeurite(new double[] {0,0,1});
-			neurite.getPhysicalCylinder().setDiameter(2);
-			neurite.addLocalBiologyModule(new RandomBranchingModule());
-		}
+
+        Cell c = CellFactory.getCellInstance(randomNoise(40, 3));
+        c.setColorForAllPhysicalObjects(Param.GRAY);
+        double[] pos = c.getSomaElement().getLocation();
+        NeuriteElement neurite = c.getSomaElement().extendNewNeurite(new double[] {0,0,1});
+        neurite.getPhysicalCylinder().setDiameter(2);
+        neurite.addLocalBiologyModule(new RandomBranchingModule());
+
 		Scheduler.simulate(maxTime);
+
+		// TODO: make a Graph() from Cell c
+        final DefaultDirectedWeightedGraph<SWCPoint, DefaultWeightedEdge> graph = new DefaultDirectedWeightedGraph<>(
+                null);
+        SWCPoint soma = new SWCPoint(0, 1, pos[0], pos[1], pos[2], 1, 0);
+        graph.addVertex(soma);
+
+        // Make a hash map of NeuriteElements of point to ID
+        // To lookup (e.g., parent), ask tree for closest index to a given position
+
+        HashMap<Long, SWCPoint> coordinateToIndex = new HashMap<>();
+        coordinateToIndex.put(0l,soma);
+        Vector<NeuriteElement> neurites = c.getNeuriteElements();
+        for( long k = 0; k < neurites.size(); k++ ) {
+            NeuriteElement ne = neurites.get((int) k);
+            pos = ne.getLocation();
+            SWCPoint swc = new SWCPoint((int)k+1, 0, pos[0], pos[1], pos[2], 1, 0);// TODO casting
+            coordinateToIndex.put(k, swc);
+        }
+
+        // TODO: now create a graph
+        for( long k = 0; k < neurites.size(); k++ ) {
+            NeuriteElement ne = neurites.get((int) k);
+            pos = ne.getLocation();
+
+            // Find mininum distance point and use as parentIdx
+            int parentIdx = 0;
+            double parentVal = Double.POSITIVE_INFINITY;
+            double[] a = ne.getPhysicalCylinder().proximalEnd();
+            for (int j = 0; j < neurites.size(); j++) {
+                double dist = 0;
+                double[] b = neurites.get(j).getLocation();
+                for (int d = 0; d < 3; d++) {
+                    dist = Math.pow(a[d] - b[d], 2);
+                }
+                if (dist < parentVal) {
+                    parentIdx = j;
+                    parentVal = dist;
+                }
+            }
+            SWCPoint swc = new SWCPoint((int) k + 1, 0, pos[0], pos[1], pos[2], 1, parentIdx);
+            graph.addVertex(swc);
+            coordinateToIndex.put(k,swc);
+        }
+
+        // Have to make edges after all vertices are added
+        for( long k = 0; k < neurites.size(); k++ ) {
+            NeuriteElement ne = neurites.get((int) k);
+            SWCPoint swc = coordinateToIndex.get(k);
+            long parentIdx = swc.parent;
+            System.out.println(parentIdx);
+            final DefaultWeightedEdge edge = new DefaultWeightedEdge();
+            graph.addEdge(coordinateToIndex.get(k),coordinateToIndex.get(parentIdx),edge);
+        }
+
+        Tree tree = GraphUtils.createTree(graph);
+        sntService.initialize(true);
+        sntService.loadTree(tree);
     }
 }
