@@ -11,19 +11,19 @@
 
 
     <groupId>sc.iview</groupId>
-    <artifactId>neurodevo</artifactId>
+    <artifactId>cx3d</artifactId>
     <version>0.0.4-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>neurodevo</name>
+    <name>cx3d</name>
     <url>https://www.ini.uzh.ch/~amw/seco/cx3d/</url>
 
 	<properties>
-		<main-class>sc.iview.Main</main-class>
-		<package-name>neurodev</package-name>
+		<main-class>sc.iview.cx3d.Main</main-class>
+		<package-name>cx3d</package-name>
 
-		<license.licenseName>bsd_2</license.licenseName>
-		<license.copyrightOwners>SciView developers.</license.copyrightOwners>
+		<license.licenseName>gplv3</license.licenseName>
+		<license.copyrightOwners>Cx3D and SciView developers.</license.copyrightOwners>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>deploy-to-scijava</releaseProfiles>
@@ -189,5 +189,5 @@
 <!--        </plugins>-->
 <!--    </build>-->
 
-    <description>A mavenized version of the Cx3D program.</description>
+    <description>The Cx3D modeling framework in SciView and SNT.</description>
 </project>
