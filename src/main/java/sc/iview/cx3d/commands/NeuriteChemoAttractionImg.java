@@ -29,41 +29,46 @@
 package sc.iview.cx3d.commands;
 
 import graphics.scenery.SceneryBase;
-import org.jgrapht.graph.DefaultDirectedGraph;
-import sc.iview.cx3d.Param;
-import sc.iview.cx3d.cells.Cell;
-import sc.iview.cx3d.cells.CellFactory;
-import sc.iview.cx3d.localBiology.NeuriteElement;
-import sc.iview.cx3d.simulations.ECM;
-import sc.iview.cx3d.simulations.Scheduler;
-import sc.iview.cx3d.simulations.tutorial.RandomBranchingModule;
 import io.scif.SCIFIOService;
 import net.imagej.ImageJService;
-import org.jgrapht.graph.DefaultDirectedWeightedGraph;
-import org.jgrapht.graph.DefaultWeightedEdge;
+import net.imglib2.img.Img;
+import net.imglib2.type.numeric.real.FloatType;
+import org.jgrapht.graph.DefaultDirectedGraph;
 import org.scijava.Context;
 import org.scijava.ItemIO;
 import org.scijava.command.Command;
+import org.scijava.command.CommandService;
+import org.scijava.io.IOService;
 import org.scijava.plugin.Menu;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.SciJavaService;
 import org.scijava.thread.ThreadService;
+import org.scijava.ui.UIService;
 import org.scijava.util.Colors;
 import sc.fiji.snt.SNTService;
 import sc.fiji.snt.Tree;
 import sc.fiji.snt.analysis.graph.GraphUtils;
-import sc.fiji.snt.util.SWCPoint;
 import sc.fiji.snt.viewer.Viewer3D;
 import sc.iview.SciView;
 import sc.iview.SciViewService;
+import sc.iview.cx3d.Param;
+import sc.iview.cx3d.cells.Cell;
+import sc.iview.cx3d.cells.CellFactory;
+import sc.iview.cx3d.localBiology.NeuriteElement;
+import sc.iview.cx3d.physics.Substance;
+import sc.iview.cx3d.simulations.ECM;
+import sc.iview.cx3d.simulations.Scheduler;
+import sc.iview.cx3d.simulations.tutorial.ImgNeuriteChemoAttraction;
+import sc.iview.cx3d.simulations.tutorial.RandomBranchingModule;
 
-import java.util.HashMap;
-import java.util.Vector;
+import java.awt.*;
+import java.io.IOException;
 
-import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 import static sc.iview.commands.MenuWeights.DEMO;
 import static sc.iview.commands.MenuWeights.DEMO_LINES;
+import static sc.iview.cx3d.simulations.frontiers.Figure_3_AF.ecm;
+import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 
 /**
  * Random branching demo from Cx3D
@@ -73,8 +78,8 @@ import static sc.iview.commands.MenuWeights.DEMO_LINES;
 @Plugin(type = Command.class, label = "Random Branching", menuRoot = "SciView", //
         menu = { @Menu(label = "Demo", weight = DEMO), //
                  @Menu(label = "Cx3D", weight = DEMO), //
-                 @Menu(label = "Random Branching", weight = DEMO_LINES) })
-public class RandomBranchingDemo implements Command {
+                 @Menu(label = "Neurite Chemoattraction Img", weight = DEMO_LINES) })
+public class NeuriteChemoAttractionImg implements Command {
 
     @Parameter
     private SciView sciView;
@@ -89,7 +94,10 @@ public class RandomBranchingDemo implements Command {
     private Tree tree;
 
     @Parameter(label = "Simulation end time")
-    private float maxTime = 2;
+    private float maxTime = 5;
+
+    @Parameter(label = "Environment img")
+    private Img<FloatType> img;
 
     public static void main( String... args ) {
         SceneryBase.xinitThreads();
@@ -100,33 +108,53 @@ public class RandomBranchingDemo implements Command {
         //UIService ui = context.service( UIService.class );
         //if( !ui.isVisible() ) ui.showUI();
 
+        IOService io = context.service(IOService.class);
+		Img<FloatType> img = null;
+		try {
+			img = (Img<FloatType>) io.open("/home/kharrington/git/cx3d-mvn/fourdots.tif");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		context.service(UIService.class).show(img);
+
+
         // Currently Cx3D demos need to make their own SciView instance
         SciViewService sciViewService = context.service( SciViewService.class );
         SciView sciView = sciViewService.getOrCreateActiveSciView();
 
 //        CommandService commandService = context.service(CommandService.class);
-//        commandService.run(RandomBranchingDemo.class,true,new Object[]{});
+//        commandService.run(NeuriteChemoAttractionImg.class,true,new Object[]{});
     }
 
     @Override
     public void run() {
-        //ECM ecm = ECM.getInstance(getContext());
         ECM ecm = ECM.getInstance(context);
-		for (int i = 0; i < 18; i++) {
-			ecm.getPhysicalNodeInstance(randomNoise(1000,3));
+		ECM.setRandomSeed(0L);
+		Substance attractant = new Substance("A", Color.red);
+
+		IOService io = ecm.getSciViewCX3D().getContext().service(IOService.class);
+
+		System.out.println("Adding Img Concentration");
+        ecm.addArtificialImgConcentration(attractant.getId(), img);
+
+		//ecm.addArtificialGaussianConcentrationZ(attractant, 1.0, 400.0, 160.0);
+
+		int nbOfAdditionalNodes = 10;
+		for (int i = 0; i < nbOfAdditionalNodes; i++) {
+			double[] coord = randomNoise(500, 3);
+			ecm.getPhysicalNodeInstance(coord);
 		}
-		ECM.setRandomSeed(7L);
 
-        Cell c = CellFactory.getCellInstance(randomNoise(40, 3));
-        c.setColorForAllPhysicalObjects(Param.GRAY);
-        double[] pos = c.getSomaElement().getLocation();
-        NeuriteElement neurite = c.getSomaElement().extendNewNeurite(new double[] {0,0,1});
-        neurite.getPhysicalCylinder().setDiameter(2);
-        neurite.addLocalBiologyModule(new RandomBranchingModule());
+		Cell c = CellFactory.getCellInstance(new double[] {0.0,0.0,0.0});
+		c.setColorForAllPhysicalObjects(Param.VIOLET);
+		NeuriteElement neurite = c.getSomaElement().extendNewNeurite();
+		neurite.getPhysicalCylinder().setDiameter(2.0);
+		neurite.addLocalBiologyModule(new ImgNeuriteChemoAttraction("A"));
 
-		Scheduler.simulate(maxTime);
+		System.out.println("Starting simulation");
+		Scheduler.simulate();
 
-        DefaultDirectedGraph graph = sc.iview.cx3d.utilities.GraphUtils.cellToGraph(c);
+		DefaultDirectedGraph graph = sc.iview.cx3d.utilities.GraphUtils.cellToGraph(c);
 
         // This should work for Cx3D trees
         Tree tree = GraphUtils.createTree(graph);
