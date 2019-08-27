@@ -1,13 +1,19 @@
-# Cx3D (Mavenized project)
+# SciView - Cx3D 
 
-This repository hosts a [mavenized](https://maven.apache.org) version of the Cx3D program.
+This repository hosts the [SciView](http://sc.iview.sc) version of [Cx3D](https://www.ini.uzh.ch/~amw/seco/cx3d/).
 
 Cx3D (Cortex simulation in 3D) is a tool for simulating the growth of cortex in 3D developed at the [Institute of Neuroinformatics](http://www.ini.uzh.ch/) of the [University of Zürich](http://www.uzh.ch/) and [ETH Zürich](http://www.ethz.ch/). It is distributed under the [GNU General Public License version 3](http://www.gnu.org/licenses/gpl.html).
 
 For more information refer to the official [Cx3D website](https://www.ini.uzh.ch/~amw/seco/cx3d/).
 
+## Quick setup
+
+1. Clone repo
+2. Import into IntelliJ
+3. Run sc.iview.cx3d.commands.RandomBranchingDemo
 
 ## Streamlined Setup
+
 This repository provides a really quick project setup to run Cx3D.
 
 1. To compile (assuming you have installed git and maven):
@@ -56,13 +62,15 @@ This repository provides a really quick project setup to run Cx3D.
   
   Note: For other examples/figures, replace "DividingCell/Figure_3_G" above with others from the [tutorial](src/main/java/sc/iview/cx3d/simulations/tutorial) or [frontiers](src/main/java/sc/iview/cx3d/simulations/frontiers) folders.
 
-## Version
-Cx3D public release 0.03
-
 
 # Development
+[github](https://github.com/kephale/cx3d)
+
 Refer to the Cx3D public [Subversion repository](https://svn.ini.uzh.ch/pub/cx3dp-core/.) (read-only)
 
+## Acknowledgements
+
+This version of Cx3D derived from @tferr's [cx3d-maven](https://github.com/tferr/cx3d-mvn)
 
 ## Resources
  * [Official Cx3D website](https://www.ini.uzh.ch/~amw/seco/cx3d/) (for convenience, some of the Cx3D tutorials are also mirrored in the [misc directory](./misc))
