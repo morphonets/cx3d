@@ -16,7 +16,79 @@
     <packaging>jar</packaging>
 
     <name>cx3d</name>
+	<description>The Cx3D modeling framework in SciView and SNT.</description>
     <url>https://www.ini.uzh.ch/~amw/seco/cx3d/</url>
+	<inceptionYear>2019</inceptionYear>
+	<organization>
+		<name>MorphoNets</name>
+		<url>https://github.com/morphonets</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>GPL v3</name>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+		<developers>
+		<developer>
+			<id>kephale</id>
+			<name>Kyle Harrington</name>
+			<url>https://imagej.net/User:Kharrington</url>
+			<roles>
+				<role>founder</role>
+				<role>lead</role>
+				<role>developer</role>
+				<role>debugger</role>
+				<role>reviewer</role>
+				<role>support</role>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>Tiago Ferreira</name>
+			<url>https://imagej.net/User:tferr</url>
+			<properties><id>tferr</id></properties>
+			<roles>
+				<role>founder</role>
+				<role>lead</role>
+				<role>developer</role>
+				<role>debugger</role>
+				<role>reviewer</role>
+				<role>support</role>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+	</developers>
+	<contributors>
+		<contributor>
+			<name>Ulrik Günther</name>
+			<url>https://imagej.net/User:Skalarproduktraum</url>
+			<properties><id>skalarproduktraum</id></properties>
+		</contributor>
+	</contributors>
+
+	<mailingLists>
+		<mailingList>
+			<name>Image.sc Forum</name>
+			<archive>https://forum.image.sc/tags/cx3d</archive>
+		</mailingList>
+	</mailingLists>
+
+	<scm>
+		<connection>scm:git:git://github.com/morphonets/cx3d</connection>
+		<developerConnection>scm:git:git@github.com:morphonets/cx3d</developerConnection>
+		<tag>cx3d-0.3.0</tag>
+		<url>https://github.com/morphonets/cx3d</url>
+	</scm>
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/morphonets/cx3d/issues</url>
+	</issueManagement>
+	<ciManagement>
+		<system>Travis CI</system>
+		<url>https://travis-ci.org/morphonets/cx3d</url>
+	</ciManagement>
 
 	<properties>
 		<main-class>sc.iview.cx3d.Main</main-class>
@@ -188,6 +260,4 @@
 <!--            </plugin>-->
 <!--        </plugins>-->
 <!--    </build>-->
-
-    <description>The Cx3D modeling framework in SciView and SNT.</description>
 </project>
