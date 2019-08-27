@@ -64,7 +64,7 @@ public class GRNModule extends AbstractLocalBiologyModule {
 			return;
 		PhysicalSphere ps = cell.getSomaElement().getPhysicalSphere();
 		getGrn().state.evolve(1);
-		System.out.println( "GRNModule update: " + getGrn().state.toString() );
+		//System.out.println( "GRNModule update: " + getGrn().state.toString() );
 
 //		// is diameter smaller than min
 //		if(ps.getDiameter() < minimumDiameter){

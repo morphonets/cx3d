@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -91,23 +91,6 @@ public class RandomBranchingDemo implements Command {
     @Parameter(label = "Simulation end time")
     private float maxTime = 2;
 
-    public static void main( String... args ) {
-        SceneryBase.xinitThreads();
-
-        System.setProperty( "scijava.log.level:sc.iview", "debug" );
-        Context context = new Context( ImageJService.class, SciJavaService.class, SCIFIOService.class, ThreadService.class);
-
-        //UIService ui = context.service( UIService.class );
-        //if( !ui.isVisible() ) ui.showUI();
-
-        // Currently Cx3D demos need to make their own SciView instance
-        SciViewService sciViewService = context.service( SciViewService.class );
-        SciView sciView = sciViewService.getOrCreateActiveSciView();
-
-//        CommandService commandService = context.service(CommandService.class);
-//        commandService.run(RandomBranchingDemo.class,true,new Object[]{});
-    }
-
     @Override
     public void run() {
         //ECM ecm = ECM.getInstance(getContext());
@@ -134,9 +117,27 @@ public class RandomBranchingDemo implements Command {
         sntService.initialize(true);
         sntService.loadTree(tree);
 
-        Viewer3D recViewer = new Viewer3D(context);
-        recViewer.add(tree);
-        recViewer.show();
+        // Compare to SNT's ReconstructionViewer
+//        Viewer3D recViewer = new Viewer3D(context);
+//        recViewer.add(tree);
+//        recViewer.show();
 
+    }
+
+public static void main( String... args ) {
+        SceneryBase.xinitThreads();
+
+        System.setProperty( "scijava.log.level:sc.iview", "debug" );
+        Context context = new Context( ImageJService.class, SciJavaService.class, SCIFIOService.class, ThreadService.class);
+
+        //UIService ui = context.service( UIService.class );
+        //if( !ui.isVisible() ) ui.showUI();
+
+        // Currently Cx3D demos need to make their own SciView instance
+        SciViewService sciViewService = context.service( SciViewService.class );
+        SciView sciView = sciViewService.getOrCreateActiveSciView();
+
+//        CommandService commandService = context.service(CommandService.class);
+//        commandService.run(RandomBranchingDemo.class,true,new Object[]{});
     }
 }

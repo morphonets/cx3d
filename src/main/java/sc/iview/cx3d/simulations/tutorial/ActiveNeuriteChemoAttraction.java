@@ -21,6 +21,7 @@ along with CX3D.  If not, see <http://www.gnu.org/licenses/>.
 
 package sc.iview.cx3d.simulations.tutorial;
 
+import graphics.scenery.SceneryBase;
 import sc.iview.cx3d.Param;
 import sc.iview.cx3d.cells.Cell;
 import sc.iview.cx3d.cells.CellFactory;
@@ -32,7 +33,6 @@ import sc.iview.cx3d.simulations.ECM;
 import sc.iview.cx3d.simulations.Scheduler;
 
 import java.awt.*;
-import java.util.Random;
 import java.util.Vector;
 
 import static sc.iview.cx3d.utilities.Matrix.*;
@@ -50,14 +50,9 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 	//private double branchingFactor = 0.005;
 	private double branchingFactor = 0.5;
 
-	private Random rng = new Random();
-
 	public ActiveNeuriteChemoAttraction() {
 		substanceID = new String[] {
-				"wnt",
-				"slitRobo",
-				"semaphorinPlexin",
-				"dscam"
+				"A",
 		};
 	}
 
@@ -110,49 +105,33 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 		Cell cell = super.cellElement.getCell();
 		GRNElement grn = getGrn(cell);
 
-		System.out.println("Physical: " + physical + " Cell: " + cell + " GRN: " + grn);
+		//System.out.println("Physical: " + physical + " Cell: " + cell + " GRN: " + grn);
 
 		// Get sensor inputs:
-		// - slit-robo, mediolateral
-		// - semaphorins-plexins, dorsoventral
-		// - wnt, anteriorposterior
-		// - dscam1, self-avoidance and self/non-self
+		// - A
 
-		double slitRobo = physical.getExtracellularConcentration("slitRobo");
-		double[] slitRoboGrad = physical.getExtracellularGradient("slitRobo");
-		double semaphorinPlexin = physical.getExtracellularConcentration("semaphorinPlexin");
-		double[] semaphorinPlexinGrad = physical.getExtracellularGradient("semaphorinPlexin");
-		double wnt = physical.getExtracellularConcentration("wnt");
-		double[] wntGrad = physical.getExtracellularGradient("wnt");
-		double dscam = physical.getExtracellularConcentration("dscam");
-		double[] dscamGrad = physical.getExtracellularGradient("dscam");
+		double A = physical.getExtracellularConcentration("A");
+		double[] AGrad = physical.getExtracellularGradient("A");
 
 		// If this is a soma element then setup inputs and evaluate GRN (to ensure one time evaluation)
 
 		// Set GRN inputs
-		grn.state.proteins.get(0).setConcentration(slitRobo);
-		grn.state.proteins.get(1).setConcentration(semaphorinPlexin);
-		grn.state.proteins.get(2).setConcentration(wnt);
-		grn.state.proteins.get(3).setConcentration(dscam);
+		grn.state.proteins.get(0).setConcentration(A);
+		grn.state.proteins.get(1).setConcentration(physical.getLength()/10f);
+		grn.state.proteins.get(2).setConcentration(physical.getVolume()/10f);
 
 		// Update GRN
-		grn.state.evolve(10);
+		grn.state.evolve(2);
 
 		// Extract weights and probability of bifurcation
 		double oldDirectionWeight = grn.state.proteins.get(grn.state.proteins.size() - 1).getConcentration();
 		double randomnessWeight = grn.state.proteins.get(grn.state.proteins.size() - 2).getConcentration();
-		double dscamWeight = grn.state.proteins.get(grn.state.proteins.size() - 3).getConcentration();
-		double wntWeight = grn.state.proteins.get(grn.state.proteins.size() - 4).getConcentration();
-		double slitRoboWeight = grn.state.proteins.get(grn.state.proteins.size() - 5).getConcentration();
-		double semaphorinPlexinWeight = grn.state.proteins.get(grn.state.proteins.size() - 6).getConcentration();
-		double bifurcationWeight = grn.state.proteins.get(grn.state.proteins.size() - 7).getConcentration();
+		double AWeight = grn.state.proteins.get(grn.state.proteins.size() - 3).getConcentration();
+		double bifurcationWeight = grn.state.proteins.get(grn.state.proteins.size() - 4).getConcentration();
 
 		double[] newStepDirection = add(
 				scalarMult(oldDirectionWeight, direction),
-				scalarMult(dscamWeight, normalize(dscamGrad)),
-				scalarMult(wntWeight, normalize(wntGrad)),
-				scalarMult(slitRoboWeight, normalize(slitRoboGrad)),
-				scalarMult(semaphorinPlexinWeight, normalize(semaphorinPlexinGrad)),
+				scalarMult(AWeight, normalize(AGrad)),
 				randomNoise(randomnessWeight,3));
 		double speed = 100;
 
@@ -163,8 +142,8 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 		// 2) branching based on concentration:
 		if(super.cellElement.isANeuriteElement() && ( ecm.getRandomDouble()<bifurcationWeight*branchingFactor) ){
 		//if(ecm.getRandomDouble()<branchingFactor){
-			System.out.println("Bifurcating");
 			NeuriteElement newBranch = ((NeuriteElement) cellElement).branch();
+			System.out.println("Cell " + cell.getID() + " is branching at " + newBranch.getLocation()[0] + ", " + newBranch.getLocation()[1] + ", " + newBranch.getLocation()[2] );
 //			Vector<LocalBiologyModule> localBiologyList = newBranch.getLocalBiologyModulesList();
 //			for( int k = 0; k < localBiologyList.size(); k++ ) {
 //				if( localBiologyList.get(k) instanceof GRNModule ) {
@@ -175,17 +154,26 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 	}
 
 	public static void main(String[] args) {
-		//SceneryBase.xinitThreads();
+		SceneryBase.xinitThreads();
 
-		ECM ecm = ECM.getInstance();
-		ECM.setRandomSeed(0L);
-		Substance slitRobo = new Substance("slitRobo",Color.magenta);
-		Substance semaphorinPlexin = new Substance("semaphorinPlexin",Color.cyan);
-		Substance wnt = new Substance("wnt", Color.green.darker());
+		/*
+		 * This should be its own evaluate() function
+		 *
+		 * Evaluate a GRNGenome by creating and evaluating a Cell for a certain amount of time
+		 * Takes GRNGenome
+		 * Returns a Cell with morphology
+		 */
+    	GRNElement grnElement = new GRNElement("ActiveNeuriteType2");
+		double maxTime = 2;
+		long randomSeed = 17L;
+
+        // Configure Cell
+        ECM ecm = ECM.getInstance();
+
+		ECM.setRandomSeed(randomSeed);
+		Substance A = new Substance("A",Color.magenta);
 		// Establish convention, A-P = Z, Long = Y, M-L = X
-		ecm.addArtificialGaussianConcentrationZ(wnt, 1.0, 400.0, 160.0);
-		ecm.addArtificialGaussianConcentrationX(slitRobo, 1.0, 400.0, 160.0);
-		ecm.addArtificialGaussianConcentrationY(semaphorinPlexin, 1.0, 400.0, 160.0);
+		ecm.addArtificialGaussianConcentrationZ(A, 1.0, 400.0, 160.0);
 
 		int nbOfAdditionalNodes = 10;
 		for (int i = 0; i < nbOfAdditionalNodes; i++) {
@@ -199,7 +187,7 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 		neurite.getPhysicalCylinder().setDiameter(2.0);
 
 		GRNModule grnModule = new GRNModule();
-		grnModule.setGrn(new GRNElement("ActiveNeuriteType1"));
+        grnModule.setGrn(grnElement);
 		grnModule.setCell(c);
 		c.getSomaElement().addLocalBiologyModule(grnModule);
 
@@ -207,7 +195,8 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 		ActiveNeuriteChemoAttraction activeNeuriteModule = new ActiveNeuriteChemoAttraction(grnModule);
 		neurite.addLocalBiologyModule(activeNeuriteModule);
 
+        // Simulate
+        Scheduler.simulate(maxTime);
 
-		Scheduler.simulate();
 	}
 }

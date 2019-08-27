@@ -29,6 +29,8 @@ public class GRNElement {
     public GRNElement(String defaultType) {
         if( defaultType.equalsIgnoreCase("ActiveNeuriteType1") ) {
             genome = activeNeuriteType1();
+        } else if( defaultType.equalsIgnoreCase("ActiveNeuriteType2") ) {
+            genome = activeNeuriteType2();
         }
         state = GRNGenomeEvaluator.buildGRNFromGenome(genome);
     }
@@ -36,6 +38,32 @@ public class GRNElement {
     public GRNGenome activeNeuriteType1() {
         int numGRNInputs = 4;
         int numGRNOutputs = 2;
+        int maxGRNNodes = 50;
+        Random rng = new Random();
+
+        GRNGenome grnGenome = new GRNGenome();
+        // Make inputs
+        for(int k = 0; k < numGRNInputs; k++) {
+            grnGenome.addGene(GRNGene.generateRandomGene(GRNProtein.INPUT_PROTEIN, k, rng));
+        }
+        // Make outputs
+        for(int k = 0; k < numGRNOutputs; k++) {
+            grnGenome.addGene(GRNGene.generateRandomGene(GRNProtein.OUTPUT_PROTEIN, k, rng));
+        }
+        // Make hidden
+        for(int k = 0; k < rng.nextInt( maxGRNNodes - numGRNInputs - numGRNOutputs ); k++) {
+            grnGenome.addGene(GRNGene.generateRandomRegulatoryGene(rng));
+        }
+        // Set GRN params
+        grnGenome.setBeta(grnGenome.getBetaMin() + rng.nextDouble()*(grnGenome.getBetaMax() - grnGenome.getBetaMin()));
+        grnGenome.setDelta(grnGenome.getDeltaMin() + rng.nextDouble()*(grnGenome.getDeltaMax() - grnGenome.getDeltaMin()));
+
+        return grnGenome;
+    }
+
+    public GRNGenome activeNeuriteType2() {
+        int numGRNInputs = 3;
+        int numGRNOutputs = 4;
         int maxGRNNodes = 50;
         Random rng = new Random();
 

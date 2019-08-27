@@ -37,7 +37,6 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 import org.scijava.Context;
 import org.scijava.ItemIO;
 import org.scijava.command.Command;
-import org.scijava.command.CommandService;
 import org.scijava.io.IOService;
 import org.scijava.plugin.Menu;
 import org.scijava.plugin.Parameter;
@@ -60,14 +59,12 @@ import sc.iview.cx3d.physics.Substance;
 import sc.iview.cx3d.simulations.ECM;
 import sc.iview.cx3d.simulations.Scheduler;
 import sc.iview.cx3d.simulations.tutorial.ImgNeuriteChemoAttraction;
-import sc.iview.cx3d.simulations.tutorial.RandomBranchingModule;
 
 import java.awt.*;
 import java.io.IOException;
 
 import static sc.iview.commands.MenuWeights.DEMO;
 import static sc.iview.commands.MenuWeights.DEMO_LINES;
-import static sc.iview.cx3d.simulations.frontiers.Figure_3_AF.ecm;
 import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 
 /**

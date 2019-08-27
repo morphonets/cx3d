@@ -226,10 +226,15 @@ public class ECM {
 	 * @return the ECM
 	 */
 	public static ECM getInstance() {
-	    SceneryBase.xinitThreads();
-		if (instance == null) {
-			instance = new ECM();
-		}
+		SceneryBase.xinitThreads();
+		if ( instance == null )
+			return resetInstance();
+		else
+			return instance;
+	}
+
+	public static ECM resetInstance() {
+		instance = new ECM();
 		return instance;
 	}
 
@@ -238,12 +243,18 @@ public class ECM {
 	 * @return the ECM
 	 */
 	public static ECM getInstance(Context context) {
-	    SceneryBase.xinitThreads();
-		if (instance == null) {
-			instance = new ECM(context);
-		}
+		SceneryBase.xinitThreads();
+		if ( instance == null )
+			return resetInstance(context);
+		else
+			return instance;
+	}
+
+	public static ECM resetInstance(Context context) {
+		instance = new ECM(context);
 		return instance;
 	}
+
 
 
 	/**Classic singleton precaution: a singleton cannot be cloned */
