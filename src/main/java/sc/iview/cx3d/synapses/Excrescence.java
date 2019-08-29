@@ -22,8 +22,11 @@ along with CX3D.  If not, see <http://www.gnu.org/licenses/>.
 package sc.iview.cx3d.synapses;
 
 import sc.iview.cx3d.localBiology.NeuriteElement;
+import sc.iview.cx3d.physics.PhysicalNode;
 import sc.iview.cx3d.physics.PhysicalObject;
-import sc.iview.cx3d.utilities.Matrix;
+
+import static sc.iview.cx3d.utilities.Matrix.add;
+import static sc.iview.cx3d.utilities.Matrix.scalarMult;
 
 /**
  * General class for dendritic spines and axonal boutons
@@ -31,7 +34,7 @@ import sc.iview.cx3d.utilities.Matrix;
  * @author fredericzubler
  *
  */
-public abstract class Excrescence {
+public abstract class Excrescence extends PhysicalNode {
 	/** the physical object it is attached to.*/
 	PhysicalObject po;
 	/** the other structure with which it forms a synapse.*/ 
@@ -46,7 +49,7 @@ public abstract class Excrescence {
 	public static final int BOUTON = 1;
 	public static final int SOMATICSPINE = 2;
 	public static final int SHAFT = 3;
-	
+
 	/**
 	 * Method to create a spine-bouton synapse.
 	 * @param otherExcrescence the other spine/bouton
@@ -100,7 +103,7 @@ public abstract class Excrescence {
 	public double[] getProximalEnd(){
 		return po.transformCoordinatesPolarToGlobal(positionOnPO);
 	}
-	
+
 	/** returns the absolute coord of the point where this element ends.*/
 	public double[] getDistalEnd(){
 		double[] prox =  po.transformCoordinatesPolarToGlobal(positionOnPO);
@@ -108,11 +111,33 @@ public abstract class Excrescence {
 		// if a synapse is made, this is the middle of the distance between the two attachment points
 		if(ex==null){
 			double[] axis = po.getUnitNormalVector(positionOnPO);
-			return Matrix.add(prox, Matrix.scalarMult(length,axis));
+			return add(prox, scalarMult(length,axis));
 		}else{
-			// if a synapse is made, this is the middle of the distance between the two attachment points	
-			return Matrix.scalarMult(0.5, Matrix.add(this.getProximalEnd(), ex.getProximalEnd()));
+			// if a synapse is made, this is the middle of the distance between the two attachment points
+			return scalarMult(0.5, add(this.getProximalEnd(), ex.getProximalEnd()));
 		}
 	}
-	
+
+	/** returns the absolute coord of the point where this element is attached on the PO.*/
+	public float[] getProximalEndF(){
+		double[] d = po.transformCoordinatesPolarToGlobal(positionOnPO);
+		//System.out.println(positionOnPO[0] + " " + positionOnPO[1] + " | " + d[0] + " " + d[1] + " " + d[2]);
+		return new float[]{(float) d[0], (float) d[1], (float) d[2] };
+	}
+
+	/** returns the absolute coord of the point where this element ends.*/
+	public float[] getDistalEndF(){
+		double[] prox =  po.transformCoordinatesPolarToGlobal(positionOnPO);
+		// if no synapse, defined by the length
+		// if a synapse is made, this is the middle of the distance between the two attachment points
+		double [] d;
+		if(ex==null){
+			double[] axis = po.getUnitNormalVector(positionOnPO);
+			d =  add(prox, scalarMult(length,axis));
+		}else{
+			// if a synapse is made, this is the middle of the distance between the two attachment points
+			d = scalarMult(0.5, add(this.getProximalEnd(), ex.getProximalEnd()));
+		}
+		return new float[]{(float) d[0], (float) d[1], (float) d[2] };
+	}
 }
