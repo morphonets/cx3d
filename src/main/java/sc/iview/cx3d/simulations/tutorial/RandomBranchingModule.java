@@ -37,6 +37,10 @@ import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 
 public class RandomBranchingModule implements LocalBiologyModule {
 
+	private double speed = 100;
+	private double probabilityToBifurcate = 0.005; // o.oo5
+	private double probabilityToBranch = 0.005;
+
 	NeuriteElement neuriteElement;
 	
 	private double[] direction;
@@ -57,6 +61,9 @@ public class RandomBranchingModule implements LocalBiologyModule {
 	
 	public LocalBiologyModule getCopy() {
 		RandomBranchingModule m = new RandomBranchingModule();
+		m.setSpeed(getSpeed());
+		m.setProbabilityToBifurcate(getProbabilityToBifurcate());
+		m.setProbabilityToBranch(getProbabilityToBranch());
 		return m;
 	}
 
@@ -81,21 +88,18 @@ public class RandomBranchingModule implements LocalBiologyModule {
 	}
 
 	public void run() {
-		double speed = 100;
-		double probabilityToBifurcate = 0.005; // o.oo5
-		double probabilityToBranch = 0.005;
 		double[] deltaDirection = randomNoise(0.1, 3);
 		direction = add(direction, deltaDirection);
 		direction = normalize(direction);
-		neuriteElement.getPhysical().movePointMass(speed, direction);
+		neuriteElement.getPhysical().movePointMass(getSpeed(), direction);
 		
-		if(ECM.getRandomDouble()<probabilityToBifurcate){
+		if(ECM.getRandomDouble()<getProbabilityToBifurcate()){
 			NeuriteElement[] nn = neuriteElement.bifurcate();
 			nn[0].getPhysical().setColor(Param.RED);
 			nn[1].getPhysical().setColor(Param.BLUE);
 			return;
 		}
-		if(ECM.getRandomDouble()<probabilityToBranch){
+		if(ECM.getRandomDouble()<getProbabilityToBranch()){
 			NeuriteElement n = neuriteElement.branch();
 			n.getPhysical().setColor(Param.VIOLET);
 			return;
@@ -103,11 +107,35 @@ public class RandomBranchingModule implements LocalBiologyModule {
 
 	}
 
+	public double getSpeed() {
+		return speed;
+	}
+
+	public void setSpeed(double speed) {
+		this.speed = speed;
+	}
+
+	public double getProbabilityToBifurcate() {
+		return probabilityToBifurcate;
+	}
+
+	public void setProbabilityToBifurcate(double probabilityToBifurcate) {
+		this.probabilityToBifurcate = probabilityToBifurcate;
+	}
+
+	public double getProbabilityToBranch() {
+		return probabilityToBranch;
+	}
+
+	public void setProbabilityToBranch(double probabilityToBranch) {
+		this.probabilityToBranch = probabilityToBranch;
+	}
+
 	public static void main(String[] args) {
 		ECM ecm = ECM.getInstance();
-		for (int i = 0; i < 18; i++) {	
+		for (int i = 0; i < 18; i++) {
 			ecm.getPhysicalNodeInstance(randomNoise(1000,3));
-		} 
+		}
 		ECM.setRandomSeed(7L);
 		for(int i = 0; i<1; i++){
 			Cell c = CellFactory.getCellInstance(randomNoise(40, 3));

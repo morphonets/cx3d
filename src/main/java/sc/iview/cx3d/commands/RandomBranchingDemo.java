@@ -91,6 +91,15 @@ public class RandomBranchingDemo implements Command {
     @Parameter(label = "Simulation end time")
     private float maxTime = 2;
 
+    @Parameter(label = "Growth speed")
+    private float speed = 100;
+
+	@Parameter(label = "Probability to bifurcate")
+	private double probabilityToBifurcate = 0.005; // o.oo5
+
+    @Parameter(label = "Probability to branch")
+	private double probabilityToBranch = 0.005;
+
     @Override
     public void run() {
         //ECM ecm = ECM.getInstance(getContext());
@@ -105,7 +114,12 @@ public class RandomBranchingDemo implements Command {
         double[] pos = c.getSomaElement().getLocation();
         NeuriteElement neurite = c.getSomaElement().extendNewNeurite(new double[] {0,0,1});
         neurite.getPhysicalCylinder().setDiameter(2);
-        neurite.addLocalBiologyModule(new RandomBranchingModule());
+
+        RandomBranchingModule branchingModule = new RandomBranchingModule();
+        branchingModule.setSpeed(speed);
+        branchingModule.setProbabilityToBranch(probabilityToBranch);
+        branchingModule.setProbabilityToBifurcate(probabilityToBifurcate);
+        neurite.addLocalBiologyModule(branchingModule);
 
 		Scheduler.simulate(maxTime);
 
