@@ -90,6 +90,7 @@ public class RandomBranchingDemo implements Command {
 
     //@Parameter(type = ItemIO.OUTPUT)
 
+    @Parameter
     private Tree tree;
 
     @Parameter(label = "Simulation end time")
@@ -143,11 +144,14 @@ public class RandomBranchingDemo implements Command {
         DefaultDirectedGraph graph = sc.iview.cx3d.utilities.GraphUtils.cellToGraph(c);
 
         // This should work for Cx3D trees
-        tree = GraphUtils.createTree(graph);
-        tree.setColor(Colors.RED);
-        sntService.initialize(true);
-        sntService.getPathAndFillManager().clear();
-        sntService.loadTree(tree);
+        Tree realtree = GraphUtils.createTree(graph);
+        realtree.setLabel("Cx3D_Tree");
+        realtree.setColor(Colors.RED);
+
+        tree.merge(realtree);
+//        sntService.initialize(true);
+//        sntService.getPathAndFillManager().clear();
+//        sntService.loadTree(tree);
 
     }
 

@@ -24,6 +24,7 @@ import org.scijava.script.ScriptService;
 import org.scijava.service.SciJavaService;
 import org.scijava.thread.ThreadService;
 import sc.fiji.snt.SNTService;
+import sc.fiji.snt.Tree;
 import sc.fiji.snt.analysis.TreeAnalyzer;
 import sc.iview.SciView;
 import sc.iview.SciViewService;
@@ -34,6 +35,7 @@ import javax.script.ScriptException;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class PaperDemos {
@@ -66,13 +68,16 @@ public class PaperDemos {
         double[] speeds = new double[]{100.0, 50.0, 200.0};
         double[] pBranch = new double[]{0.005, 0.0025, 0.01};
         //double[] pBifurcate = new double[]{0.005, 0.0025, 0.01};
-        double[] pBifurcate = new double[]{0.005, 0.005, 0.005};
+        //double[] pBifurcate = new double[]{0.005, 0.005, 0.005};
+        double[] pBifurcate = new double[]{0.005, 0.0045, 0.004, 0.0035, 0.003, 0.0025, 0.002, 0.0015, 0.001, 0.0005 };
 
         int tGrowth = 3;
         String resultDir = "/home/kharrington/Data/SNT_Paper/demo001/";
 
         for( String el : header ) System.out.print(el + "\t");
         System.out.println();
+
+        sntService.initialize(true);
 
         for( int s = 0; s < speeds.length; s++ ) {
             for( int br = 0; br < pBranch.length; br++ ) {
@@ -88,6 +93,8 @@ public class PaperDemos {
 //                        }
 //                    }
 
+                    Tree myTree = new Tree();
+
                     HashMap<String, Object> argmap = new HashMap<>();
                     argmap.put("context", context);
                     argmap.put("sntService", sntService);
@@ -96,16 +103,31 @@ public class PaperDemos {
                     argmap.put("speed", speeds[s]);
                     argmap.put("probabilityToBifurcate",pBifurcate[bi]);
                     argmap.put("probabilityToBranch", pBranch[br]);
+                    argmap.put("tree", myTree);
 
                     Future<CommandModule> result = commandService.run(RandomBranchingDemo.class, true, argmap);
 
                     while( !result.isDone() ) {
+                    //while(true) {
+//                        try {
+//                            if (result.get().isOutputResolved("tree")) break;
+//                        } catch (InterruptedException | ExecutionException e) {
+//                            e.printStackTrace();
+//                        }
                         try {
                             Thread.sleep(20);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                     }
+
+
+//                    Tree tree = null;
+//                    try {
+//                        tree = (Tree) result.get().getOutput("tree");
+//                    } catch (InterruptedException | ExecutionException e) {
+//                        e.printStackTrace();
+//                    }
 
 //                    try {
 //                        Thread.sleep(5000);
@@ -114,7 +136,7 @@ public class PaperDemos {
 //                    }
 
 
-                    sciView.takeScreenshot( resultDir + "screenshot_speed_" + speeds[s] + "_pBifurcate_" + pBifurcate[bi] + "_pBranch_" + pBranch[br] + ".png");
+                    //sciView.takeScreenshot( resultDir + "screenshot_speed_" + speeds[s] + "_pBifurcate_" + pBifurcate[bi] + "_pBranch_" + pBranch[br] + ".png");
 
 //
 //                    Img<UnsignedByteType> screenshot = sciView.getScreenshot();
@@ -131,7 +153,9 @@ public class PaperDemos {
                     }
 
 
-                    TreeAnalyzer analyzer = sntService.getAnalyzer(false);
+                    //TreeAnalyzer analyzer = sntService.getAnalyzer(false);
+
+                    TreeAnalyzer analyzer = new TreeAnalyzer(myTree);
 
                     String[] row = new String[]{String.valueOf(tGrowth), String.valueOf(speeds[s]),
                             String.valueOf(pBifurcate[bi]), String.valueOf(pBranch[br]),
