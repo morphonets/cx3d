@@ -30,6 +30,9 @@ package sc.iview.cx3d.commands;
 
 import graphics.scenery.SceneryBase;
 import org.jgrapht.graph.DefaultDirectedGraph;
+import org.scijava.log.LogLevel;
+import org.scijava.log.LogService;
+import org.scijava.ui.UIService;
 import sc.iview.cx3d.Param;
 import sc.iview.cx3d.cells.Cell;
 import sc.iview.cx3d.cells.CellFactory;
@@ -85,7 +88,8 @@ public class RandomBranchingDemo implements Command {
     @Parameter
     private SNTService sntService;
 
-    @Parameter(type = ItemIO.OUTPUT)
+    //@Parameter(type = ItemIO.OUTPUT)
+
     private Tree tree;
 
     @Parameter(label = "Simulation end time")
@@ -104,10 +108,15 @@ public class RandomBranchingDemo implements Command {
     public void run() {
         //ECM ecm = ECM.getInstance(getContext());
         ECM ecm = ECM.getInstance(context);
+
+        ECM.setRandomSeed(7L);
+
+        ecm.clearAll();
+        ecm.resetTime();
+        ecm.getSciViewCX3D().clear();
 		for (int i = 0; i < 18; i++) {
 			ecm.getPhysicalNodeInstance(randomNoise(1000,3));
 		}
-		ECM.setRandomSeed(7L);
 
         Cell c = CellFactory.getCellInstance(randomNoise(40, 3));
         c.setColorForAllPhysicalObjects(Param.GRAY);
@@ -123,29 +132,33 @@ public class RandomBranchingDemo implements Command {
 
 		Scheduler.simulate(maxTime);
 
+		sciView.centerOnNode(ecm.getSciViewCX3D().getCx3dGroup());
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         DefaultDirectedGraph graph = sc.iview.cx3d.utilities.GraphUtils.cellToGraph(c);
 
         // This should work for Cx3D trees
-        Tree tree = GraphUtils.createTree(graph);
+        tree = GraphUtils.createTree(graph);
         tree.setColor(Colors.RED);
         sntService.initialize(true);
+        sntService.getPathAndFillManager().clear();
         sntService.loadTree(tree);
-
-        // Compare to SNT's ReconstructionViewer
-//        Viewer3D recViewer = new Viewer3D(context);
-//        recViewer.add(tree);
-//        recViewer.show();
 
     }
 
-public static void main( String... args ) {
+    public static void main( String... args ) {
         SceneryBase.xinitThreads();
 
         System.setProperty( "scijava.log.level:sc.iview", "debug" );
         Context context = new Context( ImageJService.class, SciJavaService.class, SCIFIOService.class, ThreadService.class);
 
-        //UIService ui = context.service( UIService.class );
-        //if( !ui.isVisible() ) ui.showUI();
+        UIService ui = context.service( UIService.class );
+        if( !ui.isVisible() ) ui.showUI();
 
         // Currently Cx3D demos need to make their own SciView instance
         SciViewService sciViewService = context.service( SciViewService.class );

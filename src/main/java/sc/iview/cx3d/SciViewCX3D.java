@@ -50,6 +50,11 @@ public class SciViewCX3D {
     private boolean showSubstances = false;
     private boolean nodeEvents = true;
 
+    public Node getCx3dGroup() {
+        return cx3d;
+    }
+
+    private Node cx3d;// Meta node that contains all Cx3D nodes
     private HashMap<Substance, Node> chemicals;
     private HashMap<Integer, Node> scNodes;
     private HashMap<Substance, Node> volumes;
@@ -60,6 +65,19 @@ public class SciViewCX3D {
         this.sciView = sciView;
         this.ecm = ecm;
 
+        clear();
+    }
+
+    public void clear() {
+        if( cx3d != null ) {
+            for (Node child : cx3d.getChildren()) {
+                sciView.deleteNode(child);
+            }
+        }
+        sciView.reset();
+
+        cx3d = new Group();
+        sciView.addNode(cx3d);
         chemicals = new HashMap<>();
         scNodes = new HashMap<>();
         volumes = new HashMap<>();
@@ -101,6 +119,8 @@ public class SciViewCX3D {
                     OpService ops = getContext().service(OpService.class);
                     Img<UnsignedByteType> conv = ops.convert().uint8(img);
                     Volume node = (Volume) sciView.addVolume(conv, sub.getId());
+
+                    cx3d.addChild(node);
 
                     //String lutName = "Red.lut";
                     String lutName = "Fire.lut";
@@ -151,7 +171,8 @@ public class SciViewCX3D {
                 //mat.setMetallic(0.01f);
                 mat.setRoughness(0.5f);
                 svCylinder.setMaterial(mat);
-			    sciView.addNode(svCylinder,nodeEvents);
+			    //sciView.addNode(svCylinder,nodeEvents);
+			    cx3d.addChild(svCylinder);
 			    svCylinder.setVisible(false);
 			    scNodes.put(aCylinder.getID(),svCylinder);
             }
@@ -192,7 +213,8 @@ public class SciViewCX3D {
                     } else {
                         Spine svNode = Spine.createFromExcrescence(ex);
                         svNode.setVisible(false);
-                        sciView.addNode(svNode,nodeEvents);
+                        //sciView.addNode(svNode,nodeEvents);
+                        cx3d.addChild(svNode);
                         scNodes.put(ex.getID(),svNode);
                     }
 				}
@@ -225,7 +247,8 @@ public class SciViewCX3D {
                 mat.setMetallic(0.01f);
                 mat.setRoughness(0.5f);
                 svSphere.setMaterial(mat);
-			    sciView.addNode(svSphere,nodeEvents);
+			    //sciView.addNode(svSphere,nodeEvents);
+			    cx3d.addChild(svSphere);
 			    scNodes.put(aSphere.getID(),svSphere);
             }
 

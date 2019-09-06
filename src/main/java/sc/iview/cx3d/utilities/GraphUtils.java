@@ -25,7 +25,7 @@ public class GraphUtils {
         //System.out.println("Soma radius: " + c.getSomaElement().getPhysicalSphere().getLength());
         SWCPoint soma = new SWCPoint(0, 1, pos[0], pos[1], pos[2], 1, -1);
         graph.addVertex(soma);
-        System.out.println("Soma: " + soma);
+        //System.out.println("Soma: " + soma);
 
         // Make a hash map of NeuriteElements of point to ID
         // To lookup (e.g., parent), ask tree for closest index to a given position
@@ -48,7 +48,7 @@ public class GraphUtils {
             NeuriteElement ne = neurites.get((int) k);
             double[] proximalPos = ne.getPhysicalCylinder().proximalEnd();
             double[] distalPos = ne.getPhysicalCylinder().distalEnd();
-            System.out.println(k+1 + " Proximal: " + proximalPos[0] + ", " + proximalPos[1] + ", " + proximalPos[2] + " Distal: " + distalPos[0] + ", " + distalPos[1] + ", " + distalPos[2] );
+            //System.out.println(k+1 + " Proximal: " + proximalPos[0] + ", " + proximalPos[1] + ", " + proximalPos[2] + " Distal: " + distalPos[0] + ", " + distalPos[1] + ", " + distalPos[2] );
 
             // Find mininum distance point and use as parentIdx
             int parentIdx = 0;
@@ -78,7 +78,7 @@ public class GraphUtils {
             NeuriteElement ne = neurites.get((int) k);
             SWCPoint swc = indexToCoordinate.get(k);
             long parentIdx = swc.parent;
-            System.out.println(k + " " + swc);
+            //System.out.println(k + " " + swc);
 
             final DefaultWeightedEdge edge = new DefaultWeightedEdge();
             graph.addEdge(indexToCoordinate.get(k),indexToCoordinate.get(parentIdx),edge);
