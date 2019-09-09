@@ -45,7 +45,7 @@ public class SpaceNode<T> implements SpatialOrganizationNode<T> {
 	 * TODO: remove!
 	 */
 //	public static LinkedList<SpaceNode> allNodes = new LinkedList<SpaceNode>();
-	 public static LinkedList<SpaceNode> allNodes = null;
+	 //public static LinkedList<SpaceNode> allNodes = null;
 
 	/**
 	 * Number of node movements performed during the current simulation which
@@ -118,8 +118,8 @@ public class SpaceNode<T> implements SpatialOrganizationNode<T> {
 	 * Clears the list of all nodes and sets the static node counter to zero.
 	 */
 	public static void clear() {
-		if (allNodes != null)
-			allNodes.clear();
+//		if (allNodes != null)
+//			allNodes.clear();
 		checkingIndex = 0;
 		IDCOUNTER = 0;
 	}
@@ -136,8 +136,8 @@ public class SpaceNode<T> implements SpatialOrganizationNode<T> {
 	public SpaceNode(double[] position, T content) {
 		this.position = position;
 		this.content = content;
-		if (allNodes != null) 
-			allNodes.add(this);
+//		if (allNodes != null)
+//			allNodes.add(this);
 	}
 
 	/**
@@ -158,8 +158,8 @@ public class SpaceNode<T> implements SpatialOrganizationNode<T> {
 		this.position[1] = y;
 		this.position[2] = z;
 		this.content = content;
-		if (allNodes != null) 
-			allNodes.add(this);
+//		if (allNodes != null)
+//			allNodes.add(this);
 	}
 
 	/**
@@ -562,8 +562,8 @@ public class SpaceNode<T> implements SpatialOrganizationNode<T> {
 			}
 		}
 		oto.triangulate();
-		if (allNodes != null) 
-			allNodes.remove(this);
+//		if (allNodes != null)
+//			allNodes.remove(this);
 		if (listeners != null) {
 			for (SpatialOrganizationNodeMovementListener<T> listener : listeners)
 				listener.nodeRemoved(this);
@@ -1299,8 +1299,8 @@ public class SpaceNode<T> implements SpatialOrganizationNode<T> {
 				insert(insertPosition);
 				throw e;
 			}
-			if (allNodes != null) 
-				allNodes.add(this);
+//			if (allNodes != null)
+//				allNodes.add(this);
 		}
 	}
 
