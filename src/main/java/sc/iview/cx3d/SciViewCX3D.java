@@ -69,11 +69,11 @@ public class SciViewCX3D {
     }
 
     public void clear() {
-        if( cx3d != null ) {
-            for (Node child : cx3d.getChildren()) {
-                sciView.deleteNode(child);
-            }
-        }
+//        if( cx3d != null ) {
+//            for (Node child : cx3d.getChildren()) {
+//                sciView.deleteNode(child, false);
+//            }
+//        }
         sciView.reset();
 
         cx3d = new Group();
