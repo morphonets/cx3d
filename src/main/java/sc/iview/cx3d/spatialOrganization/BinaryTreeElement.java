@@ -131,7 +131,7 @@ public class BinaryTreeElement<T> implements Iterable<SpaceNode<T>> {
 		if ((this.contentID == id) && (this.content.equals(node))) {
 			if ((smaller == null) && (bigger == null))
 				dad.changeLink(this, null);
-			else if ((smaller != null) && ((NewDelaunayTest.rand.nextDouble() < 0.5) || (bigger == null))) {
+			else if ((smaller != null) && (bigger == null) ) { //&& ((NewDelaunayTest.rand.nextDouble() < 0.5) || (bigger == null))) {
 				dad.changeLink(this, smaller);
 				if (bigger != null)
 					smaller.insert(bigger);
