@@ -946,9 +946,9 @@ public class Tetrahedron<T> {
 	void updateCirumSphereAfterNodeMovement(SpaceNode<T> movedNode) {
 		int nodeNumber = getNodeNumber(movedNode);
 		if (!isInfinite()) {
-			// circumCenter =
-			// adjacentTriangles[nodeNumber].calculateCircumSphereCenterIfEasy(movedNode.getPosition());
-			circumCenter = null;
+			circumCenter = adjacentTriangles[nodeNumber].calculateCircumSphereCenterIfEasy(movedNode.getPosition());
+			// TODO: ^^^ was reenabled, below was the code that was being used
+			//circumCenter = null;
 
 			if (circumCenter == null)
 				computeCircumCenterAndVolume();
