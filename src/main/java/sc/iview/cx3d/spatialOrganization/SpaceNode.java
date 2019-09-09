@@ -878,9 +878,9 @@ public class SpaceNode<T> implements SpatialOrganizationNode<T> {
 		LinkedList<SpaceNode<T>> problemNodes = new LinkedList<SpaceNode<T>>();
 		OpenTriangleOrganizer<T> oto =
 				OpenTriangleOrganizer.createSimpleOpenTriangleOrganizer();
-		if (NewDelaunayTest.createOutput())
-			NewDelaunayTest.out("Cleaning up messed up tetrahedra: "
-				+ messedUpTetrahedra.toString());
+//		if (NewDelaunayTest.createOutput())
+//			NewDelaunayTest.out("Cleaning up messed up tetrahedra: "
+//				+ messedUpTetrahedra.toString());
 		for (Tetrahedron<T> tetrahedron : messedUpTetrahedra) {
 			if (tetrahedron.isValid()) {
 				removeTetrahedronDuringCleanUp(tetrahedron, outerTetrahedra,
@@ -977,10 +977,10 @@ public class SpaceNode<T> implements SpatialOrganizationNode<T> {
 										// Delaunay
 										// criterion between tetrahedronI and
 										// tetrahedronJ?
-										if (tetrahedronJ == null)
-											if (NewDelaunayTest.createOutput())
-												NewDelaunayTest
-														.out("restoreDelaunay");
+//										if (tetrahedronJ == null)
+//											if (NewDelaunayTest.createOutput())
+//												NewDelaunayTest
+//														.out("restoreDelaunay");
 										if (tetrahedronJ
 												.isNeighbor(tetrahedronI)) {
 											SpaceNode<T> oppJ =
@@ -1070,12 +1070,12 @@ public class SpaceNode<T> implements SpatialOrganizationNode<T> {
 									break;
 								}
 								else {
-									if (NewDelaunayTest.createOutput())
-										NewDelaunayTest.out("Tetrahedrons "
-											+ tetrahedron + " and "
-											+ tetrahedronI
-											+ " are messed up because of node "
-											+ nodeI);
+//									if (NewDelaunayTest.createOutput())
+//										NewDelaunayTest.out("Tetrahedrons "
+//											+ tetrahedron + " and "
+//											+ tetrahedronI
+//											+ " are messed up because of node "
+//											+ nodeI);
 									problemTetrahedra.add(tetrahedron);
 									problemTetrahedra.add(tetrahedronI);
 									// LinkedList<Tetrahedron> list =
@@ -1281,8 +1281,8 @@ public class SpaceNode<T> implements SpatialOrganizationNode<T> {
 			}
 		}
 		else {
-			if (NewDelaunayTest.createOutput())
-				NewDelaunayTest.out("Node must be deleted and reinserted!");
+//			if (NewDelaunayTest.createOutput())
+//				NewDelaunayTest.out("Node must be deleted and reinserted!");
 			deleteAndInsertMovements++;
 			Tetrahedron<T> insertPosition =
 					searchInitialInsertionTetrahedron(adjacentTetrahedra
@@ -1330,10 +1330,10 @@ public class SpaceNode<T> implements SpatialOrganizationNode<T> {
 				Tetrahedron<T> someAdjacentTetrahedron =
 						(Tetrahedron<T>) ((Edge) edge).getAdjacentTetrahedra()
 								.getFirst();
-				if (someAdjacentTetrahedron == null) {
-					if (NewDelaunayTest.createOutput())
-						NewDelaunayTest.out("proposeNewPosition");
-				}
+//				if (someAdjacentTetrahedron == null) {
+//					if (NewDelaunayTest.createOutput())
+//						NewDelaunayTest.out("proposeNewPosition");
+//				}
 				Triangle3D<T> triangle =
 						someAdjacentTetrahedron.getAdjacentTriangles()[0];
 				triangle.updatePlaneEquationIfNecessary();
