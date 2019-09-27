@@ -21,6 +21,7 @@ along with CX3D.  If not, see <http://www.gnu.org/licenses/>.
 
 package sc.iview.cx3d.simulations.tutorial;
 
+import net.imglib2.type.numeric.ComplexType;
 import sc.iview.cx3d.Param;
 import sc.iview.cx3d.cells.Cell;
 import sc.iview.cx3d.cells.CellFactory;
@@ -125,9 +126,9 @@ public class ImgNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 //        ops.image().equation(img, formula);
 
 		IOService io = ecm.getSciViewCX3D().getContext().service(IOService.class);
-		Img<FloatType> img = null;
+		Img<ComplexType> img = null;
 		try {
-			img = (Img<FloatType>) io.open("/home/kharrington/git/cx3d-mvn/fourdots.tif");
+			img = (Img<ComplexType>) io.open("/home/kharrington/git/cx3d-mvn/fourdots.tif");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
