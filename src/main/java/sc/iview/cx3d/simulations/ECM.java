@@ -1049,7 +1049,7 @@ public class ECM {
 			Img<FloatType> img = imgArtificialConcentration.get(sub);
 			RandomAccess<FloatType> ra = Views.extendZero(img).randomAccess();
 			ra.setPosition(new long[]{(long) position[0], (long) position[1], (long) position[2]});// TODO: check for rounding errors
-			concentration += ra.get().get();
+			concentration += ra.get().getRealDouble();
 		}
 		return concentration;
 	}
