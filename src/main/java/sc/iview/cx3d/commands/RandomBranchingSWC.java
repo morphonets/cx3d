@@ -88,7 +88,7 @@ public class RandomBranchingSWC implements Command {
 //    @Parameter
 //    private Tree tree;
 
-    @Parameter
+    @Parameter(style="save")
     private File file = new File("random_branching.swc");
 
     @Parameter(label = "Simulation end time")
