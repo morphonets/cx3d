@@ -30,6 +30,7 @@ package sc.iview.cx3d.commands;
 
 import graphics.scenery.SceneryBase;
 import io.scif.SCIFIOService;
+import net.imagej.ImageJ;
 import net.imagej.ImageJService;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.scijava.Context;
@@ -44,6 +45,7 @@ import org.scijava.ui.UIService;
 import org.scijava.util.Colors;
 import sc.fiji.snt.SNTService;
 import sc.fiji.snt.Tree;
+import sc.fiji.snt.analysis.TreeAnalyzer;
 import sc.fiji.snt.analysis.graph.GraphUtils;
 import sc.iview.SciView;
 import sc.iview.SciViewService;
@@ -55,7 +57,10 @@ import sc.iview.cx3d.simulations.ECM;
 import sc.iview.cx3d.simulations.Scheduler;
 import sc.iview.cx3d.simulations.tutorial.RandomBranchingModule;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import static sc.iview.commands.MenuWeights.DEMO;
 import static sc.iview.commands.MenuWeights.DEMO_LINES;
@@ -88,27 +93,48 @@ public class RandomBranchingSWC implements Command {
 //    @Parameter
 //    private Tree tree;
 
-    @Parameter(style="save")
-    private File file = new File("random_branching.swc");
+//    @Parameter(style="save")
+//    private File file = new File("random_branching.swc");
 
-    @Parameter(label = "Simulation end time")
+    @Parameter(persist=false)
+    private String filename;
+
+    @Parameter(label = "Simulation end time", persist = false)
     private float maxTime = 2;
 
-    @Parameter(label = "Growth speed")
+    @Parameter(label = "Growth speed", persist = false)
     private float speed = 100;
 
-	@Parameter(label = "Probability to bifurcate")
+	@Parameter(label = "Probability to bifurcate", persist = false)
 	private double probabilityToBifurcate = 0.005; // o.oo5
 
-    @Parameter(label = "Probability to branch")
+    @Parameter(label = "Probability to branch", persist = false)
 	private double probabilityToBranch = 0.005;
+
+    @Parameter(label = "Random seed", persist = false)
+    private long randomSeed = 17L;
+
+    @Parameter
+    private String statFile;
 
     @Override
     public void run() {
+        String outline = "";
+
+        System.out.println("Running with:");
+        System.out.println("Random seed = " + randomSeed);
+        System.out.println("filename = " + filename);
+        System.out.println("maxTime = " + maxTime);
+        System.out.println("speed = " + speed);
+        System.out.println("probabilityToBifurcate = " + probabilityToBifurcate);
+        System.out.println("probabilityToBranch = " + probabilityToBranch);
+
+        outline += randomSeed + "\t" + maxTime + "\t" + speed + "\t" + probabilityToBifurcate + "\t" + probabilityToBranch + "\t";
+
         //ECM ecm = ECM.getInstance(getContext());
         ECM ecm = ECM.getInstance(context);
 
-        ECM.setRandomSeed(7L);
+        ECM.setRandomSeed(randomSeed);
 
         ecm.clearAll();
         ecm.resetTime();
@@ -129,6 +155,8 @@ public class RandomBranchingSWC implements Command {
         branchingModule.setProbabilityToBifurcate(probabilityToBifurcate);
         neurite.addLocalBiologyModule(branchingModule);
 
+        System.out.println("simulating");
+
 		Scheduler.simulate(maxTime);
 
 		sciView.centerOnNode(ecm.getSciViewCX3D().getCx3dGroup());
@@ -139,16 +167,49 @@ public class RandomBranchingSWC implements Command {
             e.printStackTrace();
         }
 
+        System.out.println("simulation done");
+
         DefaultDirectedGraph graph = sc.iview.cx3d.utilities.GraphUtils.cellToGraph(c);
+
+        System.out.println("graph created");
 
         // This should work for Cx3D trees
         Tree realtree = GraphUtils.createTree(graph);
         realtree.setLabel("Cx3D_Tree");
         realtree.setColor(Colors.RED);
 
-        realtree.saveAsSWC(file.getAbsolutePath());
+        TreeAnalyzer ta = new TreeAnalyzer(realtree);
 
-        logService.info("SWC saved to " + file.getAbsolutePath());
+        outline += ta.getBranchPoints().size() + "\t" + ta.getPrimaryLength() + "\t" + ta.getCableLength() + "\t" + ta.getNPaths() + "\t" + ta.getStrahlerRootNumber() + "\t" + ta.getTerminalLength();
+
+        System.out.println("tree created");
+
+        realtree.saveAsSWC(filename);
+
+        System.out.println("SWC saved to " + filename);
+
+        boolean statFileExists = new File(statFile).exists();
+
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(statFile,true));
+
+            if(statFileExists) {
+                String header = "";
+
+                header += "RandomSeed\tMaxTime\tSpeed\tProbabilityToBifurcate\tProbabilityToBranch\t";
+                header += "NumBranchPoints\tPrimaryLength\tCableLength\tNPaths\tStrahlerRootNumber\tTerminalLength";
+
+                bw.write(header + "\n");
+            }
+
+            bw.write(outline + "\n");
+
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.exit(0);
 
 //        tree.merge(realtree);
 //        sntService.initialize(true);
