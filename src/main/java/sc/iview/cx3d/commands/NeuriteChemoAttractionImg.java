@@ -32,6 +32,7 @@ import graphics.scenery.SceneryBase;
 import io.scif.SCIFIOService;
 import net.imagej.ImageJService;
 import net.imglib2.img.Img;
+import net.imglib2.type.numeric.ComplexType;
 import net.imglib2.type.numeric.real.FloatType;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.scijava.Context;
@@ -94,7 +95,7 @@ public class NeuriteChemoAttractionImg implements Command {
     private float maxTime = 5;
 
     @Parameter(label = "Environment img")
-    private Img<FloatType> img;
+    private Img<ComplexType> img;
 
     public static void main( String... args ) {
         SceneryBase.xinitThreads();

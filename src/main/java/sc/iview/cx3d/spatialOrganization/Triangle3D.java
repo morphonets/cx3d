@@ -588,8 +588,8 @@ public class Triangle3D<T> extends Plane3D<T> {
 		if (!planeUpdated && !isInfinite()) {
 			if ((this.nodes[0].getId() == 6) && (this.nodes[1].getId() == 8)
 					&& (this.nodes[2].getId() == 5)) {
-				if (NewDelaunayTest.createOutput())
-					NewDelaunayTest.out("Now!");
+//				if (NewDelaunayTest.createOutput())
+//					NewDelaunayTest.out("Now!");
 			}
 			double[] node0Position = nodes[0].getPosition();
 			initPlane(subtract(nodes[1].getPosition(), node0Position),
@@ -860,15 +860,17 @@ public class Triangle3D<T> extends Plane3D<T> {
 					orientToSide(adjacentTetrahedra[1].getOppositeNode(this)
 							.getPosition());
 					upperSidePositive ^= true;
-				} else
-					NewDelaunayTest.out("orientToOpenSide");
+				}
+//				else
+//					NewDelaunayTest.out("orientToOpenSide");
 			} else if (adjacentTetrahedra[1] == null) {
 				if (!adjacentTetrahedra[0].isInfinite()) {
 					orientToSide(adjacentTetrahedra[0].getOppositeNode(this)
 							.getPosition());
 					upperSidePositive ^= true;
-				} else
-					NewDelaunayTest.out("orientToOpenSide");
+				}
+//				else
+//					NewDelaunayTest.out("orientToOpenSide");
 			} else
 				throw new RuntimeException("The triangle " + this
 						+ " has no open side!");
