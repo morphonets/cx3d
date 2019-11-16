@@ -295,8 +295,8 @@ public class Tetrahedron<T> {
 		calculateCircumSphere();
 		if (allTetrahedra != null)
 			allTetrahedra.add(this);
-		if (NewDelaunayTest.createOutput())
-			NewDelaunayTest.out("created tetrahedron " + this);
+//		if (NewDelaunayTest.createOutput())
+//			NewDelaunayTest.out("created tetrahedron " + this);
 	}
 
 	/**
@@ -346,8 +346,8 @@ public class Tetrahedron<T> {
 		calculateCircumSphere();
 		if (allTetrahedra != null)
 			allTetrahedra.add(this);
-		if (NewDelaunayTest.createOutput())
-			NewDelaunayTest.out("created tetrahedron " + this);
+//		if (NewDelaunayTest.createOutput())
+//			NewDelaunayTest.out("created tetrahedron " + this);
 	}
 
 	/**
@@ -946,8 +946,7 @@ public class Tetrahedron<T> {
 	void updateCirumSphereAfterNodeMovement(SpaceNode<T> movedNode) {
 		int nodeNumber = getNodeNumber(movedNode);
 		if (!isInfinite()) {
-			// circumCenter =
-			// adjacentTriangles[nodeNumber].calculateCircumSphereCenterIfEasy(movedNode.getPosition());
+			//circumCenter = adjacentTriangles[nodeNumber].calculateCircumSphereCenterIfEasy(movedNode.getPosition());
 			circumCenter = null;
 
 			if (circumCenter == null)
@@ -990,9 +989,9 @@ public class Tetrahedron<T> {
 					difference /= tolerance;
 					if (difference > maxToleranceNeeded)
 						maxToleranceNeeded = difference;
-					NewDelaunayTest.changeOutputCreation();
+//					NewDelaunayTest.changeOutputCreation();
 					orientationExact(point);
-					NewDelaunayTest.changeOutputCreation();
+//					NewDelaunayTest.changeOutputCreation();
 					this.calculateCircumSphere();
 				}
 				return result;
@@ -1066,8 +1065,8 @@ public class Tetrahedron<T> {
 	 * open triangles itself!
 	 */
 	protected void remove() {
-		if (NewDelaunayTest.createOutput())
-			NewDelaunayTest.out("Removing tetrahedron " + this);
+//		if (NewDelaunayTest.createOutput())
+//			NewDelaunayTest.out("Removing tetrahedron " + this);
 
 		valid = false;
 		for (int i = 0; i < 4; i++) {
@@ -1571,10 +1570,10 @@ public class Tetrahedron<T> {
 				.getConnectingTriangleNumber(tetrahedronB);
 		Triangle3D<T> connectingTriangle = tetrahedronA.getAdjacentTriangles()[connectingTriangleNumber];
 		SpaceNode lowerNode = tetrahedronB.getOppositeNode(connectingTriangle);
-		if (lowerNode == null) {
-			if (NewDelaunayTest.createOutput())
-				NewDelaunayTest.out("flip2To3");
-		}
+//		if (lowerNode == null) {
+//			if (NewDelaunayTest.createOutput())
+//				NewDelaunayTest.out("flip2To3");
+//		}
 		int convexPosition = (lowerNode == null) ? 1 : tetrahedronA
 				.isInConvexPosition(lowerNode.getPosition(),
 						connectingTriangleNumber);
@@ -1616,10 +1615,10 @@ public class Tetrahedron<T> {
 							lowerNode, upperNode, connectingTriangleNodes[b]);
 			}
 			return ret;
-		} else if (tetrahedronA.isInfinite()) {
-			if (NewDelaunayTest.createOutput())
-				NewDelaunayTest.out("flip2to3");
-			return null;
+//		} else if (tetrahedronA.isInfinite()) {
+//			if (NewDelaunayTest.createOutput())
+//				NewDelaunayTest.out("flip2to3");
+//			return null;
 		} else
 			return null;
 	}
@@ -1754,7 +1753,7 @@ public class Tetrahedron<T> {
 	public Tetrahedron<T> walkToPoint(double[] coordinate)
 			throws PositionNotAllowedException {
 		if (!isInfinite()) {
-			Collections.shuffle(triangleOrder, NewDelaunayTest.rand);
+//			Collections.shuffle(triangleOrder, NewDelaunayTest.rand);
 			for (int i = 0; i < 4; i++) {
 				int pos = triangleOrder.get(i);
 				Triangle3D<T> currentTriangle = adjacentTriangles[pos];

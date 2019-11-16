@@ -529,10 +529,10 @@ public class OpenTriangleOrganizer<T> {
 			lastSearchNode = startingEdge.a;
 		}
 		while (!nodes.isEmpty()) {
-			if (searchNode == null
-					|| lastSearchNode == null) {
-				if (NewDelaunayTest.createOutput()) NewDelaunayTest.out("sortCircleNodes");
-			}
+//			if (searchNode == null
+//					|| lastSearchNode == null) {
+//				if (NewDelaunayTest.createOutput()) NewDelaunayTest.out("sortCircleNodes");
+//			}
 			double[] lastVector = normalize(subtract(
 					searchNode.getPosition(),
 					lastSearchNode.getPosition()));
@@ -622,8 +622,8 @@ public class OpenTriangleOrganizer<T> {
 			similarDistanceNodes.addFirst(startingEdge.a);
 			similarDistanceNodes.addFirst(startingEdge.b);
 		}
-		if (NewDelaunayTest.createOutput()) NewDelaunayTest.out("triangulating points on Circle: "
-						+ similarDistanceNodes);
+//		if (NewDelaunayTest.createOutput()) NewDelaunayTest.out("triangulating points on Circle: "
+//						+ similarDistanceNodes);
 		SpaceNode<T> centerNode = findCenterNode(similarDistanceNodes);
 		if (startingEdge != null) {
 			similarDistanceNodes.removeFirst();
@@ -652,8 +652,8 @@ public class OpenTriangleOrganizer<T> {
 		nodes.add(startingTriangle.getNodes()[1]);
 		nodes.add(startingTriangle.getNodes()[2]);
 		nodes.addAll(onCircleNodes);
-		if (NewDelaunayTest.createOutput()) NewDelaunayTest.out("triangulating points on sphere: "
-						+ nodes);
+//		if (NewDelaunayTest.createOutput()) NewDelaunayTest.out("triangulating points on sphere: "
+//						+ nodes);
 		HashMap<EdgeHashKey<T>, EdgeHashKey<T>> map = new HashMap<EdgeHashKey<T>, EdgeHashKey<T>>(
 				30);
 		EdgeHashKey anOpenEdge = null;
@@ -666,10 +666,10 @@ public class OpenTriangleOrganizer<T> {
 						startingTriangle.getNodes()[(i + 2) % 3],
 						anOpenEdge, map);
 		} else {
-			if (NewDelaunayTest.createOutput()) NewDelaunayTest.out("Special case: starting triangle "
-							+ startingTriangle
-							+ " lies on same circle as "
-							+ onCircleNodes.toString());
+//			if (NewDelaunayTest.createOutput()) NewDelaunayTest.out("Special case: starting triangle "
+//							+ startingTriangle
+//							+ " lies on same circle as "
+//							+ onCircleNodes.toString());
 			onCircleNodes
 					.add(startingTriangle.getNodes()[0]);
 			onCircleNodes
@@ -692,8 +692,8 @@ public class OpenTriangleOrganizer<T> {
 			for (SpaceNode<T> currentNode : nodes) {
 				if ((currentNode != anOpenEdge.a)
 						&& (currentNode != anOpenEdge.b)) {
-					if (currentNode == null)
-						if (NewDelaunayTest.createOutput()) NewDelaunayTest.out("");
+//					if (currentNode == null)
+//						if (NewDelaunayTest.createOutput()) NewDelaunayTest.out("");
 					double cosinus = anOpenEdge
 							.getCosine(currentNode
 									.getPosition());
@@ -898,11 +898,11 @@ public class OpenTriangleOrganizer<T> {
 			Triangle3D<T> openTriangle, SpaceNode<T> oppositeNode) {
 		aNewTetrahedron = new Tetrahedron<T>(openTriangle,
 				oppositeNode, this);
-		if (NewDelaunayTest.createOutput()) {
-			if (NewDelaunayTest.checkTetrahedronForDelaunayViolation(aNewTetrahedron)) {
-				System.out.println("Stop!");
-			}
-		}
+//		if (NewDelaunayTest.createOutput()) {
+//			if (NewDelaunayTest.checkTetrahedronForDelaunayViolation(aNewTetrahedron)) {
+//				System.out.println("Stop!");
+//			}
+//		}
 			
 		if (newTetrahedra != null)
 			newTetrahedra.add(aNewTetrahedron);
@@ -1035,8 +1035,8 @@ public class OpenTriangleOrganizer<T> {
 				// throw new RuntimeException("No opposing node was found for
 				// the triangle "+openTriangle+" (adjacent tetrahedron:
 				// "+lastTetrahedron+")");
-				if (pickedNode != null && pickedNode.getId() == 12)
-					if (NewDelaunayTest.createOutput()) NewDelaunayTest.out("triangulate");
+//				if (pickedNode != null && pickedNode.getId() == 12)
+//					if (NewDelaunayTest.createOutput()) NewDelaunayTest.out("triangulate");
 				createNewTetrahedron(openTriangle,
 						pickedNode);
 			} else {
@@ -1066,9 +1066,9 @@ public class OpenTriangleOrganizer<T> {
 				throw new RuntimeException("Am I in an infinite loop?");
 //				securityCounter = 0;
 		}
-		if (!map.isEmpty()) {
-			if (NewDelaunayTest.createOutput()) NewDelaunayTest.out("Aarrgh");
-		}
+//		if (!map.isEmpty()) {
+//			if (NewDelaunayTest.createOutput()) NewDelaunayTest.out("Aarrgh");
+//		}
 	}
 
 //	/**

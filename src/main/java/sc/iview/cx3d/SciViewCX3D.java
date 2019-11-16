@@ -11,6 +11,7 @@ import net.imglib2.Cursor;
 import net.imglib2.display.AbstractArrayColorTable;
 import net.imglib2.display.ColorTable;
 import net.imglib2.img.Img;
+import net.imglib2.type.numeric.ComplexType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.FloatType;
 import org.scijava.Context;
@@ -103,15 +104,15 @@ public class SciViewCX3D {
     }
 
     private void paintPhysicalNodes() {
-        Hashtable<Substance, Img<FloatType>> imgSubs = ecm.getImgArtificialConcentration();
+        Hashtable<Substance, Img<ComplexType>> imgSubs = ecm.getImgArtificialConcentration();
         LUTService lutService = context.service(LUTService.class);
         if( showSubstances ) {
             for (Substance sub : imgSubs.keySet()) {
                 if (volumes.containsKey(sub)) {
                     // Then the volume is there
                 } else {
-                    Img<FloatType> img = imgSubs.get(sub);
-                    Cursor<FloatType> cur = img.cursor();
+                    Img<ComplexType> img = imgSubs.get(sub);
+                    Cursor<ComplexType> cur = img.cursor();
                     while (cur.hasNext()) {
                         cur.next();
                         cur.get().mul(255.0);
