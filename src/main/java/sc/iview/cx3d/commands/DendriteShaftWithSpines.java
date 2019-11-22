@@ -44,7 +44,6 @@ import org.scijava.thread.ThreadService;
 import org.scijava.util.Colors;
 import sc.fiji.snt.SNTService;
 import sc.fiji.snt.Tree;
-import sc.fiji.snt.analysis.graph.GraphUtils;
 import sc.iview.SciView;
 import sc.iview.SciViewService;
 import sc.iview.cx3d.Param;
@@ -56,6 +55,7 @@ import sc.iview.cx3d.simulations.ECM;
 import sc.iview.cx3d.simulations.Scheduler;
 import sc.iview.cx3d.simulations.tutorial.RandomBranchingModule;
 import sc.iview.cx3d.synapses.*;
+import sc.iview.cx3d.utilities.GraphUtils;
 
 import static sc.iview.commands.MenuWeights.DEMO;
 import static sc.iview.commands.MenuWeights.DEMO_LINES;
@@ -124,6 +124,8 @@ public class DendriteShaftWithSpines implements Command {
 
 		Scheduler.simulateOneStep();
 		Scheduler.simulateOneStep();
+
+		tree = sc.fiji.snt.analysis.graph.GraphUtils.createTree(GraphUtils.cellToGraph(inhib));
 
 //		PhysicalSpine pSpine = new PhysicalSpine(dendriteCyl,polarDendriteCoord,3);
 //		dendriteCyl.addExcrescence(pSpine);
