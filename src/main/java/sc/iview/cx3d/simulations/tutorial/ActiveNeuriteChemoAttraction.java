@@ -39,6 +39,7 @@ import sc.iview.cx3d.simulations.Scheduler;
 import java.awt.*;
 import java.util.Random;
 import java.util.Vector;
+import java.util.function.Predicate;
 
 import static sc.iview.cx3d.utilities.Matrix.*;
 
@@ -142,6 +143,55 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 		genome.writeToFile(filename);
 	}
 
+	/**
+	 * Write a randomly generated GRN to the specific file
+	 * TODO consider a predicate test/requirement for the GRN
+	 * @param filename
+	 * @param predicate determines whether a GRN is acceptable
+	 */
+	public static void writePredicateFilteredRandomGRNToFile(String filename, Predicate<GRNGenome> predicate) throws Exception {
+        Random rng = new Random();
+
+        GRNGenome genome = randomGRN(rng);
+
+        int numAttempts = 0;
+
+        while( !predicate.test(genome) ){
+        	if( numAttempts > 5000 ) {
+        		throw new Exception("Too many attempts in writePredicateFilteredRandomGRNToFile");
+			}
+
+        	genome = randomGRN(rng);
+        	numAttempts++;
+		}
+
+		genome.writeToFile(filename);
+	}
+
+	public static int numGRNInputs = 4;
+	public static int numGRNOutputs = 4;
+	public static int maxGRNNodes = 50;
+
+	public static GRNGenome randomGRN(Random rng) {
+		GRNGenome genome = new GRNGenome();
+        // Make inputs
+        for(int k = 0; k < numGRNInputs; k++) {
+            genome.addGene(GRNGene.generateRandomGene(GRNProtein.INPUT_PROTEIN, k, rng));
+        }
+        // Make outputs
+        for(int k = 0; k < numGRNOutputs; k++) {
+            genome.addGene(GRNGene.generateRandomGene(GRNProtein.OUTPUT_PROTEIN, k, rng));
+        }
+        // Make hidden
+        for(int k = 0; k < rng.nextInt( maxGRNNodes - numGRNInputs - numGRNOutputs ); k++) {
+            genome.addGene(GRNGene.generateRandomRegulatoryGene(rng));
+        }
+        // Set GRN params
+        genome.setBeta(genome.getBetaMin() + rng.nextDouble()*(genome.getBetaMax() - genome.getBetaMin()));
+        genome.setDelta(genome.getDeltaMin() + rng.nextDouble()*(genome.getDeltaMax() - genome.getDeltaMin()));
+        return genome;
+	}
+
 	public void run() {
 		PhysicalObject physical = super.cellElement.getPhysical();
 		Cell cell = super.cellElement.getCell();
@@ -179,9 +229,14 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 		double randomnessWeight = grn.state.proteins.get(grn.state.proteins.size() - 2).getConcentration();
 		//double AWeight = grn.state.proteins.get(grn.state.proteins.size() - 3).getConcentration();
 		//double bifurcationWeight = grn.state.proteins.get(grn.state.proteins.size() - 4).getConcentration();
-		double AWeight = 1;
+		double AWeight = 0.05;
 		double bifurcationWeight = grn.state.proteins.get(grn.state.proteins.size() - 3).getConcentration();
 		double branchingFactor = grn.state.proteins.get(grn.state.proteins.size() - 4).getConcentration();
+
+		bifurcationWeight *= 0.005;
+		branchingFactor *= 0.005;
+		bifurcationWeight = Math.max( 0.004, Math.min(bifurcationWeight, 0.006) );
+		branchingFactor = Math.max( 0.004, Math.min(branchingFactor, 0.006) );
 
 		double[] newStepDirection = add(
 				scalarMult(oldDirectionWeight, direction),
@@ -191,20 +246,20 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 
 		// 1) movement
 		physical.movePointMass(speed, newStepDirection);
-		direction = normalize(add(scalarMult(5,direction),newStepDirection));
+		direction = normalize(add(scalarMult(1,direction),newStepDirection));
 
-		// 2) branching based on concentration:
-		if(super.cellElement.isANeuriteElement() && ( ecm.getRandomDouble()<bifurcationWeight*branchingFactor) ){
+		if(super.cellElement.isANeuriteElement() && ( ecm.getRandomDouble() < bifurcationWeight ) ){
+		//if(ecm.getRandomDouble()<branchingFactor){
+			NeuriteElement[] newBranch = ((NeuriteElement) cellElement).bifurcate();
+			//System.out.println("Cell " + cell.getID() + " is bifurcating at " + newBranch[0].getLocation()[0] + ", " + newBranch[0].getLocation()[1] + ", " + newBranch[0].getLocation()[2] );
+		}
+
+		if(super.cellElement.isANeuriteElement() && ( ecm.getRandomDouble() < branchingFactor ) ){
 		//if(ecm.getRandomDouble()<branchingFactor){
 			NeuriteElement newBranch = ((NeuriteElement) cellElement).branch();
-			System.out.println("Cell " + cell.getID() + " is branching at " + newBranch.getLocation()[0] + ", " + newBranch.getLocation()[1] + ", " + newBranch.getLocation()[2] );
-//			Vector<LocalBiologyModule> localBiologyList = newBranch.getLocalBiologyModulesList();
-//			for( int k = 0; k < localBiologyList.size(); k++ ) {
-//				if( localBiologyList.get(k) instanceof GRNModule ) {
-//					((GRNModule) localBiologyList.get(k)).setGrn(getGrn());
-//				}
-//			}
+			//System.out.println("Cell " + cell.getID() + " is branching at " + newBranch.getLocation()[0] + ", " + newBranch.getLocation()[1] + ", " + newBranch.getLocation()[2] );
 		}
+
 	}
 
 	public static void main(String[] args) {
