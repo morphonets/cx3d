@@ -21,8 +21,10 @@ along with CX3D.  If not, see <http://www.gnu.org/licenses/>.
 
 package sc.iview.cx3d.simulations.tutorial;
 
+import fun.grn.grneat.evaluators.GRNGenomeEvaluator;
 import fun.grn.grneat.evolver.GRNGene;
 import fun.grn.grneat.evolver.GRNGenome;
+import fun.grn.grneat.grn.GRNModel;
 import fun.grn.grneat.grn.GRNProtein;
 import graphics.scenery.SceneryBase;
 import sc.iview.cx3d.Param;
@@ -52,6 +54,8 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 	private String[] substanceID =
 			new String[] {
 				"A",
+                "B",
+                "C",
 			};;
 
 	public GRNModule getGrnModule() {
@@ -149,8 +153,8 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 	 * @param filename
 	 * @param predicate determines whether a GRN is acceptable
 	 */
-	public static void writePredicateFilteredRandomGRNToFile(String filename, Predicate<GRNGenome> predicate) throws Exception {
-        Random rng = new Random();
+	public static void writePredicateFilteredRandomGRNToFile(String filename, Predicate<GRNGenome> predicate, long randomSeed) throws Exception {
+        Random rng = new Random(randomSeed);
 
         GRNGenome genome = randomGRN(rng);
 
@@ -168,8 +172,8 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 		genome.writeToFile(filename);
 	}
 
-	public static int numGRNInputs = 4;
-	public static int numGRNOutputs = 4;
+	public static int numGRNInputs = 6;
+	public static int numGRNOutputs = 6;
 	public static int maxGRNNodes = 50;
 
 	public static GRNGenome randomGRN(Random rng) {
@@ -200,10 +204,14 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 		//System.out.println("Physical: " + physical + " Cell: " + cell + " GRN: " + grn);
 
 		// Get sensor inputs:
-		// - A
-
 		double A = physical.getExtracellularConcentration("A");
 		double[] AGrad = physical.getExtracellularGradient("A");
+
+		double B = physical.getExtracellularConcentration("B");
+		double[] BGrad = physical.getExtracellularGradient("B");
+
+		double C = physical.getExtracellularConcentration("C");
+		double[] CGrad = physical.getExtracellularGradient("C");
 
 		// If this is a soma element then setup inputs and evaluate GRN (to ensure one time evaluation)
 
@@ -215,9 +223,11 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 
 		// Set GRN inputs
 		grn.state.proteins.get(0).setConcentration(A);
-		grn.state.proteins.get(1).setConcentration(physical.getLength()/10f);
-		grn.state.proteins.get(2).setConcentration(physical.getVolume()/10f);
-		grn.state.proteins.get(3).setConcentration(branchOrder);
+		grn.state.proteins.get(1).setConcentration(B);
+		grn.state.proteins.get(2).setConcentration(C);
+		grn.state.proteins.get(3).setConcentration(physical.getLength()/10f);
+		grn.state.proteins.get(4).setConcentration(physical.getVolume()/10f);
+		grn.state.proteins.get(5).setConcentration(branchOrder);
 		//physicalCylinder.getBranchOrder()
 		//((NeuriteElement) cellElement).
 
@@ -225,13 +235,17 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 		grn.state.evolve(2);
 
 		// Extract weights and probability of bifurcation
-		double oldDirectionWeight = grn.state.proteins.get(grn.state.proteins.size() - 1).getConcentration();
-		double randomnessWeight = grn.state.proteins.get(grn.state.proteins.size() - 2).getConcentration();
-		//double AWeight = grn.state.proteins.get(grn.state.proteins.size() - 3).getConcentration();
-		//double bifurcationWeight = grn.state.proteins.get(grn.state.proteins.size() - 4).getConcentration();
-		double AWeight = 0.05;
-		double bifurcationWeight = grn.state.proteins.get(grn.state.proteins.size() - 3).getConcentration();
-		double branchingFactor = grn.state.proteins.get(grn.state.proteins.size() - 4).getConcentration();
+		//double oldDirectionWeight = grn.state.proteins.get(grn.state.proteins.size() - 1).getConcentration();
+        double oldDirectionWeight = 1;
+		double randomnessWeight = grn.state.proteins.get(grn.state.proteins.size() - 1).getConcentration();
+		//double randomnessWeight = grn.state.proteins.get(grn.state.proteins.size() - 2).getConcentration();
+        //double randomnessWeight = 0.25;
+		double AWeight = grn.state.proteins.get(grn.state.proteins.size() - 2).getConcentration();
+		double BWeight = grn.state.proteins.get(grn.state.proteins.size() - 3).getConcentration();
+		double CWeight = grn.state.proteins.get(grn.state.proteins.size() - 4).getConcentration();
+
+		double bifurcationWeight = grn.state.proteins.get(grn.state.proteins.size() - 5).getConcentration();
+		double branchingFactor = grn.state.proteins.get(grn.state.proteins.size() - 6).getConcentration();
 
 		bifurcationWeight *= 0.005;
 		branchingFactor *= 0.005;
@@ -241,6 +255,8 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 		double[] newStepDirection = add(
 				scalarMult(oldDirectionWeight, direction),
 				scalarMult(AWeight, normalize(AGrad)),
+				scalarMult(BWeight, normalize(BGrad)),
+				scalarMult(CWeight, normalize(CGrad)),
 				randomNoise(randomnessWeight,3));
 		double speed = 100;
 
@@ -262,6 +278,103 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 
 	}
 
+	public static Predicate grnPredicate = (Predicate<GRNGenome>) genome -> {
+        double A = 0.01;
+        double B = 0.01;
+        double C = 0.01;
+        double length = 0.2;
+        double volume = 0.3;
+        double branchOrder = 0.5;
+
+        // TODO run the GRN for some number of steps, test that the outputs are dynamic
+        GRNModel state = GRNGenomeEvaluator.buildGRNFromGenome(genome);
+
+
+        state.proteins.get(0).setConcentration(A);
+		state.proteins.get(1).setConcentration(B);
+		state.proteins.get(2).setConcentration(C);
+		state.proteins.get(3).setConcentration(length);
+		state.proteins.get(4).setConcentration(volume);
+		state.proteins.get(5).setConcentration(branchOrder);
+		//physicalCylinder.getBranchOrder()
+		//((NeuriteElement) cellElement).
+
+
+        // warmpup
+        state.evolve(25);
+
+        int numTestSteps = 100;
+        int numOutputs = ActiveNeuriteChemoAttraction.numGRNOutputs;
+        double[][] outputs = new double[numOutputs][numTestSteps];
+        for( int t = 0; t < numTestSteps; t++ ) {
+            // Update GRN
+            state.evolve(2);
+
+            // Extract weights and probability of bifurcation
+            double oldDirectionWeight = state.proteins.get(state.proteins.size() - 1).getConcentration();
+            double AWeight = state.proteins.get(state.proteins.size() - 2).getConcentration();
+            double BWeight = state.proteins.get(state.proteins.size() - 3).getConcentration();
+            double CWeight = state.proteins.get(state.proteins.size() - 4).getConcentration();
+
+            double bifurcationWeight = state.proteins.get(state.proteins.size() - 5).getConcentration();
+            double branchingFactor = state.proteins.get(state.proteins.size() - 6).getConcentration();
+
+            bifurcationWeight *= 0.005;
+            branchingFactor *= 0.005;
+
+            bifurcationWeight = Math.max( 0.004, Math.min(bifurcationWeight, 0.006) );
+            branchingFactor = Math.max( 0.004, Math.min(branchingFactor, 0.006) );
+
+            outputs[0][t] = oldDirectionWeight;
+            outputs[1][t] = AWeight;
+            outputs[2][t] = BWeight;
+            outputs[3][t] = CWeight;
+            outputs[4][t] = bifurcationWeight;
+            outputs[5][t] = branchingFactor;
+        }
+
+        boolean debugPredicate = false;
+
+        int numStationary = 0;
+        // Test if the output changed from beginning to end
+        for( int oid = 0; oid < numOutputs; oid++ ) {
+            if (Math.abs(outputs[oid][0] - outputs[oid][numTestSteps - 1]) < 0.0001) {
+                if( debugPredicate ) System.out.println("Nondynamic GRN " + oid + " " + outputs[oid][0] + " " + outputs[oid][numTestSteps - 1]);
+                numStationary++;
+            }
+        }
+
+        // Some outputs can be stationary/constant
+        if( numStationary > numOutputs - 3 )
+            return false;
+
+        // Check that this will branch
+        int branchIdx = 4;
+        if( outputs[branchIdx][0] < 0.004 && outputs[branchIdx][numTestSteps-1] < 0.004 ) {
+            if( debugPredicate ) System.out.println("Nonbranching GRN");
+            return false;
+        }
+        // Check that this will not over branch
+        if( outputs[branchIdx][0] > 0.006 && outputs[branchIdx][numTestSteps-1] > 0.006 ) {
+            if( debugPredicate ) System.out.println("Overbranching GRN");
+            return false;
+        }
+
+        // Check that this will bifurcate
+        int bifurcateIdx = 5;
+        if( outputs[bifurcateIdx][0] < 0.004 && outputs[bifurcateIdx][numTestSteps-1] < 0.004 ) {
+            if( debugPredicate ) System.out.println("Nonbifurcating GRN");
+            return false;
+        }
+        // Check that this will not over bifurcate
+        if( outputs[bifurcateIdx][0] > 0.006 && outputs[bifurcateIdx][numTestSteps-1] > 0.006 ) {
+            if( debugPredicate ) System.out.println("Overbifurcating GRN");
+            return false;
+        }
+
+        return true;
+    };
+
 	public static void main(String[] args) {
 		SceneryBase.xinitThreads();
 
@@ -281,8 +394,13 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 
 		ECM.setRandomSeed(randomSeed);
 		Substance A = new Substance("A",Color.magenta);
-		// Establish convention, A-P = Z, Long = Y, M-L = X
 		ecm.addArtificialGaussianConcentrationZ(A, 1.0, 400.0, 160.0);
+
+		Substance B = new Substance("B",Color.magenta);
+		ecm.addArtificialGaussianConcentrationX(B, 1.0, 400.0, 160.0);
+
+		Substance C = new Substance("C",Color.magenta);
+		ecm.addArtificialGaussianConcentrationY(C, 1.0, 400.0, 160.0);
 
 		int nbOfAdditionalNodes = 10;
 		for (int i = 0; i < nbOfAdditionalNodes; i++) {

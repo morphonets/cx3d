@@ -140,9 +140,14 @@ public class GRNBranchingSWC implements Command {
         ecm.resetTime();
         ecm.getSciViewCX3D().clear();
 
-        Substance A = new Substance("A", Color.magenta);
-		// Establish convention, A-P = Z, Long = Y, M-L = X
-		ecm.addArtificialGaussianConcentrationZ(A, 1.0, 400.0, 160.0);
+        Substance A = new Substance("A",Color.magenta);
+		ecm.addArtificialGaussianConcentrationZ(A, 1.0, 300.0, 160.0);
+
+		Substance B = new Substance("B",Color.magenta);
+		ecm.addArtificialGaussianConcentrationX(B, 1.0, 300.0, 160.0);
+
+		Substance C = new Substance("C",Color.magenta);
+		ecm.addArtificialGaussianConcentrationY(C, 1.0, 300.0, 160.0);
 
 		for (int i = 0; i < 18; i++) {
 			ecm.getPhysicalNodeInstance(randomNoise(1000,3));
@@ -157,7 +162,7 @@ public class GRNBranchingSWC implements Command {
         if( generateGRN ) {
             try {
                 //ActiveNeuriteChemoAttraction.writeRandomGRNToFile(filenameGRN);
-                ActiveNeuriteChemoAttraction.writePredicateFilteredRandomGRNToFile(filenameGRN, grnPredicate);
+                ActiveNeuriteChemoAttraction.writePredicateFilteredRandomGRNToFile(filenameGRN, ActiveNeuriteChemoAttraction.grnPredicate, randomSeed);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -240,91 +245,6 @@ public class GRNBranchingSWC implements Command {
 
     }
 
-    public static Predicate grnPredicate = (Predicate<GRNGenome>) genome -> {
-        double A = 0.01;
-        double length = 0.2;
-        double volume = 0.3;
-        double branchOrder = 0.5;
-
-        // TODO run the GRN for some number of steps, test that the outputs are dynamic
-        GRNModel state = GRNGenomeEvaluator.buildGRNFromGenome(genome);
-
-
-        state.proteins.get(0).setConcentration(A);
-        state.proteins.get(1).setConcentration(length);
-        state.proteins.get(2).setConcentration(volume);
-        state.proteins.get(3).setConcentration(branchOrder);
-        //physicalCylinder.getBranchOrder()
-        //((NeuriteElement) cellElement).
-
-        // warmpup
-        state.evolve(25);
-
-        int numTestSteps = 100;
-        int numOutputs = 4;
-        double[][] outputs = new double[numOutputs][numTestSteps];
-        for( int t = 0; t < numTestSteps; t++ ) {
-            // Update GRN
-            state.evolve(2);
-
-            // Extract weights and probability of bifurcation
-            double oldDirectionWeight = state.proteins.get(state.proteins.size() - 1).getConcentration();
-            double randomnessWeight = state.proteins.get(state.proteins.size() - 2).getConcentration();
-            double bifurcationWeight = state.proteins.get(state.proteins.size() - 3).getConcentration();
-            double branchingFactor = state.proteins.get(state.proteins.size() - 4).getConcentration();
-
-            bifurcationWeight *= 0.005;
-            branchingFactor *= 0.005;
-
-            bifurcationWeight = Math.max( 0.004, Math.min(bifurcationWeight, 0.006) );
-            branchingFactor = Math.max( 0.004, Math.min(branchingFactor, 0.006) );
-
-            outputs[0][t] = oldDirectionWeight;
-            outputs[1][t] = randomnessWeight;
-            outputs[2][t] = bifurcationWeight;
-            outputs[3][t] = branchingFactor;
-        }
-
-        boolean debugPredicate = false;
-
-        int numStationary = 0;
-        // Test if the output changed from beginning to end
-        for( int oid = 0; oid < numOutputs; oid++ ) {
-            if (Math.abs(outputs[oid][0] - outputs[oid][numTestSteps - 1]) < 0.0001) {
-                if( debugPredicate ) System.out.println("Nondynamic GRN " + oid + " " + outputs[oid][0] + " " + outputs[oid][numTestSteps - 1]);
-                numStationary++;
-            }
-        }
-
-        // Some outputs can be stationary/constant
-        if( numStationary > numOutputs - 2 )
-            return false;
-
-        // Check that this will branch
-        if( outputs[3][0] < 0.004 && outputs[3][numTestSteps-1] < 0.004 ) {
-            if( debugPredicate ) System.out.println("Nonbranching GRN");
-            return false;
-        }
-        // Check that this will not over branch
-        if( outputs[3][0] > 0.006 && outputs[3][numTestSteps-1] > 0.006 ) {
-            if( debugPredicate ) System.out.println("Overbranching GRN");
-            return false;
-        }
-
-        // Check that this will bifurcate
-        if( outputs[2][0] < 0.004 && outputs[2][numTestSteps-1] < 0.004 ) {
-            if( debugPredicate ) System.out.println("Nonbifurcating GRN");
-            return false;
-        }
-        // Check that this will not over bifurcate
-        if( outputs[2][0] > 0.006 && outputs[2][numTestSteps-1] > 0.006 ) {
-            if( debugPredicate ) System.out.println("Overbifurcating GRN");
-            return false;
-        }
-
-        return true;
-    };
-
     public static void main( String... args ) {
         SciView sciView = SciView.createSciView();
         CommandService commandService = sciView.getScijavaContext().service(CommandService.class);
@@ -332,10 +252,10 @@ public class GRNBranchingSWC implements Command {
         Map<String, Object> argmap = new HashMap<>();
         argmap.put("filenameSWC", "test_17.swc");
         argmap.put("filenameGRN", "test_17.grn");
-        argmap.put("filenameStats", "test_17.grn");
-        argmap.put("generateGRN", false);
-        argmap.put("maxTime", 4);
-        argmap.put("randomSeed", 87171717);
+        argmap.put("filenameStats", "test_17.csv");
+        argmap.put("generateGRN", true);
+        argmap.put("maxTime", 6);
+        argmap.put("randomSeed", 117171717);
 
         commandService.run(GRNBranchingSWC.class,true, argmap);
     }
