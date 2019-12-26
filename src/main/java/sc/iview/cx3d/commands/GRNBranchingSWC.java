@@ -236,7 +236,7 @@ public class GRNBranchingSWC implements Command {
         }
 
 
-        //System.exit(0);
+        System.exit(0);
 
 //        tree.merge(realtree);
 //        sntService.initialize(true);
@@ -255,7 +255,7 @@ public class GRNBranchingSWC implements Command {
         argmap.put("filenameStats", "test_17.csv");
         argmap.put("generateGRN", true);
         argmap.put("maxTime", 6);
-        argmap.put("randomSeed", 117171717);
+        argmap.put("randomSeed", 917171717);
 
         commandService.run(GRNBranchingSWC.class,true, argmap);
     }
