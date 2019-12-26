@@ -21,18 +21,23 @@ along with CX3D.  If not, see <http://www.gnu.org/licenses/>.
 
 package sc.iview.cx3d.simulations.tutorial;
 
+import fun.grn.grneat.evolver.GRNGene;
+import fun.grn.grneat.evolver.GRNGenome;
+import fun.grn.grneat.grn.GRNProtein;
 import graphics.scenery.SceneryBase;
 import sc.iview.cx3d.Param;
 import sc.iview.cx3d.cells.Cell;
 import sc.iview.cx3d.cells.CellFactory;
 import sc.iview.cx3d.cells.GRNModule;
 import sc.iview.cx3d.localBiology.*;
+import sc.iview.cx3d.physics.PhysicalCylinder;
 import sc.iview.cx3d.physics.PhysicalObject;
 import sc.iview.cx3d.physics.Substance;
 import sc.iview.cx3d.simulations.ECM;
 import sc.iview.cx3d.simulations.Scheduler;
 
 import java.awt.*;
+import java.util.Random;
 import java.util.Vector;
 
 import static sc.iview.cx3d.utilities.Matrix.*;
@@ -43,26 +48,32 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 
 	private double[] direction;
 
-	private String[] substanceID;
+	private String[] substanceID =
+			new String[] {
+				"A",
+			};;
+
+	public GRNModule getGrnModule() {
+		return grnModule;
+	}
 
 	private GRNModule grnModule;
 
 	//private double branchingFactor = 0.005;
-	private double branchingFactor = 0.5;
+	//private double branchingFactor = 0.5;
+	private String filenameGRN;
 
 	public ActiveNeuriteChemoAttraction() {
-		substanceID = new String[] {
-				"A",
-		};
 	}
 
-	public ActiveNeuriteChemoAttraction(String[] substanceID) {
-		this.substanceID = substanceID;
-	}
+	public ActiveNeuriteChemoAttraction(String filenameGRN) {
+		this.filenameGRN = filenameGRN;
 
-	public ActiveNeuriteChemoAttraction(String[] substanceID, double branchingFactor) {
-		this.substanceID = substanceID;
-		this.branchingFactor = branchingFactor;
+		grnModule = new GRNModule();
+		GRNElement grnElement = new GRNElement(filenameGRN, true);
+
+
+		grnModule.setGrn(grnElement);
 	}
 
 	public ActiveNeuriteChemoAttraction(GRNModule grnModule) {
@@ -87,7 +98,7 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 	}
 
 	public AbstractLocalBiologyModule getCopy() {
-		return new ActiveNeuriteChemoAttraction(substanceID);
+		return new ActiveNeuriteChemoAttraction(grnModule);
 	}
 
 	public GRNElement getGrn(Cell cell) {
@@ -98,6 +109,37 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Write a randomly generated GRN to the specific file
+	 * TODO consider a predicate test/requirement for the GRN
+	 * @param filename
+	 */
+	public static void writeRandomGRNToFile(String filename) throws Exception {
+		int numGRNInputs = 4;
+        int numGRNOutputs = 4;
+        int maxGRNNodes = 50;
+        Random rng = new Random();
+
+        GRNGenome genome = new GRNGenome();
+        // Make inputs
+        for(int k = 0; k < numGRNInputs; k++) {
+            genome.addGene(GRNGene.generateRandomGene(GRNProtein.INPUT_PROTEIN, k, rng));
+        }
+        // Make outputs
+        for(int k = 0; k < numGRNOutputs; k++) {
+            genome.addGene(GRNGene.generateRandomGene(GRNProtein.OUTPUT_PROTEIN, k, rng));
+        }
+        // Make hidden
+        for(int k = 0; k < rng.nextInt( maxGRNNodes - numGRNInputs - numGRNOutputs ); k++) {
+            genome.addGene(GRNGene.generateRandomRegulatoryGene(rng));
+        }
+        // Set GRN params
+        genome.setBeta(genome.getBetaMin() + rng.nextDouble()*(genome.getBetaMax() - genome.getBetaMin()));
+        genome.setDelta(genome.getDeltaMin() + rng.nextDouble()*(genome.getDeltaMax() - genome.getDeltaMin()));
+
+		genome.writeToFile(filename);
 	}
 
 	public void run() {
@@ -115,10 +157,19 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 
 		// If this is a soma element then setup inputs and evaluate GRN (to ensure one time evaluation)
 
+		float branchOrder = 0;
+		if( physical instanceof PhysicalCylinder ) {
+			branchOrder = ((PhysicalCylinder) physical).getBranchOrder();
+			branchOrder = branchOrder / 10;
+		}
+
 		// Set GRN inputs
 		grn.state.proteins.get(0).setConcentration(A);
 		grn.state.proteins.get(1).setConcentration(physical.getLength()/10f);
 		grn.state.proteins.get(2).setConcentration(physical.getVolume()/10f);
+		grn.state.proteins.get(3).setConcentration(branchOrder);
+		//physicalCylinder.getBranchOrder()
+		//((NeuriteElement) cellElement).
 
 		// Update GRN
 		grn.state.evolve(2);
@@ -126,8 +177,11 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 		// Extract weights and probability of bifurcation
 		double oldDirectionWeight = grn.state.proteins.get(grn.state.proteins.size() - 1).getConcentration();
 		double randomnessWeight = grn.state.proteins.get(grn.state.proteins.size() - 2).getConcentration();
-		double AWeight = grn.state.proteins.get(grn.state.proteins.size() - 3).getConcentration();
-		double bifurcationWeight = grn.state.proteins.get(grn.state.proteins.size() - 4).getConcentration();
+		//double AWeight = grn.state.proteins.get(grn.state.proteins.size() - 3).getConcentration();
+		//double bifurcationWeight = grn.state.proteins.get(grn.state.proteins.size() - 4).getConcentration();
+		double AWeight = 1;
+		double bifurcationWeight = grn.state.proteins.get(grn.state.proteins.size() - 3).getConcentration();
+		double branchingFactor = grn.state.proteins.get(grn.state.proteins.size() - 4).getConcentration();
 
 		double[] newStepDirection = add(
 				scalarMult(oldDirectionWeight, direction),
@@ -163,7 +217,7 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 		 * Takes GRNGenome
 		 * Returns a Cell with morphology
 		 */
-    	GRNElement grnElement = new GRNElement("ActiveNeuriteType2");
+    	GRNElement grnElement = new GRNElement("ActiveNeuriteType2", false);
 		double maxTime = 2;
 		long randomSeed = 17L;
 

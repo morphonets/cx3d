@@ -26,11 +26,20 @@ public class GRNElement {
         return myCopy;
     }
 
-    public GRNElement(String defaultType) {
-        if( defaultType.equalsIgnoreCase("ActiveNeuriteType1") ) {
-            genome = activeNeuriteType1();
-        } else if( defaultType.equalsIgnoreCase("ActiveNeuriteType2") ) {
-            genome = activeNeuriteType2();
+    public GRNElement(String defaultType, boolean loadFromFile) {
+        if( loadFromFile ) {
+            try {
+                genome = GRNGenome.loadFromFile(defaultType);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            if (defaultType.equalsIgnoreCase("ActiveNeuriteType1")) {
+                genome = activeNeuriteType1();
+            } else if (defaultType.equalsIgnoreCase("ActiveNeuriteType2")) {
+                genome = activeNeuriteType2();
+            }
         }
         state = GRNGenomeEvaluator.buildGRNFromGenome(genome);
     }

@@ -28,42 +28,39 @@
  */
 package sc.iview.cx3d.commands;
 
-import graphics.scenery.SceneryBase;
-import io.scif.SCIFIOService;
-import net.imagej.ImageJ;
-import net.imagej.ImageJService;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.scijava.Context;
 import org.scijava.command.Command;
+import org.scijava.command.CommandService;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Menu;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
-import org.scijava.service.SciJavaService;
-import org.scijava.thread.ThreadService;
-import org.scijava.ui.UIService;
 import org.scijava.util.Colors;
 import sc.fiji.snt.SNTService;
 import sc.fiji.snt.Tree;
 import sc.fiji.snt.analysis.TreeAnalyzer;
 import sc.fiji.snt.analysis.graph.GraphUtils;
 import sc.iview.SciView;
-import sc.iview.SciViewService;
 import sc.iview.cx3d.Param;
 import sc.iview.cx3d.cells.Cell;
 import sc.iview.cx3d.cells.CellFactory;
 import sc.iview.cx3d.localBiology.NeuriteElement;
+import sc.iview.cx3d.physics.Substance;
 import sc.iview.cx3d.simulations.ECM;
 import sc.iview.cx3d.simulations.Scheduler;
-import sc.iview.cx3d.simulations.tutorial.RandomBranchingModule;
+import sc.iview.cx3d.simulations.tutorial.ActiveNeuriteChemoAttraction;
 import sc.iview.cx3d.utilities.SNT;
 
+import java.awt.*;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static sc.iview.commands.MenuWeights.DEMO;
 import static sc.iview.commands.MenuWeights.DEMO_LINES;
@@ -74,11 +71,11 @@ import static sc.iview.cx3d.utilities.Matrix.randomNoise;
  *
  * @author Kyle Harrington
  */
-@Plugin(type = Command.class, label = "Random Branching (SWC output)", menuRoot = "SciView", //
+@Plugin(type = Command.class, label = "Genetically-regulated Branching (SWC output)", menuRoot = "SciView", //
         menu = { @Menu(label = "Demo", weight = DEMO), //
                  @Menu(label = "Cx3D", weight = DEMO), //
-                 @Menu(label = "Random Branching (SWC output)", weight = DEMO_LINES) })
-public class RandomBranchingSWC implements Command {
+                 @Menu(label = "Genetically-regulated Branching (SWC output)", weight = DEMO_LINES) })
+public class GRNBranchingSWC implements Command {
 
     @Parameter
     private SciView sciView;
@@ -99,26 +96,23 @@ public class RandomBranchingSWC implements Command {
 //    @Parameter(style="save")
 //    private File file = new File("random_branching.swc");
 
-    @Parameter(persist=false)
-    private String filename;
+    @Parameter(label="Filepath for SWC", persist=false)
+    private String filenameSWC;
+
+    @Parameter(label="File path for a GRN in GRNEAT format")
+    private String filenameGRN;
+
+    @Parameter(label = "Should a new GRN be generated and written to the filename")
+    private boolean generateGRN;
 
     @Parameter(label = "Simulation end time", persist = false)
     private float maxTime = 2;
 
-    @Parameter(label = "Growth speed", persist = false)
-    private float speed = 100;
-
-	@Parameter(label = "Probability to bifurcate", persist = false)
-	private double probabilityToBifurcate = 0.005; // o.oo5
-
-    @Parameter(label = "Probability to branch", persist = false)
-	private double probabilityToBranch = 0.005;
-
-    @Parameter(label = "Random seed", persist = false)
+    @Parameter(label = "Random seed", persist = true)
     private long randomSeed = 17L;
 
     @Parameter
-    private String statFile;
+    private String filenameStats;
 
     @Override
     public void run() {
@@ -126,13 +120,11 @@ public class RandomBranchingSWC implements Command {
 
         System.out.println("Running with:");
         System.out.println("Random seed = " + randomSeed);
-        System.out.println("filename = " + filename);
+        System.out.println("filenameSWC = " + filenameSWC);
+        System.out.println("filenameGRN = " + filenameGRN);
         System.out.println("maxTime = " + maxTime);
-        System.out.println("speed = " + speed);
-        System.out.println("probabilityToBifurcate = " + probabilityToBifurcate);
-        System.out.println("probabilityToBranch = " + probabilityToBranch);
 
-        outline += randomSeed + "\t" + maxTime + "\t" + speed + "\t" + probabilityToBifurcate + "\t" + probabilityToBranch + "\t";
+        outline += randomSeed + "\t" + maxTime + "\t" + filenameGRN + "\t";
 
         //ECM ecm = ECM.getInstance(getContext());
         ECM ecm = ECM.getInstance(context);
@@ -142,6 +134,11 @@ public class RandomBranchingSWC implements Command {
         ecm.clearAll();
         ecm.resetTime();
         ecm.getSciViewCX3D().clear();
+
+        Substance A = new Substance("A", Color.magenta);
+		// Establish convention, A-P = Z, Long = Y, M-L = X
+		ecm.addArtificialGaussianConcentrationZ(A, 1.0, 400.0, 160.0);
+
 		for (int i = 0; i < 18; i++) {
 			ecm.getPhysicalNodeInstance(randomNoise(1000,3));
 		}
@@ -152,10 +149,17 @@ public class RandomBranchingSWC implements Command {
         NeuriteElement neurite = c.getSomaElement().extendNewNeurite(new double[] {0,0,1});
         neurite.getPhysicalCylinder().setDiameter(2);
 
-        RandomBranchingModule branchingModule = new RandomBranchingModule();
-        branchingModule.setSpeed(speed);
-        branchingModule.setProbabilityToBranch(probabilityToBranch);
-        branchingModule.setProbabilityToBifurcate(probabilityToBifurcate);
+        if( generateGRN ) {
+            try {
+                ActiveNeuriteChemoAttraction.writeRandomGRNToFile(filenameGRN);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        ActiveNeuriteChemoAttraction branchingModule = new ActiveNeuriteChemoAttraction(filenameGRN);
+        branchingModule.getGrnModule().setCell(c);
+        c.getSomaElement().addLocalBiologyModule(branchingModule.getGrnModule());
         neurite.addLocalBiologyModule(branchingModule);
 
         System.out.println("simulating");
@@ -181,7 +185,7 @@ public class RandomBranchingSWC implements Command {
         realtree.setLabel("Cx3D_Tree");
         realtree.setColor(Colors.RED);
 
-       TreeAnalyzer ta = new TreeAnalyzer(realtree);
+        TreeAnalyzer ta = new TreeAnalyzer(realtree);
 
         // TODO fix measurements
         List<String> metrics = new ArrayList<>(SNT.getAvailableTreeAnalyzerMetrics());
@@ -195,14 +199,14 @@ public class RandomBranchingSWC implements Command {
 
         System.out.println("tree created");
 
-        realtree.saveAsSWC(filename);
+        realtree.saveAsSWC(filenameSWC);
 
-        System.out.println("SWC saved to " + filename);
+        System.out.println("SWC saved to " + filenameSWC);
 
-        boolean statFileExists = new File(statFile).exists();
+        boolean statFileExists = new File(filenameStats).exists();
 
         try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(statFile,true));
+            BufferedWriter bw = new BufferedWriter(new FileWriter(filenameStats,true));
 
             if(!statFileExists) {
                 String header = "";
@@ -222,6 +226,7 @@ public class RandomBranchingSWC implements Command {
 
 
         System.exit(0);
+
 //        tree.merge(realtree);
 //        sntService.initialize(true);
 //        sntService.getPathAndFillManager().clear();
@@ -230,19 +235,17 @@ public class RandomBranchingSWC implements Command {
     }
 
     public static void main( String... args ) {
-        SceneryBase.xinitThreads();
+        SciView sciView = SciView.createSciView();
+        CommandService commandService = sciView.getScijavaContext().service(CommandService.class);
 
-        System.setProperty( "scijava.log.level:sc.iview", "debug" );
-        Context context = new Context( ImageJService.class, SciJavaService.class, SCIFIOService.class, ThreadService.class);
+        Map<String, Object> argmap = new HashMap<>();
+        argmap.put("filenameSWC", "test_17.swc");
+        argmap.put("filenameGRN", "test_17.grn");
+        argmap.put("filenameStats", "test_17.grn");
+        argmap.put("generateGRN", true);
+        argmap.put("maxTime", 4);
+        argmap.put("randomSeed", 17171717);
 
-        UIService ui = context.service( UIService.class );
-        if( !ui.isVisible() ) ui.showUI();
-
-        // Currently Cx3D demos need to make their own SciView instance
-        SciViewService sciViewService = context.service( SciViewService.class );
-        SciView sciView = sciViewService.getOrCreateActiveSciView();
-
-//        CommandService commandService = context.service(CommandService.class);
-//        commandService.run(RandomBranchingDemo.class,true,new Object[]{});
+        commandService.run(GRNBranchingSWC.class,true, argmap);
     }
 }
