@@ -208,6 +208,12 @@ public class GRNBranchingSWC implements Command {
         }
         outline = outline.substring(0,outline.length()-1);
 
+        // FIXME hack
+        metrics.add("randomSeed");
+        outline += randomSeed + "\t";
+        metrics.add("filenameGRN");
+        outline += filenameGRN + "\t";
+
         System.out.println("tree created");
 
         realtree.saveAsSWC(filenameSWC);
