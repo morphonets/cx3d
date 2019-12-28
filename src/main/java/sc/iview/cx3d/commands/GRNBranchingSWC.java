@@ -206,13 +206,14 @@ public class GRNBranchingSWC implements Command {
             measurements.add(ta.getMetric(metric));
             outline += ta.getMetric(metric) + "\t";
         }
-        outline = outline.substring(0,outline.length()-1);
 
         // FIXME hack
         metrics.add("randomSeed");
         outline += randomSeed + "\t";
         metrics.add("filenameGRN");
         outline += filenameGRN + "\t";
+
+        outline = outline.substring(0,outline.length()-1);
 
         System.out.println("tree created");
 
