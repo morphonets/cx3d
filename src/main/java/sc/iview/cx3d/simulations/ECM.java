@@ -184,6 +184,15 @@ public class ECM {
 	// **************************************************************************
 
 	private static ECM instance = null;
+	private static boolean sciviewEnabled = true;
+
+	public static boolean isSciviewEnabled() {
+		return sciviewEnabled;
+	}
+
+	public static void setSciviewEnabled(boolean sciviewEnabled) {
+		ECM.sciviewEnabled = sciviewEnabled;
+	}
 
 	public SciViewCX3D getSciViewCX3D() {
 		return sciViewCX3D;
@@ -205,21 +214,24 @@ public class ECM {
 	 * Initialize sciview
 	 */
 	private void configureSciview(Context context) {
+		if (sciviewEnabled) {
+			System.setProperty("scijava.log.level:sc.iview", "debug");
 
-        System.setProperty( "scijava.log.level:sc.iview", "debug" );
+			UIService ui = context.service(UIService.class);
+			if (!ui.isVisible()) ui.showUI();
 
-        UIService ui = context.service( UIService.class );
-        if( !ui.isVisible() ) ui.showUI();
+			SciViewService sciViewService = context.service(SciViewService.class);
+			SciView sciView = sciViewService.getOrCreateActiveSciView();
+			sciView.getFloor().setVisible(false);
 
-        SciViewService sciViewService = context.service( SciViewService.class );
-        SciView sciView = sciViewService.getOrCreateActiveSciView();
-		sciView.getFloor().setVisible(false);
-
-        sciViewCX3D = new SciViewCX3D(context, ui, sciView, this);
+			sciViewCX3D = new SciViewCX3D(context, ui, sciView, this);
+		}
 	}
 
 	public void updateSciView() {
-		sciViewCX3D.syncCX3D();
+		if (sciviewEnabled) {
+			sciViewCX3D.syncCX3D();
+		}
 	}
 
 	/**

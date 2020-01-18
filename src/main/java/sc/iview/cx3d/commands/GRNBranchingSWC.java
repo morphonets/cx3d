@@ -31,6 +31,7 @@ package sc.iview.cx3d.commands;
 import fun.grn.grneat.evaluators.GRNGenomeEvaluator;
 import fun.grn.grneat.evolver.GRNGenome;
 import fun.grn.grneat.grn.GRNModel;
+import net.imagej.ImageJ;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.scijava.Context;
 import org.scijava.command.Command;
@@ -81,7 +82,7 @@ import static sc.iview.cx3d.utilities.Matrix.randomNoise;
                  @Menu(label = "Genetically-regulated Branching (SWC output)", weight = DEMO_LINES) })
 public class GRNBranchingSWC implements Command {
 
-    @Parameter
+    @Parameter(required = false)
     private SciView sciView;
 
     @Parameter
@@ -131,6 +132,9 @@ public class GRNBranchingSWC implements Command {
 
         outline += randomSeed + "\t" + maxTime + "\t" + filenameGRN + "\t";
 
+        if( sciView == null )
+            ECM.setSciviewEnabled(false);
+
         //ECM ecm = ECM.getInstance(getContext());
         ECM ecm = ECM.getInstance(context);
 
@@ -138,7 +142,9 @@ public class GRNBranchingSWC implements Command {
 
         ecm.clearAll();
         ecm.resetTime();
-        ecm.getSciViewCX3D().clear();
+
+        if( ECM.isSciviewEnabled() )
+            ecm.getSciViewCX3D().clear();
 
         Substance A = new Substance("A",Color.magenta);
 		ecm.addArtificialGaussianConcentrationZ(A, 1.0, 300.0, 160.0);
@@ -177,7 +183,8 @@ public class GRNBranchingSWC implements Command {
 
 		Scheduler.simulate(maxTime);
 
-		sciView.centerOnNode(ecm.getSciViewCX3D().getCx3dGroup());
+		if( ECM.isSciviewEnabled() )
+		    sciView.centerOnNode(ecm.getSciViewCX3D().getCx3dGroup());
 
         try {
             Thread.sleep(100);
@@ -253,8 +260,16 @@ public class GRNBranchingSWC implements Command {
     }
 
     public static void main( String... args ) {
-        SciView sciView = SciView.createSciView();
-        CommandService commandService = sciView.getScijavaContext().service(CommandService.class);
+        boolean useSciview = true;
+
+        CommandService commandService;
+        if( useSciview ) {
+            SciView sciView = SciView.createSciView();
+            commandService = sciView.getScijavaContext().service(CommandService.class);
+        } else {
+            ImageJ imagej = new ImageJ();
+            commandService = imagej.command();
+        }
 
         Map<String, Object> argmap = new HashMap<>();
         argmap.put("filenameSWC", "test_17.swc");
@@ -263,6 +278,7 @@ public class GRNBranchingSWC implements Command {
         argmap.put("generateGRN", true);
         argmap.put("maxTime", 6);
         argmap.put("randomSeed", 917171717);
+        argmap.put("sciView", null);
 
         commandService.run(GRNBranchingSWC.class,true, argmap);
     }
