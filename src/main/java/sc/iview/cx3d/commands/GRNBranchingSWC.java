@@ -82,8 +82,8 @@ import static sc.iview.cx3d.utilities.Matrix.randomNoise;
                  @Menu(label = "Genetically-regulated Branching (SWC output)", weight = DEMO_LINES) })
 public class GRNBranchingSWC implements Command {
 
-    @Parameter(required = false)
-    private SciView sciView;
+    @Parameter
+    private boolean sciViewEnabled;
 
     @Parameter
     private Context context;
@@ -132,8 +132,7 @@ public class GRNBranchingSWC implements Command {
 
         outline += randomSeed + "\t" + maxTime + "\t" + filenameGRN + "\t";
 
-        if( sciView == null )
-            ECM.setSciviewEnabled(false);
+        ECM.setSciviewEnabled(sciViewEnabled);
 
         //ECM ecm = ECM.getInstance(getContext());
         ECM ecm = ECM.getInstance(context);
@@ -184,7 +183,7 @@ public class GRNBranchingSWC implements Command {
 		Scheduler.simulate(maxTime);
 
 		if( ECM.isSciviewEnabled() )
-		    sciView.centerOnNode(ecm.getSciViewCX3D().getCx3dGroup());
+		    ecm.getSciViewCX3D().getSciView().centerOnNode(ecm.getSciViewCX3D().getCx3dGroup());
 
         try {
             Thread.sleep(100);
@@ -260,7 +259,7 @@ public class GRNBranchingSWC implements Command {
     }
 
     public static void main( String... args ) {
-        boolean useSciview = true;
+        boolean useSciview = false;
 
         CommandService commandService;
         if( useSciview ) {
@@ -276,9 +275,10 @@ public class GRNBranchingSWC implements Command {
         argmap.put("filenameGRN", "test_17.grn");
         argmap.put("filenameStats", "test_17.csv");
         argmap.put("generateGRN", true);
+        argmap.put("sciViewEnabled", useSciview);
         argmap.put("maxTime", 6);
         argmap.put("randomSeed", 917171717);
-        argmap.put("sciView", null);
+        //argmap.put("sciView", null);
 
         commandService.run(GRNBranchingSWC.class,true, argmap);
     }
