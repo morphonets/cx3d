@@ -13,12 +13,12 @@ import fun.grn.grneat.cli.MutateGenome;
 public class GenerateGRNs {
 
     static String directory = "./";
-    static long randomSeed = 10000017;
+    static long randomSeed = 7299713;
 
     private static String[] mutationModes = {"minDistance", "fixedMutations"};
     private static String mutationMode = mutationModes[1];
     private static double numMutationsPerMutant = 5;//
-    static double minDistance = 0.02;
+    static double minDistance = 0.001;
 
     private static int numGRNs = 25;
     private static int numMutants = 10;
@@ -63,7 +63,7 @@ public class GenerateGRNs {
                                 "--inputPath", grnFilename,
                                 "--outputPath", grnFilename,
                                 "--pAddMutation", String.valueOf(0.333333),
-                                "--addMutationMaxSize", String.valueOf(10),
+                                "--addMutationMaxSize", String.valueOf(2),
                                 "--pDelMutation", String.valueOf(0.333333),
                                 "--delMutationMinSize", String.valueOf(2),
                                 "--pChangeMutation", String.valueOf(0.33333)};
