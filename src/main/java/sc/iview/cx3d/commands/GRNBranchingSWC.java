@@ -161,7 +161,15 @@ public class GRNBranchingSWC implements Command {
         Cell c = CellFactory.getCellInstance(randomNoise(40, 3));
         c.setColorForAllPhysicalObjects(Param.GRAY);
         double[] pos = c.getSomaElement().getLocation();
-        NeuriteElement neurite = c.getSomaElement().extendNewNeurite(new double[] {0,0,1});
+
+        //double[] initialOutgrowth = new double[]{0, 0, 1};
+        double[] initialOutgrowth = randomNoise(1,3);
+        double magnitude = 0;
+        for( int k = 0 ; k < initialOutgrowth.length; k++ ) magnitude += initialOutgrowth[k] * initialOutgrowth[k];
+        magnitude = Math.sqrt(magnitude);
+        for( int k = 0 ; k < initialOutgrowth.length; k++ ) initialOutgrowth[k] /= magnitude;
+
+        NeuriteElement neurite = c.getSomaElement().extendNewNeurite(initialOutgrowth);
         neurite.getPhysicalCylinder().setDiameter(2);
 
         if( generateGRN ) {
@@ -247,7 +255,6 @@ public class GRNBranchingSWC implements Command {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
 
         System.exit(0);
 
