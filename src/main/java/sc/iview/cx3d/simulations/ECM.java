@@ -22,6 +22,7 @@ along with CX3D.  If not, see <http://www.gnu.org/licenses/>.
 package sc.iview.cx3d.simulations;
 
 import graphics.scenery.SceneryBase;
+import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.ComplexType;
 import net.imglib2.type.numeric.RealType;
@@ -174,7 +175,7 @@ public class ECM {
 
 	/* List of all the chemicals with a linear distribution along the Y-axis
 	 * max value, TOP (y-coord of the max value), DOWN (y-coord of the 0 value). */
-	public Hashtable<Substance, RandomAccessibleInterval<RealType>> imgArtificialConcentration = new Hashtable<>();
+	public Hashtable<Substance, RandomAccessible<? extends RealType>> imgArtificialConcentration = new Hashtable<>();
 
 
 	/* to link the one instance of Substance we have used in the definition of the gradient, with the name of
@@ -972,7 +973,7 @@ public class ECM {
 		linearArtificialConcentrationY.put(substance, value);
 	}
 
-	public Hashtable<Substance, RandomAccessibleInterval<RealType>> getImgArtificialConcentration() {
+	public Hashtable<Substance, RandomAccessible<? extends RealType>> getImgArtificialConcentration() {
 		return imgArtificialConcentration;
 	}
 
@@ -986,7 +987,7 @@ public class ECM {
 	 * @param substanceId
 	 * @param img a FloatType Img that contains the concentrations at each location in the img
 	 */
-	public void addArtificialImgConcentration(String substanceId, RandomAccessibleInterval<RealType> img){
+	public void addArtificialImgConcentration(String substanceId, RandomAccessible<? extends RealType> img){
 		// look if we already have a substance with the same id
 		Substance substance = getRegisteredArtificialSubstance(substanceId);
 		// define distribution values for the chemical, and store them together
@@ -1003,7 +1004,7 @@ public class ECM {
 	 * @param substance
 	 * @param img a FloatType Img that contains the concentrations at each location in the img
 	 */
-	public void addArtificialImgConcentration(Substance substance, RandomAccessibleInterval<RealType> img){
+	public void addArtificialImgConcentration(Substance substance, RandomAccessible<RealType> img){
 		// look if we already have a substance with the same id
 		// define distribution values for the chemical, and store them together
 		imgArtificialConcentration.put(substance, img);
@@ -1069,8 +1070,8 @@ public class ECM {
 		}
 		// Img
 		if(imgArtificialConcentration.containsKey(sub)){
-			RandomAccessibleInterval<RealType> img = imgArtificialConcentration.get(sub);
-			RandomAccess<RealType> ra = Views.extendZero(img).randomAccess();
+			RandomAccessible<? extends RealType> img = imgArtificialConcentration.get(sub);
+			RandomAccess<? extends RealType> ra = img.randomAccess();
 			ra.setPosition(new long[]{(long) position[0], (long) position[1], (long) position[2]});// TODO: check for rounding errors
 			concentration += ra.get().getRealDouble();
 		}

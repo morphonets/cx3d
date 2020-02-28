@@ -103,56 +103,56 @@ public class SciViewCX3D {
 		// Loop through all Cylinders
 		paintPhysicalCylinders();
 
-		// Loop through all PhysicalNodes
-		paintPhysicalNodes();
+		// Loop through all PhysicalNodes FIXME currently this is done externally
+		//paintPhysicalNodes();
     }
 
-    private void paintPhysicalNodes() {
-        Hashtable<Substance, RandomAccessibleInterval<RealType>> imgSubs = ecm.getImgArtificialConcentration();
-        LUTService lutService = context.service(LUTService.class);
-        if( showSubstances ) {
-            for (Substance sub : imgSubs.keySet()) {
-                if (volumes.containsKey(sub)) {
-                    // Then the volume is there
-                } else {
-                    RandomAccessibleInterval<RealType> img = imgSubs.get(sub);
-                    Cursor<RealType> cur = Views.iterable(img).cursor();
-                    while (cur.hasNext()) {
-                        cur.next();
-                        cur.get().mul(255.0);
-                    }
-                    OpService ops = getContext().service(OpService.class);
-
-                    RandomAccessibleInterval<UnsignedByteType> conv = Converters.convert(img, (a, b) -> b.setReal(a.getRealDouble()), new UnsignedByteType());
-
-                    Volume node = (Volume) sciView.addVolume(conv, sub.getId());
-
-                    cx3d.addChild(node);
-
-                    //String lutName = "Red.lut";
-                    String lutName = "Fire.lut";
-                    ColorTable colorTable = null;
-                    try {
-                        colorTable = lutService.loadLUT(lutService.findLUTs().get(lutName));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    sciView.setColormap(node, (AbstractArrayColorTable) colorTable);
-
-                    TransferFunction tf = ((Volume) sciView.getActiveNode()).getTransferFunction();
-                    //float currentOffset = tf.getControlPoint$scenery(1).getValue();
-                    //float currentFactor = tf.getControlPoint$scenery(2).getFactor();
-                    tf.clear();
-                    tf.addControlPoint(0.0f, 0.0f);
-                    tf.addControlPoint(0, 0.0f);
-                    tf.addControlPoint(1.0f, 0.01f);
-                    node.setPixelToWorldRatio(scaleFactor);
-                    node.setNeedsUpdate(true);
-                    volumes.put(sub, node);
-                }
-            }
-        }
-	}
+//    private void paintPhysicalNodes() {
+//        Hashtable<Substance, RandomAccessible<? extends RealType>> imgSubs = ecm.getImgArtificialConcentration();
+//        LUTService lutService = context.service(LUTService.class);
+//        if( showSubstances ) {
+//            for (Substance sub : imgSubs.keySet()) {
+//                if (volumes.containsKey(sub)) {
+//                    // Then the volume is there
+//                } else {
+//                    RandomAccessibleInterval<? extends RealType> img = imgSubs.get(sub);
+//                    Cursor<RealType> cur = Views.iterable(img).cursor();
+//                    while (cur.hasNext()) {
+//                        cur.next();
+//                        cur.get().mul(255.0);
+//                    }
+//                    OpService ops = getContext().service(OpService.class);
+//
+//                    RandomAccessibleInterval<UnsignedByteType> conv = Converters.convert(img, (a, b) -> b.setReal(a.getRealDouble()), new UnsignedByteType());
+//
+//                    Volume node = (Volume) sciView.addVolume(conv, sub.getId());
+//
+//                    cx3d.addChild(node);
+//
+//                    //String lutName = "Red.lut";
+//                    String lutName = "Fire.lut";
+//                    ColorTable colorTable = null;
+//                    try {
+//                        colorTable = lutService.loadLUT(lutService.findLUTs().get(lutName));
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    sciView.setColormap(node, (AbstractArrayColorTable) colorTable);
+//
+//                    TransferFunction tf = ((Volume) sciView.getActiveNode()).getTransferFunction();
+//                    //float currentOffset = tf.getControlPoint$scenery(1).getValue();
+//                    //float currentFactor = tf.getControlPoint$scenery(2).getFactor();
+//                    tf.clear();
+//                    tf.addControlPoint(0.0f, 0.0f);
+//                    tf.addControlPoint(0, 0.0f);
+//                    tf.addControlPoint(1.0f, 0.01f);
+//                    node.setPixelToWorldRatio(scaleFactor);
+//                    node.setNeedsUpdate(true);
+//                    volumes.put(sub, node);
+//                }
+//            }
+//        }
+//	}
 
     private void paintPhysicalCylinders() {
         Cylinder svCylinder;
