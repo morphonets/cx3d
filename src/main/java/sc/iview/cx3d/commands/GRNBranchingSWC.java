@@ -270,7 +270,12 @@ public class GRNBranchingSWC implements Command {
 
         CommandService commandService;
         if( useSciview ) {
-            SciView sciView = SciView.createSciView();
+            SciView sciView = null;
+            try {
+                sciView = SciView.createSciView();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             commandService = sciView.getScijavaContext().service(CommandService.class);
         } else {
             ImageJ imagej = new ImageJ();

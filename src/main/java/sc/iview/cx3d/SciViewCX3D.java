@@ -8,12 +8,16 @@ import graphics.scenery.volumes.Volume;
 import net.imagej.lut.LUTService;
 import net.imagej.ops.OpService;
 import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.converter.Converters;
 import net.imglib2.display.AbstractArrayColorTable;
 import net.imglib2.display.ColorTable;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.ComplexType;
+import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.view.Views;
 import org.scijava.Context;
 import org.scijava.ui.UIService;
 import sc.iview.SciView;
@@ -104,21 +108,23 @@ public class SciViewCX3D {
     }
 
     private void paintPhysicalNodes() {
-        Hashtable<Substance, Img<ComplexType>> imgSubs = ecm.getImgArtificialConcentration();
+        Hashtable<Substance, RandomAccessibleInterval<RealType>> imgSubs = ecm.getImgArtificialConcentration();
         LUTService lutService = context.service(LUTService.class);
         if( showSubstances ) {
             for (Substance sub : imgSubs.keySet()) {
                 if (volumes.containsKey(sub)) {
                     // Then the volume is there
                 } else {
-                    Img<ComplexType> img = imgSubs.get(sub);
-                    Cursor<ComplexType> cur = img.cursor();
+                    RandomAccessibleInterval<RealType> img = imgSubs.get(sub);
+                    Cursor<RealType> cur = Views.iterable(img).cursor();
                     while (cur.hasNext()) {
                         cur.next();
                         cur.get().mul(255.0);
                     }
                     OpService ops = getContext().service(OpService.class);
-                    Img<UnsignedByteType> conv = ops.convert().uint8(img);
+
+                    RandomAccessibleInterval<UnsignedByteType> conv = Converters.convert(img, (a, b) -> b.setReal(a.getRealDouble()), new UnsignedByteType());
+
                     Volume node = (Volume) sciView.addVolume(conv, sub.getId());
 
                     cx3d.addChild(node);

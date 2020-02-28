@@ -166,7 +166,11 @@ public class RandomBranchingDemo implements Command {
 
         // Currently Cx3D demos need to make their own SciView instance
         SciViewService sciViewService = context.service( SciViewService.class );
-        SciView sciView = sciViewService.getOrCreateActiveSciView();
+        try {
+            SciView sciView = sciViewService.getOrCreateActiveSciView();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 //        CommandService commandService = context.service(CommandService.class);
 //        commandService.run(RandomBranchingDemo.class,true,new Object[]{});
