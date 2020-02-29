@@ -98,8 +98,8 @@ public class ChemoAttractant {
 
         Substance s = new Substance(ca.substanceName, Color.getHSBColor(ca.color[0], ca.color[1], ca.color[2]));
 
-		//long[] max = new long[]{500, 500, 500};
-		long[] max = new long[]{1000, 1000, 1000};
+		long[] max = new long[]{500, 500, 500};
+		//long[] max = new long[]{1000, 1000, 1000};
 		long[] min = new long[]{0, 0, 0};
 		//long[] min = new long[]{-500, -500, -500};
 

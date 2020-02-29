@@ -162,12 +162,12 @@ public class GRNeuriteInImg implements Command {
 //		ecm.addArtificialGaussianConcentrationZ(A, 1.0, 300.0, 160.0);
 
         //ChemoAttractant B = ChemoAttractant.createGaussianAttractor(ecm, 0, 300);//160 sigma
-        ChemoAttractant B = ChemoAttractant.createGaussianImgAttractor(ecm, 0, 300);//160 sigma
+        //ChemoAttractant B = ChemoAttractant.createGaussianImgAttractor(ecm, 0, 300);//160 sigma
 //		Substance B = new Substance("B",Color.magenta);
 //		ecm.addArtificialGaussianConcentrationX(B, 1.0, 300.0, 160.0);
 
         //ChemoAttractant C = ChemoAttractant.createGaussianAttractor(ecm, 1, 300);//160 sigma
-        ChemoAttractant C = ChemoAttractant.createGaussianImgAttractor(ecm, 1, 300);//160 sigma
+        //ChemoAttractant C = ChemoAttractant.createGaussianImgAttractor(ecm, 1, 300);//160 sigma
 //		Substance C = new Substance("C",Color.magenta);
 //		ecm.addArtificialGaussianConcentrationY(C, 1.0, 300.0, 160.0);
 

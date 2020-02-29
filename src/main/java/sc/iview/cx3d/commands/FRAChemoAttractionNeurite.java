@@ -193,8 +193,8 @@ public class FRAChemoAttractionNeurite extends AbstractLocalBiologyModule {
 		ECM.setRandomSeed(0L);		
 		Substance attractant = new Substance("A",Color.red);
 
-		//long[] max = new long[]{500, 500, 500};
-		long[] max = new long[]{1000, 1000, 1000};
+		long[] max = new long[]{500, 500, 500};
+		//long[] max = new long[]{1000, 1000, 1000};
 		long[] min = new long[]{0, 0, 0};
 		//long[] min = new long[]{-500, -500, -500};
 
