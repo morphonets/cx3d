@@ -8,6 +8,7 @@ import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.converter.Converters;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
+import net.imglib2.interpolation.randomaccess.NearestNeighborInterpolatorFactory;
 import net.imglib2.position.FunctionRandomAccessible;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.realtransform.Scale3D;
@@ -48,8 +49,7 @@ public class ChemoAttractant {
     /** Create a FunctionRandomAccessible of a gaussianConcentration */
     public static final FunctionRandomAccessible<FloatType> gaussianConcentration(
 			final int dimension,
-			final double min,
-			final double max,
+			final double coordinate,
 			final double scale,
 			final double stretch) {
 		return new FunctionRandomAccessible<>(
@@ -57,8 +57,7 @@ public class ChemoAttractant {
                 (location, value) -> {
                     final double v = location.getDoublePosition(dimension);
                     value.set(
-                            (float) (scale / (stretch * Math.abs(v - min) + 1) +
-                                    scale / (stretch * Math.abs(v - max) + 1)));
+                            (float) (scale / (stretch * Math.abs(v - coordinate) + 1)));
                 },
                 FloatType::new);
 	}
@@ -87,12 +86,12 @@ public class ChemoAttractant {
     }
 
     /** Singleton factory method to create a Gaussian attractor Substance in the ECM */
-	public static ChemoAttractant createGaussianImgAttractor(ECM ecm, int dimension, double coordinate) {
+	public static ChemoAttractant createGaussianImgAttractor(ECM ecm, int dimension, double coordinate, boolean showVolume) {
         ChemoAttractant ca = new ChemoAttractant();
         ca.maxConcentration = 1;
         ca.coordinate = coordinate;
         ca.dimension = dimension;
-        ca.sigma = 160;
+        ca.sigma = 50;
         ca.color = ChemoAttractant.getNextColor();
         ca.substanceName = ChemoAttractant.getNextName();
 
@@ -103,36 +102,54 @@ public class ChemoAttractant {
 		long[] min = new long[]{0, 0, 0};
 		//long[] min = new long[]{-500, -500, -500};
 
-		FunctionRandomAccessible<FloatType> conc = gaussianConcentration(ca.dimension, ca.coordinate - ca.sigma, ca.coordinate + ca.sigma, 1, 1);
+		FunctionRandomAccessible<FloatType> conc = gaussianConcentration(ca.dimension, ca.coordinate, 1, 10);
 		RandomAccessibleInterval<FloatType> concInterval = Views.interval(conc, new FinalInterval(min, max));
 
 		RandomAccessibleInterval<UnsignedByteType> volImg = Converters.convert(concInterval, (a, b) -> b.set((int)(255 * a.getRealDouble())), new UnsignedByteType());
 
 		System.out.println("Volume is : " + volImg.dimension(0) + " " + volImg.dimension(1) + " " + volImg.dimension(2));
 
-		double transformScale = 0.1;
+		double transformScale = 0.5;
 
-		if( ECM.isSciviewEnabled() ) {
-            Volume vol = (Volume) ecm.getSciViewCX3D().getSciView().addVolume(volImg, "circuit", new float[]{1, 1, 1});
+		if( ECM.isSciviewEnabled() && showVolume ) {
+		    // Now make a render volume that is smaller and display a smaller version
+            RandomAccessibleInterval<UnsignedByteType> renderImg =
+                Views.interval(
+                    RealViews.affine(
+                            Views.interpolate(
+                                    Views.extendZero(Views.subsample(volImg, 2, 2, 2)),
+                                    new NearestNeighborInterpolatorFactory<>()),
+                                    //new NLinearInterpolatorFactory<>()),
+                            new Scale3D(transformScale, transformScale, transformScale)),
+		        new FinalInterval(
+		            new long[]{0, 0, 0},
+                    new long[]{250, 250, 250}
+                ));
+
+            //Volume vol = (Volume) ecm.getSciViewCX3D().getSciView().addVolume(volImg, "circuit", new float[]{1, 1, 1});
+            Volume vol = (Volume) ecm.getSciViewCX3D().getSciView().addVolume(renderImg, "circuit", new float[]{1, 1, 1});
 
             vol.setScale(new GLVector((float) transformScale, (float) transformScale, (float) transformScale).times(2));
 
             vol.updateWorld(true, true);
         }
 
-		long[] offset = new long[]{(long) (concInterval.dimension(0) * -0.5), (long) (concInterval.dimension(1) * -0.5), (long) (concInterval.dimension(2) * -0.5)};
+		//long[] offset = new long[]{(long) (concInterval.dimension(0) * -0.5), (long) (concInterval.dimension(1) * -0.5), (long) (concInterval.dimension(2) * -0.5)};
 
 		//final Scale3D transformScale3D = new Scale3D(transformScale, transformScale, transformScale);
 		final Scale3D transformScale3D = new Scale3D(1, 1, 1);
 		RandomAccessible<FloatType> concentrationImg =
 				RealViews.affine(
 						Views.interpolate(
-								Views.extendZero(Views.translate(concInterval, offset)),
-								new NLinearInterpolatorFactory<>()),
+								//Views.extendZero(Views.translate(concInterval, offset)),
+                                Views.extendZero(concInterval),
+								new NearestNeighborInterpolatorFactory<>()),
+								//new NLinearInterpolatorFactory<>()),
 						transformScale3D);
 
 		ca.setConcentrationImg(concentrationImg);
-		ca.setInterval(Views.translate(concInterval, offset));
+		ca.setInterval(concInterval);
+		//ca.setInterval(Views.translate(concInterval, offset));
 
 		System.out.println("Adding Img Concentration");
         ecm.addArtificialImgConcentration( s.getId(), concentrationImg);
@@ -140,7 +157,7 @@ public class ChemoAttractant {
 		return ca;
     }
 
-    private void setInterval(IntervalView<FloatType> interval) {
+    private void setInterval(Interval interval) {
 	    this.interval = interval;
     }
 
@@ -167,5 +184,13 @@ public class ChemoAttractant {
         thisColor[diff % 3] -= 0.15;
         factory.put("color", Arrays.copyOf(thisColor, 3));
         return thisColor;
+    }
+
+    public RandomAccessible<FloatType> getConcentrationImg() {
+        return concentrationImg;
+    }
+
+    public Interval getInterval() {
+        return interval;
     }
 }

@@ -81,6 +81,8 @@ public class SciViewCX3D {
 //        }
         sciView.reset();
 
+        sciView.getFloor().setVisible(false);
+
         cx3d = new Group();
         sciView.addNode(cx3d);
         chemicals = new HashMap<>();

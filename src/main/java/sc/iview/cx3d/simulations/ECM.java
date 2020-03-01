@@ -22,6 +22,7 @@ along with CX3D.  If not, see <http://www.gnu.org/licenses/>.
 package sc.iview.cx3d.simulations;
 
 import graphics.scenery.SceneryBase;
+import net.imglib2.Interval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.ComplexType;
@@ -71,6 +72,9 @@ import static sc.iview.cx3d.utilities.Matrix.randomNoise;
  *
  */
 public class ECM {
+
+    public static RandomAccessible<FloatType> staticConcentrationImg = null;
+	public static Interval staticInterval;
 
 	// List of all the CX3DRunbable objects in the simulation ............................
 

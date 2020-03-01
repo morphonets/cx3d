@@ -30,18 +30,25 @@ package sc.iview.cx3d.commands.SNT;
 
 import cleargl.GLVector;
 import graphics.scenery.volumes.bdv.Volume;
+import ij.IJ;
 import net.imagej.ImageJ;
-import net.imglib2.FinalInterval;
-import net.imglib2.RandomAccessible;
-import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.*;
+import net.imglib2.Cursor;
 import net.imglib2.converter.Converters;
+import net.imglib2.img.array.ArrayImgs;
+import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
+import net.imglib2.interpolation.randomaccess.NearestNeighborInterpolatorFactory;
 import net.imglib2.position.FunctionRandomAccessible;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.realtransform.Scale3D;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
+import org.janelia.saalfeldlab.n5.GzipCompression;
+import org.janelia.saalfeldlab.n5.N5FSReader;
+import org.janelia.saalfeldlab.n5.N5FSWriter;
+import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.scijava.Context;
 import org.scijava.command.Command;
@@ -156,18 +163,31 @@ public class GRNeuriteInImg implements Command {
         if( ECM.isSciviewEnabled() )
             ecm.getSciViewCX3D().clear();
 
+        ChemoAttractant A = ChemoAttractant.createGaussianImgAttractor(ecm, 2, 300, false);//160 sigma; imglib2 version
+        ChemoAttractant B = ChemoAttractant.createGaussianImgAttractor(ecm, 0, 300, false);//160 sigma
+        ChemoAttractant C = ChemoAttractant.createGaussianImgAttractor(ecm, 1, 300, false);//160 sigma
+
+        ImageJFunctions.show(Views.interval(B.getConcentrationImg(), B.getInterval()));
+
+        createCombinedVolume( A, B, C );
+        System.out.println("Created combined volume");
+        ECM.staticInterval = A.getInterval();
+
         //ChemoAttractant A = ChemoAttractant.createGaussianAttractor(ecm, 2, 300);//160 sigma; original CX3d version
-        ChemoAttractant A = ChemoAttractant.createGaussianImgAttractor(ecm, 2, 300);//160 sigma; imglib2 version
+        //ChemoAttractant B = ChemoAttractant.createGaussianAttractor(ecm, 0, 300);//160 sigma
+
+        //ChemoAttractant C = ChemoAttractant.createGaussianAttractor(ecm, 1, 300);//160 sigma
+
+
 //        Substance A = new Substance("A",Color.magenta);
 //		ecm.addArtificialGaussianConcentrationZ(A, 1.0, 300.0, 160.0);
 
-        //ChemoAttractant B = ChemoAttractant.createGaussianAttractor(ecm, 0, 300);//160 sigma
-        //ChemoAttractant B = ChemoAttractant.createGaussianImgAttractor(ecm, 0, 300);//160 sigma
+
+
 //		Substance B = new Substance("B",Color.magenta);
 //		ecm.addArtificialGaussianConcentrationX(B, 1.0, 300.0, 160.0);
 
-        //ChemoAttractant C = ChemoAttractant.createGaussianAttractor(ecm, 1, 300);//160 sigma
-        //ChemoAttractant C = ChemoAttractant.createGaussianImgAttractor(ecm, 1, 300);//160 sigma
+
 //		Substance C = new Substance("C",Color.magenta);
 //		ecm.addArtificialGaussianConcentrationY(C, 1.0, 300.0, 160.0);
 
@@ -198,7 +218,8 @@ public class GRNeuriteInImg implements Command {
             }
         }
 
-        ActiveNeuriteChemoAttraction branchingModule = new ActiveNeuriteChemoAttraction(filenameGRN);
+        ActiveNeuriteChemoAttraction branchingModule = new ActiveNeuriteChemoAttraction(filenameGRN);// FIXME TODO change this to this class
+
         branchingModule.getGrnModule().setCell(c);
         c.getSomaElement().addLocalBiologyModule(branchingModule.getGrnModule());
         neurite.addLocalBiologyModule(branchingModule);
@@ -283,6 +304,93 @@ public class GRNeuriteInImg implements Command {
 
     }
 
+    private void createCombinedVolume(ChemoAttractant... cas) {
+        // Assumes all cas have same interval
+        if( ECM.isSciviewEnabled() ) {
+
+            RandomAccessibleInterval<UnsignedByteType> renderImg = null;
+
+//            try {
+//                N5FSReader n5 = new N5FSReader("./GRNeurite.n5");
+//                if( n5.exists("renderDataset") )
+//                    renderImg = N5Utils.open(n5, "renderDataset");
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+
+            //double transformScale = 0.5;
+            double transformScale = 1;
+
+            System.out.println("caInterval: " + cas[0].getInterval());
+
+            if( renderImg == null ) {
+                RandomAccessibleInterval<FloatType> caImg =
+                        ArrayImgs.floats(
+                                cas[0].getInterval().dimension(0),
+                                cas[0].getInterval().dimension(1),
+                                cas[0].getInterval().dimension(2));
+
+                for (int caID = 0; caID < cas.length; caID++) {
+                    ChemoAttractant ca = cas[caID];
+
+                    Cursor<FloatType> vCur = Views.iterable(caImg).cursor();
+                    Cursor<FloatType> iCur = Views.iterable(Views.interval(ca.getConcentrationImg(), ca.getInterval())).cursor();
+
+                    // Max projection over all CAs
+                    while (vCur.hasNext()) {
+                        vCur.fwd();
+                        iCur.fwd();
+
+                        vCur.get().set(Math.max(vCur.get().getRealFloat(), iCur.get().getRealFloat()));
+                    }
+                }
+
+                System.out.println("volImg interval: " + caImg.min(0) + " " + caImg.min(1) + " " + caImg.min(2));
+
+                RandomAccessibleInterval<UnsignedByteType> volImg = Converters.convert(caImg, (a, b) -> b.set((int) (255 * a.getRealDouble())), new UnsignedByteType());
+
+
+                // Now make a render volume that is smaller and display a smaller version
+                renderImg =
+                        Views.interval(
+                                RealViews.affine(
+                                        Views.interpolate(
+                                                Views.extendZero(volImg),
+                                                new NearestNeighborInterpolatorFactory<>()),
+                                                //new NLinearInterpolatorFactory<>()),
+                                        new Scale3D(transformScale, transformScale, transformScale)),
+                                new FinalInterval(
+                                        new long[]{0, 0, 0},
+                                        new long[]{500, 500, 500}
+                                ));
+
+                try {
+                    N5Utils.save(
+                            renderImg,
+                            new N5FSWriter("./GRNeurite.n5"),
+                            "renderDataset",
+                            new int[]{128, 128, 128},
+                            new GzipCompression());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            double renderScale = 1;
+
+            ImageJFunctions.show(renderImg);
+
+            //Volume vol = (Volume) ecm.getSciViewCX3D().getSciView().addVolume(volImg, "circuit", new float[]{1, 1, 1});
+            Volume vol = (Volume) ECM.getInstance().getSciViewCX3D().getSciView().addVolume(Views.zeroMin(renderImg), "circuit", new float[]{1, 1, 1});
+
+            vol.setScale(new GLVector((float) renderScale , (float) renderScale , (float) renderScale ).times(2));
+
+            vol.updateWorld(true, true);
+        }
+
+
+    }
+
     public static void main( String... args ) {
         boolean useSciview = true;
 
@@ -306,7 +414,7 @@ public class GRNeuriteInImg implements Command {
         argmap.put("filenameStats", "test_17.csv");
         argmap.put("generateGRN", true);
         argmap.put("sciViewEnabled", useSciview);
-        argmap.put("maxTime", 6);
+        argmap.put("maxTime", 200);
         argmap.put("randomSeed", 917171717);
         //argmap.put("sciView", null);
 
