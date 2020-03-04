@@ -1,12 +1,15 @@
 package sc.iview.cx3d.simulations.grn;
 
 import cleargl.GLVector;
+import graphics.scenery.volumes.TransferFunction;
 import graphics.scenery.volumes.bdv.Volume;
+import ij.IJ;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.converter.Converters;
+import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NearestNeighborInterpolatorFactory;
 import net.imglib2.position.FunctionRandomAccessible;
@@ -102,14 +105,14 @@ public class ChemoAttractant {
 		long[] min = new long[]{0, 0, 0};
 		//long[] min = new long[]{-500, -500, -500};
 
-		FunctionRandomAccessible<FloatType> conc = gaussianConcentration(ca.dimension, ca.coordinate, 1, 10);
+		FunctionRandomAccessible<FloatType> conc = gaussianConcentration(ca.dimension, ca.coordinate, 1, 1);
 		RandomAccessibleInterval<FloatType> concInterval = Views.interval(conc, new FinalInterval(min, max));
 
 		RandomAccessibleInterval<UnsignedByteType> volImg = Converters.convert(concInterval, (a, b) -> b.set((int)(255 * a.getRealDouble())), new UnsignedByteType());
 
 		System.out.println("Volume is : " + volImg.dimension(0) + " " + volImg.dimension(1) + " " + volImg.dimension(2));
 
-		double transformScale = 0.5;
+		double transformScale = 1.0;
 
 		if( ECM.isSciviewEnabled() && showVolume ) {
 		    // Now make a render volume that is smaller and display a smaller version
@@ -117,18 +120,21 @@ public class ChemoAttractant {
                 Views.interval(
                     RealViews.affine(
                             Views.interpolate(
-                                    Views.extendZero(Views.subsample(volImg, 2, 2, 2)),
+                                    Views.extendZero(volImg),
                                     new NearestNeighborInterpolatorFactory<>()),
                                     //new NLinearInterpolatorFactory<>()),
                             new Scale3D(transformScale, transformScale, transformScale)),
 		        new FinalInterval(
 		            new long[]{0, 0, 0},
-                    new long[]{250, 250, 250}
+                    new long[]{500, 500, 500}
                 ));
+
+            IJ.saveAsTiff(ImageJFunctions.wrap(renderImg,"test"), "/tmp/testVolume.tif");
 
             //Volume vol = (Volume) ecm.getSciViewCX3D().getSciView().addVolume(volImg, "circuit", new float[]{1, 1, 1});
             Volume vol = (Volume) ecm.getSciViewCX3D().getSciView().addVolume(renderImg, "circuit", new float[]{1, 1, 1});
 
+            //vol.setTransferFunction(TransferFunction.ramp(0.0F, 0.38F));
             vol.setScale(new GLVector((float) transformScale, (float) transformScale, (float) transformScale).times(2));
 
             vol.updateWorld(true, true);

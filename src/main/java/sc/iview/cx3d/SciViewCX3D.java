@@ -158,11 +158,13 @@ public class SciViewCX3D {
 
     private void paintPhysicalCylinders() {
         Cylinder svCylinder;
+        Sphere svSphere;
 		for (int i = 0; i < ecm.physicalCylinderList.size(); i++) {
 			PhysicalCylinder aCylinder = ecm.physicalCylinderList.get(i);
 			GLVector myNeuriteDistalEnd = new GLVector(aCylinder.distalEndF()).times(scaleFactor); // = massLocation
             GLVector myNeuriteProximalEnd = new GLVector(aCylinder.proximalEndF()).times(scaleFactor);
 
+            // Cylinders themselves
 			if( scNodes.containsKey(aCylinder.getID()) ) {
                 svCylinder = (Cylinder) scNodes.get(aCylinder.getID());
                 svCylinder.setVisible(true);
@@ -186,6 +188,30 @@ public class SciViewCX3D {
 			    scNodes.put(aCylinder.getID(),svCylinder);
             }
 
+			// For spheres themselves
+            int sphereLabel = -1 * aCylinder.getID();
+            if( scNodes.containsKey(sphereLabel) ) {
+                svSphere = (Sphere) scNodes.get(sphereLabel);
+                svSphere.setVisible(true);
+                svSphere.setPosition(myNeuriteProximalEnd);
+            } else {
+			    svSphere = new Sphere((float)aCylinder.getDiameter() * scaleFactor, 12);
+			    Material mat = new Material();
+                GLVector col = new GLVector(0.1f, 0.6f, 0.8f);
+//			    mat.setAmbient(new GLVector(0.1f, 0f, 0f));
+//                mat.setDiffuse(new GLVector(0.8f, 0.7f, 0.7f));
+//                mat.setDiffuse(new GLVector(0.05f, 0f, 0f));
+                mat.setAmbient(col);
+                mat.setDiffuse(col);
+                mat.setDiffuse(col);
+                //mat.setMetallic(0.01f);
+                mat.setRoughness(0.5f);
+                svSphere.setMaterial(mat);
+			    //sciView.addNode(svCylinder,nodeEvents);
+			    cx3d.addChild(svSphere);
+			    svSphere.setVisible(true);
+			    scNodes.put(sphereLabel,svSphere);
+            }
 
 			// ***chagned by haurian: get the drawing color form the internally
 			// secreted stuff
