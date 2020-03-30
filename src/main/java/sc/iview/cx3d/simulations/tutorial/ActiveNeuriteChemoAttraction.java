@@ -253,8 +253,8 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 
 		bifurcationWeight *= 0.005;
 		branchingFactor *= 0.005;
-		bifurcationWeight = Math.max( 0.004, Math.min(bifurcationWeight, 0.006) );
-		branchingFactor = Math.max( 0.004, Math.min(branchingFactor, 0.006) );
+		bifurcationWeight = Math.max( 0.0004, Math.min(bifurcationWeight, 0.006) );
+		branchingFactor = Math.max( 0.0004, Math.min(branchingFactor, 0.006) );
 
 		double[] newStepDirection = add(
 				scalarMult(oldDirectionWeight, direction),

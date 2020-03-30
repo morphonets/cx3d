@@ -89,12 +89,12 @@ public class ChemoAttractant {
     }
 
     /** Singleton factory method to create a Gaussian attractor Substance in the ECM */
-	public static ChemoAttractant createGaussianImgAttractor(ECM ecm, int dimension, double coordinate, boolean showVolume) {
+	public static ChemoAttractant  createGaussianImgAttractor(ECM ecm, int dimension, double coordinate, boolean showVolume) {
         ChemoAttractant ca = new ChemoAttractant();
         ca.maxConcentration = 1;
         ca.coordinate = coordinate;
         ca.dimension = dimension;
-        ca.sigma = 50;
+        ca.sigma = 100;
         ca.color = ChemoAttractant.getNextColor();
         ca.substanceName = ChemoAttractant.getNextName();
 
@@ -129,10 +129,13 @@ public class ChemoAttractant {
                     new long[]{500, 500, 500}
                 ));
 
-            IJ.saveAsTiff(ImageJFunctions.wrap(renderImg,"test"), "/tmp/testVolume.tif");
+            //IJ.saveAsTiff(ImageJFunctions.wrap(renderImg,"test"), "/tmp/testVolume.tif");
 
             //Volume vol = (Volume) ecm.getSciViewCX3D().getSciView().addVolume(volImg, "circuit", new float[]{1, 1, 1});
             Volume vol = (Volume) ecm.getSciViewCX3D().getSciView().addVolume(renderImg, "circuit", new float[]{1, 1, 1});
+
+            vol.getVolumeManager().setFarPlaneDegradation(1.0);
+            vol.getVolumeManager().setMaxAllowedStepInVoxels(0.5);
 
             //vol.setTransferFunction(TransferFunction.ramp(0.0F, 0.38F));
             vol.setScale(new GLVector((float) transformScale, (float) transformScale, (float) transformScale).times(2));

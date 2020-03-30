@@ -97,17 +97,21 @@
 		<license.licenseName>gplv3</license.licenseName>
 		<license.copyrightOwners>Cx3D and SciView developers.</license.copyrightOwners>
 
+		<enforcer.skip>true</enforcer.skip>
+
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>deploy-to-scijava</releaseProfiles>
 
 		<bigdataviewer-core.version>7.0.0</bigdataviewer-core.version>
+
+		<sciview.version>32ece56</sciview.version>
 		<scenery.version>c7bcf7a</scenery.version>
-		<sciview.version>8900176</sciview.version>
+		<snt.version>73467ae</snt.version>
+
 		<grneat.version>a322110ac4</grneat.version>
 		<cleargl.version>2.2.10</cleargl.version>
 		<kotlin.version>1.3.61</kotlin.version>
 		<lwjgl.version>3.2.3</lwjgl.version>
-		<snt.version>a9366e2</snt.version>
 	</properties>
 
 	<repositories>
