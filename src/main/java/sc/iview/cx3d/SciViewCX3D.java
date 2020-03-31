@@ -79,9 +79,9 @@ public class SciViewCX3D {
 //                sciView.deleteNode(child, false);
 //            }
 //        }
-        sciView.reset();
 
-        sciView.getFloor().setVisible(false);
+        //sciView.reset();
+        //sciView.getFloor().setVisible(false);
 
         cx3d = new Group();
         sciView.addNode(cx3d);
