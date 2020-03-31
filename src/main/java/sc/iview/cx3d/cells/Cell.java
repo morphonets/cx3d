@@ -44,13 +44,13 @@ import java.util.Vector;
 public class Cell {
 
 	/* Unique identification for this Cell instance. */
-	private int ID = 0;
+	protected int ID = 0;
 	
 	/* Counter to uniquely identify every cell. */
-	private static int idCounter = 0;
+	protected static int idCounter = 0;
 
 	/* Reference to the ECM. */
-	private static ECM ecm = ECM.getInstance();
+	protected static ECM ecm = ECM.getInstance();
 			
 	/* List of all cell modules that are run at each time step*/
 	public Vector<CellModule> cellModules = new Vector<CellModule>();
@@ -68,11 +68,11 @@ public class Cell {
 	public static final String ExcitatoryCell = "Excitatory_cells";
 	
 	/* The electrophsiology type of this cell */
-	private String neuroMLType = ExcitatoryCell;
+	protected String neuroMLType = ExcitatoryCell;
 	
 	/* Some convenient way to store properties of  for cells. 
 	 * Should not be confused with neuroMLType. */
-	private String type = "";
+	protected String type = "";
 	
 	/**
 	 * Generate <code>Cell</code>. and registers the <code>Cell</code> to <code>ECM<</code>. 
