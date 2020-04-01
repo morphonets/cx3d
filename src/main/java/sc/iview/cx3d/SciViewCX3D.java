@@ -311,4 +311,12 @@ public class SciViewCX3D {
 		}
 
 	}
+
+    public float getScaleFactor() {
+        return scaleFactor;
+    }
+
+    public void setScaleFactor(float scaleFactor) {
+        this.scaleFactor = scaleFactor;
+    }
 }
