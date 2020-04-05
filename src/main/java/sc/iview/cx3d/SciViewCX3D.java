@@ -164,6 +164,8 @@ public class SciViewCX3D {
 			GLVector myNeuriteDistalEnd = new GLVector(aCylinder.distalEndF()).times(scaleFactor); // = massLocation
             GLVector myNeuriteProximalEnd = new GLVector(aCylinder.proximalEndF()).times(scaleFactor);
 
+            Color c = aCylinder.getColor();
+
             // Cylinders themselves
 			if( scNodes.containsKey(aCylinder.getID()) ) {
                 svCylinder = (Cylinder) scNodes.get(aCylinder.getID());
@@ -172,7 +174,7 @@ public class SciViewCX3D {
             } else {
 			    svCylinder = Cylinder.betweenPoints(myNeuriteDistalEnd, myNeuriteProximalEnd, (float)aCylinder.getDiameter() * scaleFactor, 1f, 12);
 			    Material mat = new Material();
-                GLVector col = new GLVector(0.1f, 0.6f, 0.8f);
+                GLVector col = new GLVector(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f);
 //			    mat.setAmbient(new GLVector(0.1f, 0f, 0f));
 //                mat.setDiffuse(new GLVector(0.8f, 0.7f, 0.7f));
 //                mat.setDiffuse(new GLVector(0.05f, 0f, 0f));
@@ -197,7 +199,7 @@ public class SciViewCX3D {
             } else {
 			    svSphere = new Sphere((float)aCylinder.getDiameter() * scaleFactor, 12);
 			    Material mat = new Material();
-                GLVector col = new GLVector(0.1f, 0.6f, 0.8f);
+			    GLVector col = new GLVector(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f);
 //			    mat.setAmbient(new GLVector(0.1f, 0f, 0f));
 //                mat.setDiffuse(new GLVector(0.8f, 0.7f, 0.7f));
 //                mat.setDiffuse(new GLVector(0.05f, 0f, 0f));
@@ -268,6 +270,8 @@ public class SciViewCX3D {
 			float sphereRadius = 0.5f * (float) aSphere.getDiameter() * scaleFactor;
 			GLVector mySomaMassLocation = new GLVector(aSphere.getMassLocationF()).times(scaleFactor);
 
+            Color c = aSphere.getColor();
+
 			if( scNodes.containsKey(aSphere.getID()) ) {
                 svSphere = (Icosphere) scNodes.get(aSphere.getID());
                 svSphere.setVisible(true);
@@ -276,9 +280,10 @@ public class SciViewCX3D {
 			    svSphere = new Icosphere(sphereRadius, 2);
 			    svSphere.setVisible(false);
 			    Material mat = new Material();
-			    mat.setAmbient(new GLVector(0.1f, 0f, 0f));
-                mat.setDiffuse(new GLVector(0.8f, 0.7f, 0.7f));
-                mat.setDiffuse(new GLVector(0.05f, 0f, 0f));
+			    GLVector col = new GLVector(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f);
+			    mat.setAmbient(col);
+                mat.setDiffuse(col);
+                mat.setDiffuse(col);
                 mat.setMetallic(0.01f);
                 mat.setRoughness(0.5f);
                 svSphere.setMaterial(mat);
