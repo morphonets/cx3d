@@ -24,7 +24,7 @@ package sc.iview.cx3d.commands;
 import cleargl.GLVector;
 import graphics.scenery.Camera;
 import graphics.scenery.Node;
-import graphics.scenery.volumes.bdv.Volume;
+import graphics.scenery.volumes.Volume;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessible;
@@ -41,6 +41,7 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.MixedTransformView;
 import net.imglib2.view.Views;
+import org.joml.Vector3f;
 import org.scijava.io.IOService;
 import sc.iview.cx3d.Param;
 import sc.iview.cx3d.cells.Cell;
@@ -205,7 +206,7 @@ public class ImgNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 		Volume vol = (Volume)ecm.getSciViewCX3D().getSciView().addVolume(volImg, "circuit", new float[]{1, 10, 1});
 		double transformScale = 0.1;
 
-		vol.setScale(new GLVector((float)transformScale, (float)transformScale, (float)transformScale).times(2));
+		vol.setScale(new Vector3f((float)transformScale, (float)transformScale, (float)transformScale).mul(2));
 
 		vol.updateWorld(true, true);
 
@@ -243,7 +244,7 @@ public class ImgNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 		neurite.addLocalBiologyModule(imgModule);
 
 		Camera camera = ecm.getSciViewCX3D().getSciView().getCamera();
-		camera.setPosition(new GLVector(0,0,-10));
+		camera.setPosition(new Vector3f(0,0,-10));
 		camera.setNeedsUpdate(true);
 		camera.setDirty(true);
 

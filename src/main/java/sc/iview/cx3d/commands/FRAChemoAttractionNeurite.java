@@ -23,21 +23,12 @@ package sc.iview.cx3d.commands;
 
 import cleargl.GLVector;
 import graphics.scenery.Camera;
-import graphics.scenery.volumes.bdv.Volume;
-import ij.IJ;
-import net.imglib2.*;
-import net.imglib2.converter.Converters;
-import net.imglib2.img.Img;
-import net.imglib2.img.display.imagej.ImageJFunctions;
-import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
+import net.imglib2.Interval;
+import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessible;
 import net.imglib2.position.FunctionRandomAccessible;
-import net.imglib2.realtransform.RealViews;
-import net.imglib2.realtransform.Scale3D;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.FloatType;
-import net.imglib2.view.IntervalView;
-import net.imglib2.view.Views;
-import org.scijava.io.IOService;
+import org.joml.Vector3f;
 import sc.iview.cx3d.Param;
 import sc.iview.cx3d.cells.Cell;
 import sc.iview.cx3d.cells.CellFactory;
@@ -51,7 +42,6 @@ import sc.iview.cx3d.simulations.Scheduler;
 import sc.iview.cx3d.simulations.grn.ChemoAttractant;
 
 import java.awt.*;
-import java.io.IOException;
 
 import static sc.iview.cx3d.utilities.Matrix.*;
 
@@ -161,11 +151,10 @@ public class FRAChemoAttractionNeurite extends AbstractLocalBiologyModule {
 
 		direction = normalize(add(scalarMult(5,direction),newStepDirection));
 
-		if( ecm.getRandomDouble() < 0.01 )
-		    System.out.println(concentration*branchingFactor);
+		//if( ecm.getRandomDouble() < 0.01 ) System.out.println(concentration*branchingFactor + " " + concentration);
 
 		// 2) branching based on concentration:
-		if(ecm.getRandomDouble()<concentration*branchingFactor){
+		if(ecm.getRandomDouble()< concentration*branchingFactor){
 			try {
 				if( ECM.getInstance().getECMtime() < 1 )
 					((NeuriteElement)cellElement).bifurcate();
@@ -203,45 +192,10 @@ public class FRAChemoAttractionNeurite extends AbstractLocalBiologyModule {
 		long[] min = new long[]{0, 0, 0};
 		//long[] min = new long[]{-500, -500, -500};
 
-        // --- Previous version of img substance
-//		FunctionRandomAccessible<FloatType> conc = gaussianConcentration(0, 300, 600, 1, 1);
-//		RandomAccessibleInterval<FloatType> concInterval = Views.interval(conc, new FinalInterval(min, max));
-//		RandomAccessibleInterval<UnsignedByteType> volImg = Converters.convert(concInterval, (a, b) -> b.set((int)(255 * a.getRealDouble())), new UnsignedByteType());
-//
-//		System.out.println("Volume is : " + volImg.dimension(0) + " " + volImg.dimension(1) + " " + volImg.dimension(2));
-//
-//		Volume vol = (Volume)ecm.getSciViewCX3D().getSciView().addVolume(volImg, "circuit", new float[]{1, 1, 1});
-//		double transformScale = 0.1;
-//
-//		vol.setScale(new GLVector((float)transformScale, (float)transformScale, (float)transformScale).times(2));
-//
-//		vol.updateWorld(true, true);
-//
-//		long[] offset = new long[]{(long) (concInterval.dimension(0) * -0.5), (long) (concInterval.dimension(1) * -0.5), (long) (concInterval.dimension(2) * -0.5)};
-//
-//		//final Scale3D transformScale3D = new Scale3D(transformScale, transformScale, transformScale);
-//		final Scale3D transformScale3D = new Scale3D(1, 1, 1);
-//		RandomAccessible<FloatType> concentrationImg =
-//				RealViews.affine(
-//						Views.interpolate(
-//								Views.extendZero(Views.translate(concInterval, offset)),
-//								new NLinearInterpolatorFactory<>()),
-//						transformScale3D);
-//
-//		FRAChemoAttractionNeurite imgModule = new FRAChemoAttractionNeurite("A");
-//
-//		FRAChemoAttractionNeurite.setConcentrationImg(concentrationImg);
-//		FRAChemoAttractionNeurite.setInterval(Views.translate(concInterval, offset));
-//
-//		System.out.println("Adding Img Concentration");
-//        ecm.addArtificialImgConcentration( attractant.getId(), concentrationImg);
-        // -- end previous img version
-
         ChemoAttractant A = ChemoAttractant.createGaussianImgAttractor(ecm, 2, 300, true);//160 sigma; imglib2 version
         FRAChemoAttractionNeurite imgModule = new FRAChemoAttractionNeurite("A");
 		FRAChemoAttractionNeurite.setConcentrationImg(A.getConcentrationImg());
 		FRAChemoAttractionNeurite.setInterval(A.getInterval());
-
 
 		//ecm.addArtificialGaussianConcentrationZ(attractant, 1.0, 400.0, 160.0);
 
@@ -258,7 +212,7 @@ public class FRAChemoAttractionNeurite extends AbstractLocalBiologyModule {
 		neurite.addLocalBiologyModule(imgModule);
 
 		Camera camera = ecm.getSciViewCX3D().getSciView().getCamera();
-		camera.setPosition(new GLVector(0,0,-10));
+		camera.setPosition(new Vector3f(0,0,-10));
 		camera.setNeedsUpdate(true);
 		camera.setDirty(true);
 

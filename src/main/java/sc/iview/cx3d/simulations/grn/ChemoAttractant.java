@@ -2,7 +2,7 @@ package sc.iview.cx3d.simulations.grn;
 
 import cleargl.GLVector;
 import graphics.scenery.volumes.TransferFunction;
-import graphics.scenery.volumes.bdv.Volume;
+import graphics.scenery.volumes.Volume;
 import ij.IJ;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
@@ -19,6 +19,7 @@ import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
+import org.joml.Vector3f;
 import sc.iview.cx3d.physics.Substance;
 import sc.iview.cx3d.simulations.ECM;
 
@@ -138,7 +139,7 @@ public class ChemoAttractant {
             vol.getVolumeManager().setMaxAllowedStepInVoxels(0.5);
 
             //vol.setTransferFunction(TransferFunction.ramp(0.0F, 0.38F));
-            vol.setScale(new GLVector((float) transformScale, (float) transformScale, (float) transformScale).times(2));
+            vol.setScale(new Vector3f((float) transformScale, (float) transformScale, (float) transformScale).mul(2));
 
             vol.updateWorld(true, true);
         }

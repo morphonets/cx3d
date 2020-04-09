@@ -29,7 +29,7 @@
 package sc.iview.cx3d.commands.SNT;
 
 import cleargl.GLVector;
-import graphics.scenery.volumes.bdv.Volume;
+import graphics.scenery.volumes.Volume;
 import ij.IJ;
 import net.imagej.ImageJ;
 import net.imglib2.*;
@@ -50,6 +50,7 @@ import org.janelia.saalfeldlab.n5.N5FSReader;
 import org.janelia.saalfeldlab.n5.N5FSWriter;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 import org.jgrapht.graph.DefaultDirectedGraph;
+import org.joml.Vector3f;
 import org.scijava.Context;
 import org.scijava.command.Command;
 import org.scijava.command.CommandService;
@@ -383,7 +384,7 @@ public class GRNeuriteInImg implements Command {
             //Volume vol = (Volume) ecm.getSciViewCX3D().getSciView().addVolume(volImg, "circuit", new float[]{1, 1, 1});
             Volume vol = (Volume) ECM.getInstance().getSciViewCX3D().getSciView().addVolume(Views.zeroMin(renderImg), "circuit", new float[]{1, 1, 1});
 
-            vol.setScale(new GLVector((float) renderScale , (float) renderScale , (float) renderScale ).times(2));
+            vol.setScale(new Vector3f((float) renderScale , (float) renderScale , (float) renderScale ).mul(2));
 
             vol.updateWorld(true, true);
         }

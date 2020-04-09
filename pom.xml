@@ -5,7 +5,7 @@
     <parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>27.0.1</version>
+		<version>28.0.0</version>
 		<relativePath />
 	</parent>
 
@@ -104,13 +104,14 @@
 
 		<bigdataviewer-core.version>7.0.0</bigdataviewer-core.version>
 
-		<sciview.version>e02ad7b</sciview.version>
-		<scenery.version>c7bcf7a</scenery.version>
-		<snt.version>73467ae</snt.version>
+		<sciview.version>2a0b85e</sciview.version>
+		<scenery.version>2d3b088</scenery.version>
+		<snt.version>fc69e89</snt.version>
+		<joml.version>1.9.22</joml.version>
+		<kotlin.version>1.4-M1</kotlin.version>
 
 		<grneat.version>a322110ac4</grneat.version>
 		<cleargl.version>2.2.10</cleargl.version>
-		<kotlin.version>1.3.61</kotlin.version>
 		<lwjgl.version>3.2.3</lwjgl.version>
 	</properties>
 

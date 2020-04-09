@@ -18,6 +18,7 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
+import org.joml.Vector3f;
 import org.scijava.Context;
 import org.scijava.ui.UIService;
 import sc.iview.SciView;
@@ -32,6 +33,7 @@ import sc.iview.cx3d.synapses.Excrescence;
 import javax.print.attribute.AttributeSetUtilities;
 import java.awt.*;
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Hashtable;
 
@@ -161,8 +163,8 @@ public class SciViewCX3D {
         Sphere svSphere;
 		for (int i = 0; i < ecm.physicalCylinderList.size(); i++) {
 			PhysicalCylinder aCylinder = ecm.physicalCylinderList.get(i);
-			GLVector myNeuriteDistalEnd = new GLVector(aCylinder.distalEndF()).times(scaleFactor); // = massLocation
-            GLVector myNeuriteProximalEnd = new GLVector(aCylinder.proximalEndF()).times(scaleFactor);
+			Vector3f myNeuriteDistalEnd = new Vector3f(FloatBuffer.wrap(aCylinder.distalEndF())).mul(scaleFactor); // = massLocation
+            Vector3f myNeuriteProximalEnd = new Vector3f(FloatBuffer.wrap(aCylinder.proximalEndF())).mul(scaleFactor);
 
             Color c = aCylinder.getColor();
 
@@ -174,7 +176,7 @@ public class SciViewCX3D {
             } else {
 			    svCylinder = Cylinder.betweenPoints(myNeuriteDistalEnd, myNeuriteProximalEnd, (float)aCylinder.getDiameter() * scaleFactor, 1f, 12);
 			    Material mat = new Material();
-                GLVector col = new GLVector(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f);
+                Vector3f col = new Vector3f(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f);
 //			    mat.setAmbient(new GLVector(0.1f, 0f, 0f));
 //                mat.setDiffuse(new GLVector(0.8f, 0.7f, 0.7f));
 //                mat.setDiffuse(new GLVector(0.05f, 0f, 0f));
@@ -199,7 +201,7 @@ public class SciViewCX3D {
             } else {
 			    svSphere = new Sphere((float)aCylinder.getDiameter() * scaleFactor, 12);
 			    Material mat = new Material();
-			    GLVector col = new GLVector(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f);
+			    Vector3f col = new Vector3f(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f);
 //			    mat.setAmbient(new GLVector(0.1f, 0f, 0f));
 //                mat.setDiffuse(new GLVector(0.8f, 0.7f, 0.7f));
 //                mat.setDiffuse(new GLVector(0.05f, 0f, 0f));
@@ -230,7 +232,7 @@ public class SciViewCX3D {
                                     sub.getId()).getConcentrationDependentColor();
                             if (aCylinder.getNeuriteElement()
                                     .getLocalBiologyModulesList().size() > 0) {
-                                GLVector cv = new GLVector((float) drawcolor.getRed()/255.0f, (float) drawcolor.getGreen()/255.0f, (float) drawcolor.getBlue()/255.0f);
+                                Vector3f cv = new Vector3f((float) drawcolor.getRed()/255.0f, (float) drawcolor.getGreen()/255.0f, (float) drawcolor.getBlue()/255.0f);
                                 svCylinder.getMaterial().setDiffuse(cv);
                                 svCylinder.getMaterial().setAmbient(cv);
                                 svCylinder.getMaterial().setSpecular(cv);
@@ -268,7 +270,7 @@ public class SciViewCX3D {
 		for (int i = 0; i < ecm.physicalSphereList.size(); i++) {
 			PhysicalSphere aSphere = ecm.physicalSphereList.get(i);
 			float sphereRadius = 0.5f * (float) aSphere.getDiameter() * scaleFactor;
-			GLVector mySomaMassLocation = new GLVector(aSphere.getMassLocationF()).times(scaleFactor);
+			Vector3f mySomaMassLocation = new Vector3f(FloatBuffer.wrap(aSphere.getMassLocationF())).mul(scaleFactor);
 
             Color c = aSphere.getColor();
 
@@ -280,7 +282,7 @@ public class SciViewCX3D {
 			    svSphere = new Icosphere(sphereRadius, 2);
 			    svSphere.setVisible(false);
 			    Material mat = new Material();
-			    GLVector col = new GLVector(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f);
+			    Vector3f col = new Vector3f(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f);
 			    mat.setAmbient(col);
                 mat.setDiffuse(col);
                 mat.setDiffuse(col);
@@ -303,7 +305,7 @@ public class SciViewCX3D {
                                     sub.getId()).getConcentrationDependentColor();
                             if (aSphere.getSomaElement()
                                     .getLocalBiologyModulesList().size() > 0) {
-                                GLVector cv = new GLVector((float) sphereColor.getRed()/255.0f, (float) sphereColor.getGreen()/255.0f, (float) sphereColor.getBlue()/255.0f);
+                                Vector3f cv = new Vector3f((float) sphereColor.getRed()/255.0f, (float) sphereColor.getGreen()/255.0f, (float) sphereColor.getBlue()/255.0f);
                                 svSphere.getMaterial().setDiffuse(cv);
                                 svSphere.getMaterial().setAmbient(cv);
                                 svSphere.getMaterial().setSpecular(cv);
