@@ -1,23 +1,6 @@
 package sc.iview.cx3d;
 
-import cleargl.GLVector;
 import graphics.scenery.*;
-import graphics.scenery.volumes.TransferFunction;
-import graphics.scenery.volumes.Volume;
-
-import net.imagej.lut.LUTService;
-import net.imagej.ops.OpService;
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.converter.Converters;
-import net.imglib2.display.AbstractArrayColorTable;
-import net.imglib2.display.ColorTable;
-import net.imglib2.img.Img;
-import net.imglib2.type.numeric.ComplexType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
-import net.imglib2.type.numeric.real.FloatType;
-import net.imglib2.view.Views;
 import org.joml.Vector3f;
 import org.scijava.Context;
 import org.scijava.ui.UIService;
@@ -30,12 +13,8 @@ import sc.iview.cx3d.sciview.Spine;
 import sc.iview.cx3d.simulations.ECM;
 import sc.iview.cx3d.synapses.Excrescence;
 
-import javax.print.attribute.AttributeSetUtilities;
 import java.awt.*;
-import java.io.IOException;
-import java.nio.FloatBuffer;
 import java.util.HashMap;
-import java.util.Hashtable;
 
 public class SciViewCX3D {
     private boolean drawSpines = true;
@@ -163,8 +142,8 @@ public class SciViewCX3D {
         Sphere svSphere;
 		for (int i = 0; i < ecm.physicalCylinderList.size(); i++) {
 			PhysicalCylinder aCylinder = ecm.physicalCylinderList.get(i);
-			Vector3f myNeuriteDistalEnd = new Vector3f(FloatBuffer.wrap(aCylinder.distalEndF())).mul(scaleFactor); // = massLocation
-            Vector3f myNeuriteProximalEnd = new Vector3f(FloatBuffer.wrap(aCylinder.proximalEndF())).mul(scaleFactor);
+			Vector3f myNeuriteDistalEnd = new Vector3f((aCylinder.distalEndF())).mul(scaleFactor); // = massLocation
+            Vector3f myNeuriteProximalEnd = new Vector3f((aCylinder.proximalEndF())).mul(scaleFactor);
 
             Color c = aCylinder.getColor();
 
@@ -270,7 +249,7 @@ public class SciViewCX3D {
 		for (int i = 0; i < ecm.physicalSphereList.size(); i++) {
 			PhysicalSphere aSphere = ecm.physicalSphereList.get(i);
 			float sphereRadius = 0.5f * (float) aSphere.getDiameter() * scaleFactor;
-			Vector3f mySomaMassLocation = new Vector3f(FloatBuffer.wrap(aSphere.getMassLocationF())).mul(scaleFactor);
+			Vector3f mySomaMassLocation = new Vector3f(aSphere.getMassLocationF()).mul(scaleFactor);
 
             Color c = aSphere.getColor();
 
