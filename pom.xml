@@ -95,7 +95,7 @@
 		<package-name>cx3d</package-name>
 
 		<license.licenseName>gplv3</license.licenseName>
-		<license.copyrightOwners>Cx3D and SciView developers.</license.copyrightOwners>
+		<license.copyrightOwners>Cx3D and ScahiView developers.</license.copyrightOwners>
 
 		<enforcer.skip>true</enforcer.skip>
 
@@ -106,7 +106,7 @@
 
 		<sciview.version>f9f2f45</sciview.version>
 		<scenery.version>6a994af</scenery.version>
-		<snt.version>407ceea</snt.version>
+		<snt.version>b067768</snt.version>
 
 		<joml.version>1.9.22</joml.version>
 		<kotlin.version>1.4-M1</kotlin.version>
