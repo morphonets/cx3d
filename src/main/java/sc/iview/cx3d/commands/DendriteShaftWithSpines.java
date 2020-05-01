@@ -137,9 +137,14 @@ public class DendriteShaftWithSpines implements Command {
     }
 
 	public static void main( String... args ) {
-    	SciView sciView = SciView.createSciView();
+		SciView sciView = null;
+		try {
+			sciView = SciView.createSciView();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-        CommandService commandService = sciView.getScijavaContext().service(CommandService.class);
+		CommandService commandService = sciView.getScijavaContext().service(CommandService.class);
         commandService.run(DendriteShaftWithSpines.class,true,new Object[]{});
     }
 }

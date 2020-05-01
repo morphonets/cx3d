@@ -31,8 +31,10 @@ package sc.iview.cx3d.commands;
 import graphics.scenery.SceneryBase;
 import io.scif.SCIFIOService;
 import net.imagej.ImageJService;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.ComplexType;
+import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.scijava.Context;
@@ -59,7 +61,6 @@ import sc.iview.cx3d.localBiology.NeuriteElement;
 import sc.iview.cx3d.physics.Substance;
 import sc.iview.cx3d.simulations.ECM;
 import sc.iview.cx3d.simulations.Scheduler;
-import sc.iview.cx3d.simulations.tutorial.ImgNeuriteChemoAttraction;
 
 import java.awt.*;
 import java.io.IOException;
@@ -95,7 +96,7 @@ public class NeuriteChemoAttractionImg implements Command {
     private float maxTime = 5;
 
     @Parameter(label = "Environment img")
-    private Img<ComplexType> img;
+    private RandomAccessibleInterval<RealType> img;
 
     public static void main( String... args ) {
         SceneryBase.xinitThreads();
@@ -118,7 +119,11 @@ public class NeuriteChemoAttractionImg implements Command {
 
         // Currently Cx3D demos need to make their own SciView instance
         SciViewService sciViewService = context.service( SciViewService.class );
-        SciView sciView = sciViewService.getOrCreateActiveSciView();
+        try {
+            SciView sciView = sciViewService.getOrCreateActiveSciView();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 //        CommandService commandService = context.service(CommandService.class);
 //        commandService.run(NeuriteChemoAttractionImg.class,true,new Object[]{});

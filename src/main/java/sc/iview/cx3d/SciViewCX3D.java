@@ -1,19 +1,7 @@
 package sc.iview.cx3d;
 
-import cleargl.GLVector;
 import graphics.scenery.*;
-import graphics.scenery.volumes.TransferFunction;
-import graphics.scenery.volumes.Volume;
-
-import net.imagej.lut.LUTService;
-import net.imagej.ops.OpService;
-import net.imglib2.Cursor;
-import net.imglib2.display.AbstractArrayColorTable;
-import net.imglib2.display.ColorTable;
-import net.imglib2.img.Img;
-import net.imglib2.type.numeric.ComplexType;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
-import net.imglib2.type.numeric.real.FloatType;
+import org.joml.Vector3f;
 import org.scijava.Context;
 import org.scijava.ui.UIService;
 import sc.iview.SciView;
@@ -25,11 +13,8 @@ import sc.iview.cx3d.sciview.Spine;
 import sc.iview.cx3d.simulations.ECM;
 import sc.iview.cx3d.synapses.Excrescence;
 
-import javax.print.attribute.AttributeSetUtilities;
 import java.awt.*;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.Hashtable;
 
 public class SciViewCX3D {
     private boolean drawSpines = true;
@@ -75,7 +60,9 @@ public class SciViewCX3D {
 //                sciView.deleteNode(child, false);
 //            }
 //        }
-        sciView.reset();
+
+        //sciView.reset();
+        //sciView.getFloor().setVisible(false);
 
         cx3d = new Group();
         sciView.addNode(cx3d);
@@ -99,62 +86,68 @@ public class SciViewCX3D {
 		// Loop through all Cylinders
 		paintPhysicalCylinders();
 
-		// Loop through all PhysicalNodes
-		paintPhysicalNodes();
+		// Loop through all PhysicalNodes FIXME currently this is done externally
+		//paintPhysicalNodes();
     }
 
-    private void paintPhysicalNodes() {
-        Hashtable<Substance, Img<ComplexType>> imgSubs = ecm.getImgArtificialConcentration();
-        LUTService lutService = context.service(LUTService.class);
-        if( showSubstances ) {
-            for (Substance sub : imgSubs.keySet()) {
-                if (volumes.containsKey(sub)) {
-                    // Then the volume is there
-                } else {
-                    Img<ComplexType> img = imgSubs.get(sub);
-                    Cursor<ComplexType> cur = img.cursor();
-                    while (cur.hasNext()) {
-                        cur.next();
-                        cur.get().mul(255.0);
-                    }
-                    OpService ops = getContext().service(OpService.class);
-                    Img<UnsignedByteType> conv = ops.convert().uint8(img);
-                    Volume node = (Volume) sciView.addVolume(conv, sub.getId());
-
-                    cx3d.addChild(node);
-
-                    //String lutName = "Red.lut";
-                    String lutName = "Fire.lut";
-                    ColorTable colorTable = null;
-                    try {
-                        colorTable = lutService.loadLUT(lutService.findLUTs().get(lutName));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    sciView.setColormap(node, (AbstractArrayColorTable) colorTable);
-
-                    TransferFunction tf = ((Volume) sciView.getActiveNode()).getTransferFunction();
-                    //float currentOffset = tf.getControlPoint$scenery(1).getValue();
-                    //float currentFactor = tf.getControlPoint$scenery(2).getFactor();
-                    tf.clear();
-                    tf.addControlPoint(0.0f, 0.0f);
-                    tf.addControlPoint(0, 0.0f);
-                    tf.addControlPoint(1.0f, 0.01f);
-                    node.setPixelToWorldRatio(scaleFactor);
-                    node.setNeedsUpdate(true);
-                    volumes.put(sub, node);
-                }
-            }
-        }
-	}
+//    private void paintPhysicalNodes() {
+//        Hashtable<Substance, RandomAccessible<? extends RealType>> imgSubs = ecm.getImgArtificialConcentration();
+//        LUTService lutService = context.service(LUTService.class);
+//        if( showSubstances ) {
+//            for (Substance sub : imgSubs.keySet()) {
+//                if (volumes.containsKey(sub)) {
+//                    // Then the volume is there
+//                } else {
+//                    RandomAccessibleInterval<? extends RealType> img = imgSubs.get(sub);
+//                    Cursor<RealType> cur = Views.iterable(img).cursor();
+//                    while (cur.hasNext()) {
+//                        cur.next();
+//                        cur.get().mul(255.0);
+//                    }
+//                    OpService ops = getContext().service(OpService.class);
+//
+//                    RandomAccessibleInterval<UnsignedByteType> conv = Converters.convert(img, (a, b) -> b.setReal(a.getRealDouble()), new UnsignedByteType());
+//
+//                    Volume node = (Volume) sciView.addVolume(conv, sub.getId());
+//
+//                    cx3d.addChild(node);
+//
+//                    //String lutName = "Red.lut";
+//                    String lutName = "Fire.lut";
+//                    ColorTable colorTable = null;
+//                    try {
+//                        colorTable = lutService.loadLUT(lutService.findLUTs().get(lutName));
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    sciView.setColormap(node, (AbstractArrayColorTable) colorTable);
+//
+//                    TransferFunction tf = ((Volume) sciView.getActiveNode()).getTransferFunction();
+//                    //float currentOffset = tf.getControlPoint$scenery(1).getValue();
+//                    //float currentFactor = tf.getControlPoint$scenery(2).getFactor();
+//                    tf.clear();
+//                    tf.addControlPoint(0.0f, 0.0f);
+//                    tf.addControlPoint(0, 0.0f);
+//                    tf.addControlPoint(1.0f, 0.01f);
+//                    node.setPixelToWorldRatio(scaleFactor);
+//                    node.setNeedsUpdate(true);
+//                    volumes.put(sub, node);
+//                }
+//            }
+//        }
+//	}
 
     private void paintPhysicalCylinders() {
         Cylinder svCylinder;
+        Sphere svSphere;
 		for (int i = 0; i < ecm.physicalCylinderList.size(); i++) {
 			PhysicalCylinder aCylinder = ecm.physicalCylinderList.get(i);
-			GLVector myNeuriteDistalEnd = new GLVector(aCylinder.distalEndF()).times(scaleFactor); // = massLocation
-            GLVector myNeuriteProximalEnd = new GLVector(aCylinder.proximalEndF()).times(scaleFactor);
+			Vector3f myNeuriteDistalEnd = new Vector3f((aCylinder.distalEndF())).mul(scaleFactor); // = massLocation
+            Vector3f myNeuriteProximalEnd = new Vector3f((aCylinder.proximalEndF())).mul(scaleFactor);
 
+            Color c = aCylinder.getColor();
+
+            // Cylinders themselves
 			if( scNodes.containsKey(aCylinder.getID()) ) {
                 svCylinder = (Cylinder) scNodes.get(aCylinder.getID());
                 svCylinder.setVisible(true);
@@ -162,7 +155,7 @@ public class SciViewCX3D {
             } else {
 			    svCylinder = Cylinder.betweenPoints(myNeuriteDistalEnd, myNeuriteProximalEnd, (float)aCylinder.getDiameter() * scaleFactor, 1f, 12);
 			    Material mat = new Material();
-                GLVector col = new GLVector(0.1f, 0.6f, 0.8f);
+                Vector3f col = new Vector3f(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f);
 //			    mat.setAmbient(new GLVector(0.1f, 0f, 0f));
 //                mat.setDiffuse(new GLVector(0.8f, 0.7f, 0.7f));
 //                mat.setDiffuse(new GLVector(0.05f, 0f, 0f));
@@ -178,6 +171,30 @@ public class SciViewCX3D {
 			    scNodes.put(aCylinder.getID(),svCylinder);
             }
 
+			// For spheres themselves
+            int sphereLabel = -1 * aCylinder.getID();
+            if( scNodes.containsKey(sphereLabel) ) {
+                svSphere = (Sphere) scNodes.get(sphereLabel);
+                svSphere.setVisible(true);
+                svSphere.setPosition(myNeuriteProximalEnd);
+            } else {
+			    svSphere = new Sphere((float)aCylinder.getDiameter() * scaleFactor, 12);
+			    Material mat = new Material();
+			    Vector3f col = new Vector3f(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f);
+//			    mat.setAmbient(new GLVector(0.1f, 0f, 0f));
+//                mat.setDiffuse(new GLVector(0.8f, 0.7f, 0.7f));
+//                mat.setDiffuse(new GLVector(0.05f, 0f, 0f));
+                mat.setAmbient(col);
+                mat.setDiffuse(col);
+                mat.setDiffuse(col);
+                //mat.setMetallic(0.01f);
+                mat.setRoughness(0.5f);
+                svSphere.setMaterial(mat);
+			    //sciView.addNode(svCylinder,nodeEvents);
+			    cx3d.addChild(svSphere);
+			    svSphere.setVisible(true);
+			    scNodes.put(sphereLabel,svSphere);
+            }
 
 			// ***chagned by haurian: get the drawing color form the internally
 			// secreted stuff
@@ -194,7 +211,7 @@ public class SciViewCX3D {
                                     sub.getId()).getConcentrationDependentColor();
                             if (aCylinder.getNeuriteElement()
                                     .getLocalBiologyModulesList().size() > 0) {
-                                GLVector cv = new GLVector((float) drawcolor.getRed()/255.0f, (float) drawcolor.getGreen()/255.0f, (float) drawcolor.getBlue()/255.0f);
+                                Vector3f cv = new Vector3f((float) drawcolor.getRed()/255.0f, (float) drawcolor.getGreen()/255.0f, (float) drawcolor.getBlue()/255.0f);
                                 svCylinder.getMaterial().setDiffuse(cv);
                                 svCylinder.getMaterial().setAmbient(cv);
                                 svCylinder.getMaterial().setSpecular(cv);
@@ -232,7 +249,9 @@ public class SciViewCX3D {
 		for (int i = 0; i < ecm.physicalSphereList.size(); i++) {
 			PhysicalSphere aSphere = ecm.physicalSphereList.get(i);
 			float sphereRadius = 0.5f * (float) aSphere.getDiameter() * scaleFactor;
-			GLVector mySomaMassLocation = new GLVector(aSphere.getMassLocationF()).times(scaleFactor);
+			Vector3f mySomaMassLocation = new Vector3f(aSphere.getMassLocationF()).mul(scaleFactor);
+
+            Color c = aSphere.getColor();
 
 			if( scNodes.containsKey(aSphere.getID()) ) {
                 svSphere = (Icosphere) scNodes.get(aSphere.getID());
@@ -242,9 +261,10 @@ public class SciViewCX3D {
 			    svSphere = new Icosphere(sphereRadius, 2);
 			    svSphere.setVisible(false);
 			    Material mat = new Material();
-			    mat.setAmbient(new GLVector(0.1f, 0f, 0f));
-                mat.setDiffuse(new GLVector(0.8f, 0.7f, 0.7f));
-                mat.setDiffuse(new GLVector(0.05f, 0f, 0f));
+			    Vector3f col = new Vector3f(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f);
+			    mat.setAmbient(col);
+                mat.setDiffuse(col);
+                mat.setDiffuse(col);
                 mat.setMetallic(0.01f);
                 mat.setRoughness(0.5f);
                 svSphere.setMaterial(mat);
@@ -264,7 +284,7 @@ public class SciViewCX3D {
                                     sub.getId()).getConcentrationDependentColor();
                             if (aSphere.getSomaElement()
                                     .getLocalBiologyModulesList().size() > 0) {
-                                GLVector cv = new GLVector((float) sphereColor.getRed()/255.0f, (float) sphereColor.getGreen()/255.0f, (float) sphereColor.getBlue()/255.0f);
+                                Vector3f cv = new Vector3f((float) sphereColor.getRed()/255.0f, (float) sphereColor.getGreen()/255.0f, (float) sphereColor.getBlue()/255.0f);
                                 svSphere.getMaterial().setDiffuse(cv);
                                 svSphere.getMaterial().setAmbient(cv);
                                 svSphere.getMaterial().setSpecular(cv);
@@ -277,4 +297,12 @@ public class SciViewCX3D {
 		}
 
 	}
+
+    public float getScaleFactor() {
+        return scaleFactor;
+    }
+
+    public void setScaleFactor(float scaleFactor) {
+        this.scaleFactor = scaleFactor;
+    }
 }

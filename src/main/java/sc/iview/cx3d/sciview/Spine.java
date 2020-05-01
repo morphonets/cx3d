@@ -5,8 +5,11 @@ import graphics.scenery.Cylinder;
 import graphics.scenery.Material;
 import graphics.scenery.Node;
 import graphics.scenery.Sphere;
+import org.joml.Vector3f;
 import sc.iview.cx3d.synapses.Excrescence;
 import sc.iview.cx3d.synapses.PhysicalSpine;
+
+import java.nio.FloatBuffer;
 
 public class Spine extends Node {
     public static float scaleFactor = 0.01f;
@@ -26,8 +29,8 @@ public class Spine extends Node {
 
     public void syncSpine(Excrescence ex) {
         PhysicalSpine spine = (PhysicalSpine) ex;
-        GLVector distalExEnd = new GLVector(ex.getDistalEndF()).times(scaleFactor); // = massLocation
-        GLVector proximalExEnd = new GLVector(ex.getProximalEndF()).times(scaleFactor);
+        Vector3f distalExEnd = new Vector3f(FloatBuffer.wrap(ex.getDistalEndF())).mul(scaleFactor); // = massLocation
+        Vector3f proximalExEnd = new Vector3f(FloatBuffer.wrap(ex.getProximalEndF())).mul(scaleFactor);
 
         float thickness = (float) spine.getLength();
 
@@ -36,11 +39,11 @@ public class Spine extends Node {
         float b = 0.2f;
 
         Material mat = head.getMaterial();
-        mat.setAmbient(new GLVector(r,g,b));
-        mat.setDiffuse(new GLVector(r,g,b));
-        mat.setSpecular(new GLVector(0.05f, 0f, 0f));
+        mat.setAmbient(new Vector3f(r,g,b));
+        mat.setDiffuse(new Vector3f(r,g,b));
+        mat.setSpecular(new Vector3f(0.05f, 0f, 0f));
 
-        head.setScale(new GLVector(thickness,thickness,thickness));
+        head.setScale(new Vector3f(thickness,thickness,thickness));
         orientBetweenPoints(distalExEnd, proximalExEnd, true, true);
         setDirty(true);
         setNeedsUpdate(true);
@@ -50,17 +53,17 @@ public class Spine extends Node {
 
     public static Spine createFromExcrescence(Excrescence ex) {
         Spine spine = new Spine();
-        GLVector distalExEnd = new GLVector(ex.getDistalEndF()).times(scaleFactor); // = massLocation
-        GLVector proximalExEnd = new GLVector(ex.getProximalEndF()).times(scaleFactor);
+        Vector3f distalExEnd = new Vector3f(FloatBuffer.wrap(ex.getDistalEndF())).mul(scaleFactor); // = massLocation
+        Vector3f proximalExEnd = new Vector3f(FloatBuffer.wrap(ex.getProximalEndF())).mul(scaleFactor);
 
         spine.neck = Cylinder.betweenPoints(distalExEnd, proximalExEnd, (float)neckRadius, 1f, 5);
         spine.head = new Sphere(neckRadius*2,5);
-        spine.head.setPosition(new GLVector(distalExEnd));
+        spine.head.setPosition(new Vector3f(distalExEnd));
 
         Material mat = new Material();
-        mat.setAmbient(new GLVector(0.0f, 0.6f, 0.1f));
-        mat.setDiffuse(new GLVector(0.8f, 0.7f, 0.7f));
-        mat.setSpecular(new GLVector(0.05f, 0f, 0f));
+        mat.setAmbient(new Vector3f(0.0f, 0.6f, 0.1f));
+        mat.setDiffuse(new Vector3f(0.8f, 0.7f, 0.7f));
+        mat.setSpecular(new Vector3f(0.05f, 0f, 0f));
         mat.setMetallic(0.01f);
         mat.setRoughness(0.5f);
 

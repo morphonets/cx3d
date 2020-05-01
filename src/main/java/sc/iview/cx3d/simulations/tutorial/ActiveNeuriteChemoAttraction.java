@@ -27,6 +27,8 @@ import fun.grn.grneat.evolver.GRNGenome;
 import fun.grn.grneat.grn.GRNModel;
 import fun.grn.grneat.grn.GRNProtein;
 import graphics.scenery.SceneryBase;
+import net.imglib2.RandomAccess;
+import net.imglib2.type.numeric.real.FloatType;
 import sc.iview.cx3d.Param;
 import sc.iview.cx3d.cells.Cell;
 import sc.iview.cx3d.cells.CellFactory;
@@ -203,6 +205,8 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 
 		//System.out.println("Physical: " + physical + " Cell: " + cell + " GRN: " + grn);
 
+		double[] pos = physical.getMassLocation();
+
 		// Get sensor inputs:
 		double A = physical.getExtracellularConcentration("A");
 		double[] AGrad = physical.getExtracellularGradient("A");
@@ -249,8 +253,8 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 
 		bifurcationWeight *= 0.005;
 		branchingFactor *= 0.005;
-		bifurcationWeight = Math.max( 0.004, Math.min(bifurcationWeight, 0.006) );
-		branchingFactor = Math.max( 0.004, Math.min(branchingFactor, 0.006) );
+		bifurcationWeight = Math.max( 0.0004, Math.min(bifurcationWeight, 0.006) );
+		branchingFactor = Math.max( 0.0004, Math.min(branchingFactor, 0.006) );
 
 		double[] newStepDirection = add(
 				scalarMult(oldDirectionWeight, direction),
@@ -258,7 +262,34 @@ public class ActiveNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 				scalarMult(BWeight, normalize(BGrad)),
 				scalarMult(CWeight, normalize(CGrad)),
 				randomNoise(randomnessWeight,3));
-		double speed = 100;
+		double speed = 10;
+
+		newStepDirection[2] *= 0.0001;
+
+		long[] nextPos = new long[3];
+
+		double length = speed*Param.SIMULATION_TIME_STEP;
+		for( int d = 0; d < 3; d++ ) {
+			if( pos[d] + newStepDirection[d] * length > ECM.staticInterval.max(d) )
+				newStepDirection[d] = ( ECM.staticInterval.max(d) - pos[d] ) / ( newStepDirection[d] * length );
+			if( pos[d] + newStepDirection[d] * length < ECM.staticInterval.min(d) )
+				newStepDirection[d] = ( ECM.staticInterval.min(d) + pos[d] ) / ( newStepDirection[d] * length );
+			nextPos[d] = (long) (pos[d] + newStepDirection[d] * length);
+		}
+
+//		RandomAccess<FloatType> cra = staticConcentrationImg.randomAccess();
+//		cra.setPosition(nextPos);
+//
+//		float nextConc = cra.get().get();
+//		//System.out.println("Next conc: " + nextConc + " pos: " + Arrays.toString(nextPos));
+//
+//		// Dont move into low conc
+//		if( nextConc < 0.0001 ) {
+//		    newStepDirection = randomNoise(randomnessWeight,3);
+//		    physical.movePointMass(0.01 * speed, newStepDirection);
+//        } else {
+//            physical.movePointMass(speed, newStepDirection);
+//        }
 
 		// 1) movement
 		physical.movePointMass(speed, newStepDirection);

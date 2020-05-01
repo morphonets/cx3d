@@ -5,7 +5,7 @@
     <parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>27.0.1</version>
+		<version>28.0.0</version>
 		<relativePath />
 	</parent>
 
@@ -95,18 +95,25 @@
 		<package-name>cx3d</package-name>
 
 		<license.licenseName>gplv3</license.licenseName>
-		<license.copyrightOwners>Cx3D and SciView developers.</license.copyrightOwners>
+		<license.copyrightOwners>Cx3D and ScahiView developers.</license.copyrightOwners>
+
+		<enforcer.skip>true</enforcer.skip>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>deploy-to-scijava</releaseProfiles>
 
-		<scenery.version>c80aa00b</scenery.version>
-		<sciview.version>45b5bb3</sciview.version>
+		<bigdataviewer-core.version>7.0.0</bigdataviewer-core.version>
+
+		<sciview.version>f9f2f45</sciview.version>
+		<scenery.version>6a994af</scenery.version>
+		<snt.version>b067768</snt.version>
+
+		<joml.version>1.9.22</joml.version>
+		<kotlin.version>1.4-M1</kotlin.version>
+
 		<grneat.version>a322110ac4</grneat.version>
 		<cleargl.version>2.2.10</cleargl.version>
-		<kotlin.version>1.3.61</kotlin.version>
 		<lwjgl.version>3.2.3</lwjgl.version>
-		<snt.version>2c19c16</snt.version>
 	</properties>
 
 	<repositories>
