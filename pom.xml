@@ -10,7 +10,7 @@
 	</parent>
 
 
-    <groupId>sc.iview</groupId>
+    <groupId>org.morphonets</groupId>
     <artifactId>cx3d</artifactId>
     <version>0.0.4-SNAPSHOT</version>
     <packaging>jar</packaging>
