@@ -22,6 +22,7 @@ along with CX3D.  If not, see <http://www.gnu.org/licenses/>.
 package sc.iview.cx3d.simulations;
 
 import graphics.scenery.SceneryBase;
+import ij.IJ;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
@@ -210,6 +211,10 @@ public class ECM {
 
 	private ECM() {
 		Context context = new Context( ImageJService.class, SciJavaService.class, SCIFIOService.class, ThreadService.class);
+
+		Image icon = new BufferedImage(64, 64, BufferedImage.TYPE_INT_RGB);
+		IJ.getInstance().setIconImage(icon);
+
 		configureSciview(context);
 	}
 
