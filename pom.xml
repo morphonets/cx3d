@@ -104,9 +104,9 @@
 
 		<bigdataviewer-core.version>7.0.0</bigdataviewer-core.version>
 
-		<sciview.version>f9f2f45</sciview.version>
-		<scenery.version>6a994af</scenery.version>
-		<snt.version>b067768</snt.version>
+		<sciview.version>9a71de9</sciview.version>
+		<scenery.version>f55e46b</scenery.version>
+		<snt.version>2d8af5b6a0</snt.version>
 
 		<joml.version>1.9.22</joml.version>
 		<kotlin.version>1.4-M1</kotlin.version>
