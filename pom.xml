@@ -5,7 +5,7 @@
     <parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>28.0.0</version>
+		<version>29.0.0-beta-2</version>
 		<relativePath />
 	</parent>
 
@@ -17,7 +17,7 @@
 
     <name>cx3d</name>
 	<description>The Cx3D modeling framework in SciView and SNT.</description>
-    <url>https://www.ini.uzh.ch/~amw/seco/cx3d/</url>
+    <url>https://github.com/morphonets</url>
 	<inceptionYear>2019</inceptionYear>
 	<organization>
 		<name>MorphoNets</name>
@@ -95,7 +95,7 @@
 		<package-name>cx3d</package-name>
 
 		<license.licenseName>gplv3</license.licenseName>
-		<license.copyrightOwners>Cx3D and ScahiView developers.</license.copyrightOwners>
+		<license.copyrightOwners>Cx3D and SciView developers.</license.copyrightOwners>
 
 		<enforcer.skip>true</enforcer.skip>
 
