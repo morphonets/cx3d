@@ -74,7 +74,7 @@ import sc.iview.cx3d.simulations.ECM;
 import sc.iview.cx3d.simulations.Scheduler;
 import sc.iview.cx3d.simulations.grn.ChemoAttractant;
 import sc.iview.cx3d.simulations.tutorial.ActiveNeuriteChemoAttraction;
-import sc.iview.cx3d.utilities.SNT;
+import sc.iview.cx3d.utilities.ConvertUtils;
 
 import java.awt.*;
 import java.io.BufferedWriter;
@@ -241,12 +241,8 @@ public class GRNeuriteInImg implements Command {
 
         System.out.println("simulation done");
 
-        DefaultDirectedGraph graph = sc.iview.cx3d.utilities.GraphUtils.cellToGraph(c);
-
-        System.out.println("graph created");
-
         // This should work for Cx3D trees
-        Tree realtree = GraphUtils.createTree(graph);
+        Tree realtree = ConvertUtils.cellToTree(c);
         realtree.setLabel("Cx3D_Tree");
         realtree.setColor(Colors.RED);
 

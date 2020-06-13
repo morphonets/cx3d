@@ -32,7 +32,6 @@ import graphics.scenery.SceneryBase;
 import io.scif.SCIFIOService;
 import net.imagej.ImageJ;
 import net.imagej.ImageJService;
-import org.jgrapht.graph.DefaultDirectedGraph;
 import org.scijava.Context;
 import org.scijava.command.Command;
 import org.scijava.log.LogService;
@@ -56,7 +55,7 @@ import sc.iview.cx3d.localBiology.NeuriteElement;
 import sc.iview.cx3d.simulations.ECM;
 import sc.iview.cx3d.simulations.Scheduler;
 import sc.iview.cx3d.simulations.tutorial.RandomBranchingModule;
-import sc.iview.cx3d.utilities.SNT;
+import sc.iview.cx3d.utilities.ConvertUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -172,12 +171,8 @@ public class RandomBranchingSWC implements Command {
 
         System.out.println("simulation done");
 
-        DefaultDirectedGraph graph = sc.iview.cx3d.utilities.GraphUtils.cellToGraph(c);
-
-        System.out.println("graph created");
-
         // This should work for Cx3D trees
-        Tree realtree = GraphUtils.createTree(graph);
+        Tree realtree = ConvertUtils.cellToTree(c);
         realtree.setLabel("Cx3D_Tree");
         realtree.setColor(Colors.RED);
 

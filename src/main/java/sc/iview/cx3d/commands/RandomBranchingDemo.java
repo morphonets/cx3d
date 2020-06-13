@@ -60,6 +60,7 @@ import sc.fiji.snt.util.SWCPoint;
 import sc.fiji.snt.viewer.Viewer3D;
 import sc.iview.SciView;
 import sc.iview.SciViewService;
+import sc.iview.cx3d.utilities.ConvertUtils;
 
 import java.util.HashMap;
 import java.util.Vector;
@@ -141,10 +142,8 @@ public class RandomBranchingDemo implements Command {
             e.printStackTrace();
         }
 
-        DefaultDirectedGraph graph = sc.iview.cx3d.utilities.GraphUtils.cellToGraph(c);
-
         // This should work for Cx3D trees
-        Tree realtree = GraphUtils.createTree(graph);
+        Tree realtree = ConvertUtils.cellToTree(c);
         realtree.setLabel("Cx3D_Tree");
         realtree.setColor(Colors.RED);
 

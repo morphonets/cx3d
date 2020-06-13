@@ -1,30 +1,36 @@
 package sc.iview.cx3d.utilities;
 
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultDirectedWeightedGraph;
-import org.jgrapht.graph.DefaultWeightedEdge;
+import java.util.HashMap;
+import java.util.Vector;
+
+import sc.fiji.snt.Path;
+import sc.fiji.snt.Tree;
+import sc.fiji.snt.analysis.graph.DirectedWeightedGraph;
 import sc.fiji.snt.util.SWCPoint;
 import sc.iview.cx3d.cells.Cell;
 import sc.iview.cx3d.localBiology.NeuriteElement;
 
-import java.util.HashMap;
-import java.util.Vector;
+public class ConvertUtils {
 
-public class GraphUtils {
-    static public DefaultDirectedGraph cellToGraph(Cell c) {
+	private ConvertUtils() {
+		// Prevent instantiation of private class
+	}
+
+    static public DirectedWeightedGraph cellToGraph(Cell c) {
+    	return new DirectedWeightedGraph(cellToTree(c));
+    }
+   
+    static public Tree cellToTree(Cell c) {
+        
         Vector<NeuriteElement> neurites = c.getNeuriteElements();
 
-		// TODO: make a Graph() from Cell c
-        final DefaultDirectedWeightedGraph<SWCPoint, DefaultWeightedEdge> graph = new DefaultDirectedWeightedGraph<>(
-                null);
         // We cannot use the soma's position because the radius is used to offset the proximal position of the initial neurite
         //pos = c.getSomaElement().getPhysicalSphere().getMassLocation();
         // Instead we will do something very bad and assume the first neurite connects to the soma
         double[] pos = neurites.get(0).getPhysicalCylinder().proximalEnd();
 
         //System.out.println("Soma radius: " + c.getSomaElement().getPhysicalSphere().getLength());
-        SWCPoint soma = new SWCPoint(0, 1, pos[0], pos[1], pos[2], 1, -1);
-        graph.addVertex(soma);
+        SWCPoint soma = new SWCPoint(0, Path.SWC_SOMA, pos[0], pos[1], pos[2], 1, -1);
         //System.out.println("Soma: " + soma);
 
         // Make a hash map of NeuriteElements of point to ID
@@ -39,7 +45,7 @@ public class GraphUtils {
             NeuriteElement ne = neurites.get((int) k);
             //pos = ne.getLocation();
             pos = ne.getPhysicalCylinder().distalEnd();
-            SWCPoint swc = new SWCPoint((int)k+1, 0, pos[0], pos[1], pos[2], 1, 0);// TODO casting
+            SWCPoint swc = new SWCPoint((int)k+1, Path.SWC_UNDEFINED, pos[0], pos[1], pos[2], 1, 0);// TODO casting
             indexToCoordinate.put(k+1, swc);
         }
 
@@ -69,20 +75,9 @@ public class GraphUtils {
                 }
             }
             SWCPoint swc = new SWCPoint((int) k + 1, 0, distalPos[0], distalPos[1], distalPos[2], 1, parentIdx);
-            graph.addVertex(swc);
             indexToCoordinate.put(k,swc);
         }
 
-        // Have to make edges after all vertices are added
-        for( long k = 0; k < neurites.size(); k++ ) {
-            NeuriteElement ne = neurites.get((int) k);
-            SWCPoint swc = indexToCoordinate.get(k);
-            long parentIdx = swc.parent;
-            //System.out.println(k + " " + swc);
-
-            final DefaultWeightedEdge edge = new DefaultWeightedEdge();
-            graph.addEdge(indexToCoordinate.get(k),indexToCoordinate.get(parentIdx),edge);
-        }
-        return graph;
+        return new Tree(indexToCoordinate.values(), "");
     }
 }

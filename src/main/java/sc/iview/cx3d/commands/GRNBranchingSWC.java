@@ -32,7 +32,6 @@ import fun.grn.grneat.evaluators.GRNGenomeEvaluator;
 import fun.grn.grneat.evolver.GRNGenome;
 import fun.grn.grneat.grn.GRNModel;
 import net.imagej.ImageJ;
-import org.jgrapht.graph.DefaultDirectedGraph;
 import org.scijava.Context;
 import org.scijava.command.Command;
 import org.scijava.command.CommandService;
@@ -44,7 +43,7 @@ import org.scijava.util.Colors;
 import sc.fiji.snt.SNTService;
 import sc.fiji.snt.Tree;
 import sc.fiji.snt.analysis.TreeAnalyzer;
-import sc.fiji.snt.analysis.graph.GraphUtils;
+import sc.fiji.snt.analysis.TreeStatistics;
 import sc.iview.SciView;
 import sc.iview.cx3d.Param;
 import sc.iview.cx3d.cells.Cell;
@@ -54,7 +53,7 @@ import sc.iview.cx3d.physics.Substance;
 import sc.iview.cx3d.simulations.ECM;
 import sc.iview.cx3d.simulations.Scheduler;
 import sc.iview.cx3d.simulations.tutorial.ActiveNeuriteChemoAttraction;
-import sc.iview.cx3d.utilities.SNT;
+import sc.iview.cx3d.utilities.ConvertUtils;
 
 import java.awt.*;
 import java.io.BufferedWriter;
@@ -201,12 +200,8 @@ public class GRNBranchingSWC implements Command {
 
         System.out.println("simulation done");
 
-        DefaultDirectedGraph graph = sc.iview.cx3d.utilities.GraphUtils.cellToGraph(c);
-
-        System.out.println("graph created");
-
         // This should work for Cx3D trees
-        Tree realtree = GraphUtils.createTree(graph);
+        Tree realtree = ConvertUtils.cellToTree(c);
         realtree.setLabel("Cx3D_Tree");
         realtree.setColor(Colors.RED);
 

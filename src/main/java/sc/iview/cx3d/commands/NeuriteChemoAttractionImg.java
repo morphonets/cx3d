@@ -50,6 +50,7 @@ import org.scijava.ui.UIService;
 import org.scijava.util.Colors;
 import sc.fiji.snt.SNTService;
 import sc.fiji.snt.Tree;
+import sc.fiji.snt.analysis.graph.DirectedWeightedGraph;
 import sc.fiji.snt.analysis.graph.GraphUtils;
 import sc.fiji.snt.viewer.Viewer3D;
 import sc.iview.SciView;
@@ -61,6 +62,7 @@ import sc.iview.cx3d.localBiology.NeuriteElement;
 import sc.iview.cx3d.physics.Substance;
 import sc.iview.cx3d.simulations.ECM;
 import sc.iview.cx3d.simulations.Scheduler;
+import sc.iview.cx3d.utilities.ConvertUtils;
 
 import java.awt.*;
 import java.io.IOException;
@@ -157,10 +159,8 @@ public class NeuriteChemoAttractionImg implements Command {
 		System.out.println("Starting simulation");
 		Scheduler.simulate();
 
-		DefaultDirectedGraph graph = sc.iview.cx3d.utilities.GraphUtils.cellToGraph(c);
-
         // This should work for Cx3D trees
-        Tree tree = GraphUtils.createTree(graph);
+        Tree tree = ConvertUtils.cellToTree(c);
         tree.setColor(Colors.RED);
         sntService.initialize(true);
         sntService.loadTree(tree);
