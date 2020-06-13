@@ -46,7 +46,7 @@ import org.scijava.util.Colors;
 import sc.fiji.snt.SNTService;
 import sc.fiji.snt.Tree;
 import sc.fiji.snt.analysis.TreeAnalyzer;
-import sc.fiji.snt.analysis.graph.GraphUtils;
+import sc.fiji.snt.analysis.TreeStatistics;
 import sc.iview.SciView;
 import sc.iview.SciViewService;
 import sc.iview.cx3d.Param;
@@ -184,7 +184,7 @@ public class RandomBranchingSWC implements Command {
        TreeAnalyzer ta = new TreeAnalyzer(realtree);
 
         // TODO fix measurements
-        List<String> metrics = new ArrayList<>(SNT.getAvailableTreeAnalyzerMetrics());
+        List<String> metrics = TreeStatistics.getMetrics();
         List<Number> measurements = new ArrayList<>();
         outline = "";
         for( String metric : metrics ) {
