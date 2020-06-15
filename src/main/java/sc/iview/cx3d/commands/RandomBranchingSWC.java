@@ -73,7 +73,8 @@ import static sc.iview.cx3d.utilities.Matrix.randomNoise;
  *
  * @author Kyle Harrington
  */
-@Plugin(type = Command.class, label = "Random Branching (SWC output)", menuRoot = "SciView", //
+@Plugin(type = Command.class, label = "Random Branching (SWC output)", visible = false,
+		menuRoot = "SciView", //
         menu = { @Menu(label = "Demo", weight = DEMO), //
                  @Menu(label = "Cx3D", weight = DEMO), //
                  @Menu(label = "Random Branching (SWC output)", weight = DEMO_LINES) })

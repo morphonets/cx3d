@@ -63,7 +63,7 @@ import sc.iview.cx3d.utilities.ConvertUtils;
 @Plugin(type = Command.class, label = "Random Branching", menuRoot = "SciView", //
 		menu = { @Menu(label = "Demo", weight = DEMO), //
 				@Menu(label = "Cx3D", weight = DEMO), //
-				@Menu(label = "Random Branching", weight = DEMO_LINES) })
+				@Menu(label = " Random Branching", weight = DEMO_LINES) })
 public class RandomBranchingDemo implements Command {
 
 	@Parameter
