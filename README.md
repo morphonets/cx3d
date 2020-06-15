@@ -25,6 +25,7 @@ This repository hosts the [SciView](http://sc.iview.sc) version of Cx3D, making 
   1. Clone the repository
   2. Import into IntelliJ/Eclipse/NetBeans IDE
   3. Run [sc.iview.cx3d.commands.RandomBranchingDemo](https://github.com/morphonets/cx3d/blob/master/src/main/java/sc/iview/cx3d/commands/RandomBranchingDemo.java)
+  4. Do you want to write your own plugin based on Cx3D? Use the [template project](https://github.com/morphonets/minimal-cx3d-example-project)!
 
 ### To run the original Cx3D demos and tutorials from the CLI
 
