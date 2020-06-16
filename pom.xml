@@ -5,7 +5,7 @@
     <parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>29.0.0-beta-1</version>
+		<version>29.0.0-beta-2</version>
 		<relativePath />
 	</parent>
 
@@ -102,18 +102,12 @@
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>deploy-to-scijava</releaseProfiles>
 
-		<bigdataviewer-core.version>7.0.0</bigdataviewer-core.version>
 
-		<sciview.version>9a71de9</sciview.version>
-		<scenery.version>f55e46b</scenery.version>
+		<sciview.version>45b5bb3</sciview.version>
+		<scenery.version>c80aa00b</scenery.version>
 		<snt.version>8c3508e</snt.version>
 
-		<joml.version>1.9.22</joml.version>
-		<kotlin.version>1.4-M1</kotlin.version>
-
 		<grneat.version>a322110ac4</grneat.version>
-		<cleargl.version>2.2.10</cleargl.version>
-		<lwjgl.version>3.2.3</lwjgl.version>
 	</properties>
 
 	<repositories>
