@@ -21,10 +21,9 @@ along with CX3D.  If not, see <http://www.gnu.org/licenses/>.
 
 package sc.iview.cx3d.commands;
 
-import cleargl.GLVector;
 import graphics.scenery.Camera;
-import graphics.scenery.Node;
 import graphics.scenery.volumes.Volume;
+import ij.IJ;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessible;
@@ -34,12 +33,9 @@ import net.imglib2.img.Img;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.realtransform.Scale3D;
-import net.imglib2.type.numeric.ComplexType;
-import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.IntervalView;
-import net.imglib2.view.MixedTransformView;
 import net.imglib2.view.Views;
 import org.joml.Vector3f;
 import org.scijava.io.IOService;
@@ -55,31 +51,29 @@ import sc.iview.cx3d.simulations.ECM;
 import sc.iview.cx3d.simulations.Scheduler;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Arrays;
 
 import static sc.iview.cx3d.utilities.Matrix.*;
 
 public class ImgNeuriteChemoAttraction extends AbstractLocalBiologyModule {
-
-
 	static ECM ecm;
 	private static RandomAccessible<FloatType> staticConcentrationImg = null;
 	private static Interval staticInterval;
 
-	static {
-		try {
-			ecm = ECM.getInstance();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//	static {
+//		try {
+//			ecm = ECM.getInstance();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	private double[] direction;
 
 	private String substanceID;
 
-	private double branchingFactor = 0.005;
+	private double branchingFactor = 0.0075;
 
 	public ImgNeuriteChemoAttraction(String substanceID) {
 		this.substanceID = substanceID;
@@ -168,7 +162,7 @@ public class ImgNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 		direction = normalize(add(scalarMult(5,direction),newStepDirection));
 
 		// 2) branching based on concentration:
-		if(ecm.getRandomDouble()<concentration*branchingFactor){
+		if(ecm.getRandomDouble()<Math.pow(Math.E, concentration)*branchingFactor){
 			try {
 				if( ECM.getInstance().getECMtime() < 1 )
 					((NeuriteElement)cellElement).bifurcate();
@@ -179,7 +173,15 @@ public class ImgNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 	}
 
 	public static void main(String[] args) throws Exception {
+
+		System.out.println("test");
+
+//		Image icon = new BufferedImage(64, 64, BufferedImage.TYPE_INT_RGB);
+//		IJ.getInstance().setIconImage(icon);
+
 		ECM ecm = ECM.getInstance();
+
+		System.out.println("test1");
 		ECM.setRandomSeed(0L);		
 		Substance attractant = new Substance("A",Color.red);
 
@@ -189,6 +191,9 @@ public class ImgNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 //        ops.image().equation(img, formula);
 
 		IOService io = ecm.getSciViewCX3D().getContext().service(IOService.class);
+
+		System.out.println("test2");
+
 		RandomAccessibleInterval<FloatType> img = null;
 		try {
 			img = (Img<FloatType>) io.open("/home/kharrington/git/morphonets/cx3d/KothapalliEtAl2011_Fig5a_attractantMapMasked_stack.tif");
@@ -244,14 +249,25 @@ public class ImgNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 		neurite.addLocalBiologyModule(imgModule);
 
 		Camera camera = ecm.getSciViewCX3D().getSciView().getCamera();
-		camera.setPosition(new Vector3f(0,0,-10));
+		camera.setPosition(new Vector3f(0,0,-20));
 		camera.setNeedsUpdate(true);
 		camera.setDirty(true);
+		camera.setFarPlaneDistance(500f);
+
+		//ecm.getSciViewCX3D().getSciView().centerOnNode(vol);
+
+		ecm.getSciViewCX3D().getSciView().surroundLighting();
 
 		ecm.getSciViewCX3D().getSciView().getFloor().setVisible(false);
 
 		System.out.println("Starting simulation");
+
+		Thread.sleep(500);// just delay a little to tweak the camera manually
+
+		ecm.getSciViewCX3D().getSciView().toggleRecordVideo("/home/kharrington/Dropbox/SciViewDemos/cx3d_imgneuritechemoattraction.mp4", false);
 		Scheduler.simulate();
+
+
 	}
 
 	private static void setInterval(IntervalView<FloatType> translate) {

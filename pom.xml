@@ -102,10 +102,10 @@
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>deploy-to-scijava</releaseProfiles>
 
+		<sciview.version>9c0918a</sciview.version>
+		<scenery.version>4e67655</scenery.version>
 
-		<sciview.version>45b5bb3</sciview.version>
-		<scenery.version>c80aa00b</scenery.version>
-		<snt.version>8c3508e</snt.version>
+		<snt.version>0851e07</snt.version>
 
 		<grneat.version>a322110ac4</grneat.version>
 	</properties>
