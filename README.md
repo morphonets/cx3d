@@ -20,11 +20,15 @@ Cx3D (Cortex simulation in 3D) is a tool for simulating the growth of cortex in 
 
 This repository hosts the [SciView](http://sc.iview.sc) version of Cx3D, making Cx3D compatible with the ImageJ and Fiji ecosystem. This includes using SciView for 3D visualization, allowing Cx3D to grow neuronal processes with SciView’s data structures, and support for image-based modeling. 
 
+
 ## Quick Start
 
-  1. Clone the repository
-  2. Import into IntelliJ/Eclipse/NetBeans IDE
-  3. Run [sc.iview.cx3d.commands.RandomBranchingDemo](https://github.com/morphonets/cx3d/blob/master/src/main/java/sc/iview/cx3d/commands/RandomBranchingDemo.java)
+  1. Clone the repository (use the green _code_ button above the list of files)
+  2. Import the project into an IDE such as [Eclipse](https://www.eclipse.org/downloads/packages/)/[IntelliJ](https://www.jetbrains.com/idea/download/)/[NetBeans](https://netbeans.apache.org/download/index.html):
+        - In Eclipse: Run _Import> Existing Maven Projects_ and specify the path to the downloaded `cx3d` folder in _Root Directory_
+        - In IntelliJ: In the _Welcome Prompt_, choose _Open or Import_ and specify the path to the downloaded `cx3d` folder
+        - In NetBeans: Run _File> Open Project..._, select the downloaded `SNT` directory, and click on _Open Project_
+  3. Wait for all the dependencies to be downloaded, and run [sc.iview.cx3d.commands.RandomBranchingDemo](https://github.com/morphonets/cx3d/blob/master/src/main/java/sc/iview/cx3d/commands/RandomBranchingDemo.java)
   4. Do you want to write your own plugin based on Cx3D? Use the [template project](https://github.com/morphonets/minimal-cx3d-example-project)!
 
 ### To run the original Cx3D demos and tutorials from the CLI
