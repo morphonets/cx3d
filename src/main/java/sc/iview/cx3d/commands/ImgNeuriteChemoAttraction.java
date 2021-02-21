@@ -191,7 +191,7 @@ public class ImgNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 		IOService io = ecm.getSciViewCX3D().getContext().service(IOService.class);
 		RandomAccessibleInterval<FloatType> img = null;
 		try {
-			img = (Img<FloatType>) io.open("/home/kharrington/git/morphonets/cx3d/KothapalliEtAl2011_Fig5a_attractantMapMasked_stack.tif");
+			img = (Img<FloatType>) io.open(ImgNeuriteChemoAttraction.class.getResource("KothapalliEtAl2011_Fig5a_attractantMapMasked_stack.tif").getFile());
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
