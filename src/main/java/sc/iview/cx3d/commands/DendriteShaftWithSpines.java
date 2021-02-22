@@ -28,10 +28,6 @@
  */
 package sc.iview.cx3d.commands;
 
-import graphics.scenery.SceneryBase;
-import io.scif.SCIFIOService;
-import net.imagej.ImageJService;
-import org.jgrapht.graph.DefaultDirectedGraph;
 import org.scijava.Context;
 import org.scijava.ItemIO;
 import org.scijava.command.Command;
@@ -39,13 +35,9 @@ import org.scijava.command.CommandService;
 import org.scijava.plugin.Menu;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
-import org.scijava.service.SciJavaService;
-import org.scijava.thread.ThreadService;
-import org.scijava.util.Colors;
 import sc.fiji.snt.SNTService;
 import sc.fiji.snt.Tree;
 import sc.iview.SciView;
-import sc.iview.SciViewService;
 import sc.iview.cx3d.Param;
 import sc.iview.cx3d.cells.Cell;
 import sc.iview.cx3d.cells.CellFactory;
@@ -53,12 +45,10 @@ import sc.iview.cx3d.localBiology.NeuriteElement;
 import sc.iview.cx3d.physics.PhysicalCylinder;
 import sc.iview.cx3d.simulations.ECM;
 import sc.iview.cx3d.simulations.Scheduler;
-import sc.iview.cx3d.simulations.tutorial.RandomBranchingModule;
-import sc.iview.cx3d.synapses.*;
 import sc.iview.cx3d.utilities.ConvertUtils;
 
 import static sc.iview.commands.MenuWeights.DEMO;
-import static sc.iview.commands.MenuWeights.DEMO_LINES;
+import static sc.iview.commands.MenuWeights.DEMO_ADVANCED_SEGMENTATION;
 import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 
 /**
@@ -69,7 +59,7 @@ import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 @Plugin(type = Command.class, label = "Random Branching", menuRoot = "SciView", //
         menu = { @Menu(label = "Demo", weight = DEMO), //
                  @Menu(label = "Cx3D", weight = DEMO), //
-                 @Menu(label = "Random Branching", weight = DEMO_LINES) })
+                 @Menu(label = "Random Branching", weight = DEMO_ADVANCED_SEGMENTATION) })
 public class DendriteShaftWithSpines implements Command {
 
 	@Parameter
@@ -139,7 +129,7 @@ public class DendriteShaftWithSpines implements Command {
 	public static void main( String... args ) {
 		SciView sciView = null;
 		try {
-			sciView = SciView.createSciView();
+			sciView = SciView.create();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

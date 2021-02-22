@@ -33,10 +33,8 @@ import io.scif.SCIFIOService;
 import net.imagej.ImageJService;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
-import net.imglib2.type.numeric.ComplexType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
-import org.jgrapht.graph.DefaultDirectedGraph;
 import org.scijava.Context;
 import org.scijava.ItemIO;
 import org.scijava.command.Command;
@@ -50,8 +48,6 @@ import org.scijava.ui.UIService;
 import org.scijava.util.Colors;
 import sc.fiji.snt.SNTService;
 import sc.fiji.snt.Tree;
-import sc.fiji.snt.analysis.graph.DirectedWeightedGraph;
-import sc.fiji.snt.analysis.graph.GraphUtils;
 import sc.fiji.snt.viewer.Viewer3D;
 import sc.iview.SciView;
 import sc.iview.SciViewService;
@@ -68,7 +64,7 @@ import java.awt.*;
 import java.io.IOException;
 
 import static sc.iview.commands.MenuWeights.DEMO;
-import static sc.iview.commands.MenuWeights.DEMO_LINES;
+import static sc.iview.commands.MenuWeights.DEMO_ADVANCED_SEGMENTATION;
 import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 
 /**
@@ -79,7 +75,7 @@ import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 @Plugin(type = Command.class, label = "Random Branching", menuRoot = "SciView", //
         menu = { @Menu(label = "Demo", weight = DEMO), //
                  @Menu(label = "Cx3D", weight = DEMO), //
-                 @Menu(label = "Neurite Chemoattraction Img", weight = DEMO_LINES) })
+                 @Menu(label = "Neurite Chemoattraction Img", weight = DEMO_ADVANCED_SEGMENTATION) })
 public class NeuriteChemoAttractionImg implements Command {
 
     @Parameter

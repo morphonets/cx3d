@@ -28,28 +28,23 @@
  */
 package sc.iview.cx3d.commands.SNT;
 
-import cleargl.GLVector;
 import graphics.scenery.volumes.Volume;
-import ij.IJ;
 import net.imagej.ImageJ;
-import net.imglib2.*;
 import net.imglib2.Cursor;
+import net.imglib2.FinalInterval;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.converter.Converters;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.img.display.imagej.ImageJFunctions;
-import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.interpolation.randomaccess.NearestNeighborInterpolatorFactory;
-import net.imglib2.position.FunctionRandomAccessible;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.realtransform.Scale3D;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
 import org.janelia.saalfeldlab.n5.GzipCompression;
-import org.janelia.saalfeldlab.n5.N5FSReader;
 import org.janelia.saalfeldlab.n5.N5FSWriter;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
-import org.jgrapht.graph.DefaultDirectedGraph;
 import org.joml.Vector3f;
 import org.scijava.Context;
 import org.scijava.command.Command;
@@ -63,20 +58,17 @@ import sc.fiji.snt.SNTService;
 import sc.fiji.snt.Tree;
 import sc.fiji.snt.analysis.TreeAnalyzer;
 import sc.fiji.snt.analysis.TreeStatistics;
-import sc.fiji.snt.analysis.graph.GraphUtils;
 import sc.iview.SciView;
 import sc.iview.cx3d.Param;
 import sc.iview.cx3d.cells.Cell;
 import sc.iview.cx3d.cells.CellFactory;
 import sc.iview.cx3d.localBiology.NeuriteElement;
-import sc.iview.cx3d.physics.Substance;
 import sc.iview.cx3d.simulations.ECM;
 import sc.iview.cx3d.simulations.Scheduler;
 import sc.iview.cx3d.simulations.grn.ChemoAttractant;
 import sc.iview.cx3d.simulations.tutorial.ActiveNeuriteChemoAttraction;
 import sc.iview.cx3d.utilities.ConvertUtils;
 
-import java.awt.*;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -87,8 +79,7 @@ import java.util.List;
 import java.util.Map;
 
 import static sc.iview.commands.MenuWeights.DEMO;
-import static sc.iview.commands.MenuWeights.DEMO_LINES;
-import static sc.iview.cx3d.commands.FRAChemoAttractionNeurite.gaussianConcentration;
+import static sc.iview.commands.MenuWeights.DEMO_ADVANCED_SEGMENTATION;
 import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 
 /**
@@ -99,7 +90,7 @@ import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 @Plugin(type = Command.class, label = "Genetically-regulated Neurite in Img (SWC output)", menuRoot = "SciView", //
         menu = { @Menu(label = "Demo", weight = DEMO), //
                  @Menu(label = "Cx3D", weight = DEMO), //
-                 @Menu(label = "Genetically-regulated Neurite in Img (SWC output)", weight = DEMO_LINES) })
+                 @Menu(label = "Genetically-regulated Neurite in Img (SWC output)", weight = DEMO_ADVANCED_SEGMENTATION) })
 public class GRNeuriteInImg implements Command {
 
     @Parameter
@@ -396,7 +387,7 @@ public class GRNeuriteInImg implements Command {
         if( useSciview ) {
             SciView sciView = null;
             try {
-                sciView = SciView.createSciView();
+                sciView = SciView.create();
             } catch (Exception e) {
                 e.printStackTrace();
             }

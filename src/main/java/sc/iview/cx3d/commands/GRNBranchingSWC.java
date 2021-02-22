@@ -28,9 +28,6 @@
  */
 package sc.iview.cx3d.commands;
 
-import fun.grn.grneat.evaluators.GRNGenomeEvaluator;
-import fun.grn.grneat.evolver.GRNGenome;
-import fun.grn.grneat.grn.GRNModel;
 import net.imagej.ImageJ;
 import org.scijava.Context;
 import org.scijava.command.Command;
@@ -64,10 +61,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 
 import static sc.iview.commands.MenuWeights.DEMO;
-import static sc.iview.commands.MenuWeights.DEMO_LINES;
+import static sc.iview.commands.MenuWeights.DEMO_ADVANCED_SEGMENTATION;
 import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 
 /**
@@ -78,7 +74,7 @@ import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 @Plugin(type = Command.class, label = "Genetically-regulated Branching (SWC output)", menuRoot = "SciView", //
         menu = { @Menu(label = "Demo", weight = DEMO), //
                  @Menu(label = "Cx3D", weight = DEMO), //
-                 @Menu(label = "Genetically-regulated Branching (SWC output)", weight = DEMO_LINES) })
+                 @Menu(label = "Genetically-regulated Branching (SWC output)", weight = DEMO_ADVANCED_SEGMENTATION) })
 public class GRNBranchingSWC implements Command {
 
     @Parameter
@@ -266,7 +262,7 @@ public class GRNBranchingSWC implements Command {
         if( useSciview ) {
             SciView sciView = null;
             try {
-                sciView = SciView.createSciView();
+                sciView = SciView.create();
             } catch (Exception e) {
                 e.printStackTrace();
             }

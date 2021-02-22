@@ -21,7 +21,6 @@ along with CX3D.  If not, see <http://www.gnu.org/licenses/>.
 
 package sc.iview.cx3d.commands;
 
-import cleargl.GLVector;
 import graphics.scenery.Camera;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
