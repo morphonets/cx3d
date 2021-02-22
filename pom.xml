@@ -257,11 +257,6 @@
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
-		<dependency>
-			<groupId>com.bulenkov</groupId>
-			<artifactId>darcula</artifactId>
-			<version>2018.2</version>
-		</dependency>
 	</dependencies>
 
 <!--	<build>-->
