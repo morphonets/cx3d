@@ -25,19 +25,20 @@ import cleargl.GLVector;
 import graphics.scenery.Camera;
 import graphics.scenery.Node;
 import graphics.scenery.volumes.Volume;
-import net.imglib2.Interval;
-import net.imglib2.RandomAccess;
-import net.imglib2.RandomAccessible;
-import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.*;
+import net.imglib2.Cursor;
 import net.imglib2.converter.Converters;
 import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
+import net.imglib2.position.FunctionRandomAccessible;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.realtransform.Scale3D;
 import net.imglib2.type.numeric.ComplexType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.util.Intervals;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.MixedTransformView;
 import net.imglib2.view.Views;
@@ -57,6 +58,8 @@ import sc.iview.cx3d.simulations.Scheduler;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 import static sc.iview.cx3d.utilities.Matrix.*;
 
@@ -189,17 +192,31 @@ public class ImgNeuriteChemoAttraction extends AbstractLocalBiologyModule {
 //        ops.image().equation(img, formula);
 
 		IOService io = ecm.getSciViewCX3D().getContext().service(IOService.class);
-		RandomAccessibleInterval<FloatType> img = null;
+		Img<FloatType> slice = null, img;
 		try {
-			img = (Img<FloatType>) io.open(ImgNeuriteChemoAttraction.class.getResource("KothapalliEtAl2011_Fig5a_attractantMapMasked_stack.tif").getFile());
+			slice = (Img<FloatType>) io.open(ImgNeuriteChemoAttraction.class.getResource("KothapalliEtAl2011_Fig5a_attractantMapMasked_slice.tif").getFile());
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
 		}
 
+		// We loaded a slice, now let's virtually stack it along the 3rd dimension
+		FinalInterval interval = Intervals.addDimension(slice, 0, 99);
+		img = ArrayImgs.floats(Intervals.dimensionsAsLongArray(interval));
+		RandomAccess<FloatType> sliceRA = slice.randomAccess();
+		Cursor<FloatType> cur = img.cursor();
+		while( cur.hasNext() ) {
+			cur.fwd();
+			sliceRA.setPosition( cur.getIntPosition(0), 0);
+			sliceRA.setPosition( cur.getIntPosition(1), 1);
+			cur.get().set(sliceRA.get());
+		}
+
 		//img = (RandomAccessibleInterval<FloatType>)(Object)Views.translate(img, new long[]{(long) (img.dimension(0) * -0.5), (long) (img.dimension(1) * -0.5), (long) (img.dimension(2) * -0.5)});
 
-		RandomAccessibleInterval<UnsignedByteType> volImg = Converters.convert(img, (a, b) -> b.set((int)(255 * a.getRealDouble())), new UnsignedByteType());
+		RandomAccessibleInterval<UnsignedByteType> volImg = Converters.convert((RandomAccessibleInterval<FloatType>)img,
+				(a, b) -> b.set((int)(255 * a.getRealDouble())),
+				new UnsignedByteType());
 
 		System.out.println("Volume is : " + volImg.dimension(0) + " " + volImg.dimension(1) + " " + volImg.dimension(2));
 
