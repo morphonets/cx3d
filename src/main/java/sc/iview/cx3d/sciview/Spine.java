@@ -1,17 +1,20 @@
 package sc.iview.cx3d.sciview;
 
-import cleargl.GLVector;
-import graphics.scenery.Cylinder;
-import graphics.scenery.Material;
+import graphics.scenery.DefaultNode;
+import graphics.scenery.Icosphere;
 import graphics.scenery.Node;
 import graphics.scenery.Sphere;
+import graphics.scenery.attribute.material.DefaultMaterial;
+import graphics.scenery.attribute.material.Material;
+import graphics.scenery.primitives.Cylinder;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import sc.iview.cx3d.synapses.Excrescence;
 import sc.iview.cx3d.synapses.PhysicalSpine;
 
 import java.nio.FloatBuffer;
 
-public class Spine extends Node {
+public class Spine extends DefaultNode {
     public static float scaleFactor = 0.01f;
 
     public static float neckRadius = 0.01f;
@@ -57,10 +60,10 @@ public class Spine extends Node {
         Vector3f proximalExEnd = new Vector3f(FloatBuffer.wrap(ex.getProximalEndF())).mul(scaleFactor);
 
         spine.neck = Cylinder.betweenPoints(distalExEnd, proximalExEnd, (float)neckRadius, 1f, 5);
-        spine.head = new Sphere(neckRadius*2,5);
+        spine.head = new Sphere(neckRadius*2f,5, false);
         spine.head.setPosition(new Vector3f(distalExEnd));
 
-        Material mat = new Material();
+        Material mat = new DefaultMaterial();
         mat.setAmbient(new Vector3f(0.0f, 0.6f, 0.1f));
         mat.setDiffuse(new Vector3f(0.8f, 0.7f, 0.7f));
         mat.setSpecular(new Vector3f(0.05f, 0f, 0f));

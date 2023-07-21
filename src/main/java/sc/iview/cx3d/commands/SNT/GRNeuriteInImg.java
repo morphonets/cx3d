@@ -87,7 +87,7 @@ import java.util.List;
 import java.util.Map;
 
 import static sc.iview.commands.MenuWeights.DEMO;
-import static sc.iview.commands.MenuWeights.DEMO_LINES;
+import static sc.iview.commands.MenuWeights.DEMO_BASIC_LINES;
 import static sc.iview.cx3d.commands.FRAChemoAttractionNeurite.gaussianConcentration;
 import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 
@@ -99,7 +99,7 @@ import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 @Plugin(type = Command.class, label = "Genetically-regulated Neurite in Img (SWC output)", menuRoot = "SciView", //
         menu = { @Menu(label = "Demo", weight = DEMO), //
                  @Menu(label = "Cx3D", weight = DEMO), //
-                 @Menu(label = "Genetically-regulated Neurite in Img (SWC output)", weight = DEMO_LINES) })
+                 @Menu(label = "Genetically-regulated Neurite in Img (SWC output)", weight = DEMO_BASIC_LINES) })
 public class GRNeuriteInImg implements Command {
 
     @Parameter
@@ -396,7 +396,7 @@ public class GRNeuriteInImg implements Command {
         if( useSciview ) {
             SciView sciView = null;
             try {
-                sciView = SciView.createSciView();
+                sciView = SciView.create();
             } catch (Exception e) {
                 e.printStackTrace();
             }

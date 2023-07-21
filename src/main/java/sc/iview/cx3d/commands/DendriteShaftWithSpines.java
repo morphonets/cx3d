@@ -58,7 +58,7 @@ import sc.iview.cx3d.synapses.*;
 import sc.iview.cx3d.utilities.ConvertUtils;
 
 import static sc.iview.commands.MenuWeights.DEMO;
-import static sc.iview.commands.MenuWeights.DEMO_LINES;
+import static sc.iview.commands.MenuWeights.DEMO_BASIC_LINES;
 import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 
 /**
@@ -69,7 +69,7 @@ import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 @Plugin(type = Command.class, label = "Random Branching", menuRoot = "SciView", //
         menu = { @Menu(label = "Demo", weight = DEMO), //
                  @Menu(label = "Cx3D", weight = DEMO), //
-                 @Menu(label = "Random Branching", weight = DEMO_LINES) })
+                 @Menu(label = "Random Branching", weight = DEMO_BASIC_LINES) })
 public class DendriteShaftWithSpines implements Command {
 
 	@Parameter
@@ -139,7 +139,7 @@ public class DendriteShaftWithSpines implements Command {
 	public static void main( String... args ) {
 		SciView sciView = null;
 		try {
-			sciView = SciView.createSciView();
+			sciView = SciView.create();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
