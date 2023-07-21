@@ -1,6 +1,13 @@
 package sc.iview.cx3d;
 
-import graphics.scenery.*;
+import graphics.scenery.DefaultNode;
+import graphics.scenery.Group;
+import graphics.scenery.Node;
+import graphics.scenery.Sphere;
+import graphics.scenery.Icosphere;
+import graphics.scenery.attribute.material.DefaultMaterial;
+import graphics.scenery.attribute.material.Material;
+import graphics.scenery.primitives.Cylinder;
 import org.joml.Vector3f;
 import org.scijava.Context;
 import org.scijava.ui.UIService;
@@ -72,7 +79,7 @@ public class SciViewCX3D {
     }
 
     public void addNewChemical(Substance substance) {
-        chemicals.put(substance, new Node());
+        chemicals.put(substance, new DefaultNode());
     }
 
 
@@ -154,7 +161,7 @@ public class SciViewCX3D {
                 svCylinder.orientBetweenPoints(myNeuriteDistalEnd, myNeuriteProximalEnd, true, true);
             } else {
 			    svCylinder = Cylinder.betweenPoints(myNeuriteDistalEnd, myNeuriteProximalEnd, (float)aCylinder.getDiameter() * scaleFactor, 1f, 12);
-			    Material mat = new Material();
+			    Material mat = new DefaultMaterial();
                 Vector3f col = new Vector3f(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f);
 //			    mat.setAmbient(new GLVector(0.1f, 0f, 0f));
 //                mat.setDiffuse(new GLVector(0.8f, 0.7f, 0.7f));
@@ -178,8 +185,8 @@ public class SciViewCX3D {
                 svSphere.setVisible(true);
                 svSphere.setPosition(myNeuriteProximalEnd);
             } else {
-			    svSphere = new Sphere((float)aCylinder.getDiameter() * scaleFactor, 12);
-			    Material mat = new Material();
+			    svSphere = new Sphere((float)aCylinder.getDiameter() * scaleFactor, 12, false);
+			    Material mat = new DefaultMaterial();
 			    Vector3f col = new Vector3f(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f);
 //			    mat.setAmbient(new GLVector(0.1f, 0f, 0f));
 //                mat.setDiffuse(new GLVector(0.8f, 0.7f, 0.7f));
@@ -258,9 +265,9 @@ public class SciViewCX3D {
                 svSphere.setVisible(true);
                 svSphere.setPosition(mySomaMassLocation);
             } else {
-			    svSphere = new Icosphere(sphereRadius, 2);
+			    svSphere = new Icosphere(sphereRadius, 2, false);
 			    svSphere.setVisible(false);
-			    Material mat = new Material();
+			    Material mat = new DefaultMaterial();
 			    Vector3f col = new Vector3f(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f);
 			    mat.setAmbient(col);
                 mat.setDiffuse(col);

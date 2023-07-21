@@ -68,7 +68,7 @@ import java.awt.*;
 import java.io.IOException;
 
 import static sc.iview.commands.MenuWeights.DEMO;
-import static sc.iview.commands.MenuWeights.DEMO_LINES;
+import static sc.iview.commands.MenuWeights.DEMO_BASIC_LINES;
 import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 
 /**
@@ -79,7 +79,7 @@ import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 @Plugin(type = Command.class, label = "Random Branching", menuRoot = "SciView", //
         menu = { @Menu(label = "Demo", weight = DEMO), //
                  @Menu(label = "Cx3D", weight = DEMO), //
-                 @Menu(label = "Neurite Chemoattraction Img", weight = DEMO_LINES) })
+                 @Menu(label = "Neurite Chemoattraction Img", weight = DEMO_BASIC_LINES) })
 public class NeuriteChemoAttractionImg implements Command {
 
     @Parameter
@@ -99,37 +99,6 @@ public class NeuriteChemoAttractionImg implements Command {
 
     @Parameter(label = "Environment img")
     private RandomAccessibleInterval<RealType> img;
-
-    public static void main( String... args ) {
-        SceneryBase.xinitThreads();
-
-        System.setProperty( "scijava.log.level:sc.iview", "debug" );
-        Context context = new Context( ImageJService.class, SciJavaService.class, SCIFIOService.class, ThreadService.class);
-
-        //UIService ui = context.service( UIService.class );
-        //if( !ui.isVisible() ) ui.showUI();
-
-        IOService io = context.service(IOService.class);
-		Img<FloatType> img = null;
-		try {
-			img = (Img<FloatType>) io.open("/home/kharrington/git/cx3d-mvn/fourdots.tif");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		context.service(UIService.class).show(img);
-
-
-        // Currently Cx3D demos need to make their own SciView instance
-        SciViewService sciViewService = context.service( SciViewService.class );
-        try {
-            SciView sciView = sciViewService.getOrCreateActiveSciView();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-//        CommandService commandService = context.service(CommandService.class);
-//        commandService.run(NeuriteChemoAttractionImg.class,true,new Object[]{});
-    }
 
     @Override
     public void run() {
@@ -169,5 +138,36 @@ public class NeuriteChemoAttractionImg implements Command {
         recViewer.add(tree);
         recViewer.show();
 
+    }
+
+    public static void main( String... args ) {
+        SceneryBase.xinitThreads();
+
+        System.setProperty( "scijava.log.level:sc.iview", "debug" );
+        Context context = new Context( ImageJService.class, SciJavaService.class, SCIFIOService.class, ThreadService.class);
+
+        //UIService ui = context.service( UIService.class );
+        //if( !ui.isVisible() ) ui.showUI();
+
+        IOService io = context.service(IOService.class);
+        Img<FloatType> img = null;
+        try {
+            img = (Img<FloatType>) io.open("/home/kharrington/git/cx3d-mvn/fourdots.tif");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        context.service(UIService.class).show(img);
+
+
+        // Currently Cx3D demos need to make their own SciView instance
+        SciViewService sciViewService = context.service( SciViewService.class );
+        try {
+            SciView sciView = sciViewService.getOrCreateActiveSciView();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+//        CommandService commandService = context.service(CommandService.class);
+//        commandService.run(NeuriteChemoAttractionImg.class,true,new Object[]{});
     }
 }

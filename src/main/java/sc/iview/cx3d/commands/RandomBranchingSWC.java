@@ -64,8 +64,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static sc.iview.commands.MenuWeights.DEMO;
-import static sc.iview.commands.MenuWeights.DEMO_LINES;
+import static sc.iview.commands.MenuWeights.*;
 import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 
 /**
@@ -77,7 +76,7 @@ import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 		menuRoot = "SciView", //
         menu = { @Menu(label = "Demo", weight = DEMO), //
                  @Menu(label = "Cx3D", weight = DEMO), //
-                 @Menu(label = "Random Branching (SWC output)", weight = DEMO_LINES) })
+                 @Menu(label = "Random Branching (SWC output)", weight = DEMO_BASIC_LINES) })
 public class RandomBranchingSWC implements Command {
 
     @Parameter

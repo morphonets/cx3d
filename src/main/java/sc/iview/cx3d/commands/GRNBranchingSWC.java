@@ -67,7 +67,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import static sc.iview.commands.MenuWeights.DEMO;
-import static sc.iview.commands.MenuWeights.DEMO_LINES;
+import static sc.iview.commands.MenuWeights.DEMO_BASIC_LINES;
 import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 
 /**
@@ -78,7 +78,7 @@ import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 @Plugin(type = Command.class, label = "Genetically-regulated Branching (SWC output)", menuRoot = "SciView", //
         menu = { @Menu(label = "Demo", weight = DEMO), //
                  @Menu(label = "Cx3D", weight = DEMO), //
-                 @Menu(label = "Genetically-regulated Branching (SWC output)", weight = DEMO_LINES) })
+                 @Menu(label = "Genetically-regulated Branching (SWC output)", weight = DEMO_BASIC_LINES) })
 public class GRNBranchingSWC implements Command {
 
     @Parameter
@@ -266,7 +266,7 @@ public class GRNBranchingSWC implements Command {
         if( useSciview ) {
             SciView sciView = null;
             try {
-                sciView = SciView.createSciView();
+                sciView = SciView.create();
             } catch (Exception e) {
                 e.printStackTrace();
             }

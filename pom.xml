@@ -5,7 +5,7 @@
     <parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>29.0.0-beta-2</version>
+		<version>36.0.0</version>
 		<relativePath />
 	</parent>
 
@@ -104,23 +104,19 @@
 
 		<bigdataviewer-core.version>7.0.0</bigdataviewer-core.version>
 
-		<sciview.version>9a71de9</sciview.version>
-		<scenery.version>f55e46b</scenery.version>
-		<snt.version>2d8af5b6a0</snt.version>
+		<scenery.version>0.9.0</scenery.version>
+		<sciview.version>0.2.0-beta-9-SNAPSHOT</sciview.version>
+		<snt.version>4.2.1-SNAPSHOT</snt.version>
 
-		<joml.version>1.9.22</joml.version>
-		<kotlin.version>1.4-M1</kotlin.version>
+		<flatlaf.version>3.1.1</flatlaf.version>
+		<flatlaf-jide-oss.version>${flatlaf.version}</flatlaf-jide-oss.version>
+
+		<jogl.version>2.4.0</jogl.version>
 
 		<grneat.version>a322110ac4</grneat.version>
-		<cleargl.version>2.2.10</cleargl.version>
-		<lwjgl.version>3.2.3</lwjgl.version>
 	</properties>
 
 	<repositories>
-		<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
 		<repository>
 			<id>scijava.public</id>
 			<url>https://maven.scijava.org/content/groups/public</url>
@@ -133,6 +129,10 @@
             <artifactId>grneat</artifactId>
             <version>${grneat.version}</version>
         </dependency>
+		<dependency>
+			<groupId>com.formdev</groupId>
+			<artifactId>flatlaf</artifactId>
+		</dependency>
         <dependency>
             <groupId>sc.iview</groupId>
             <artifactId>sciview</artifactId>
@@ -142,7 +142,27 @@
 					<groupId>ch.qos.logback</groupId>
 					<artifactId>logback-classic</artifactId>
 				</exclusion>
-        	</exclusions>
+				<exclusion>
+					<groupId>org.apache.logging.log4j</groupId>
+					<artifactId>log4j-1.2-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.biojava</groupId>
+					<artifactId>biojava-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.biojava</groupId>
+					<artifactId>biojava-structure</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.biojava</groupId>
+					<artifactId>biojava-modfinder</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.jetbrains.kotlin</groupId>
+					<artifactId>kotlin-stdlib</artifactId>
+				</exclusion>
+			</exclusions>
         </dependency>
 		<dependency>
 			<groupId>org.morphonets</groupId>
