@@ -32,12 +32,15 @@ import static sc.iview.commands.MenuWeights.DEMO;
 import static sc.iview.commands.MenuWeights.DEMO_BASIC_LINES;
 import static sc.iview.cx3d.utilities.Matrix.randomNoise;
 
+import io.scif.SCIFIOService;
+import net.imagej.ImageJService;
 import org.scijava.Context;
 import org.scijava.command.Command;
 import org.scijava.command.CommandService;
 import org.scijava.plugin.Menu;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.service.SciJavaService;
 import org.scijava.util.Colors;
 
 import graphics.scenery.SceneryBase;
@@ -138,7 +141,8 @@ public class RandomBranchingDemo implements Command {
 	public static void main(String... args) {
 		SceneryBase.xinitThreads();
 		System.setProperty( "scijava.log.level:sc.iview", "debug" );
-		final ImageJ ij = new ImageJ();
+		Context context = new Context(ImageJService.class, SciJavaService.class, SCIFIOService.class, SNTService.class);
+		final ImageJ ij = new ImageJ(context);
 		ij.ui().showUI();
 		final CommandService cmdService = ij.context().getService(CommandService.class);
 		cmdService.run(RandomBranchingDemo.class, true);
